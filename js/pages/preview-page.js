@@ -4,6 +4,11 @@
  */
 const PreviewPage = {
   init(state) {
+    // ---- 目录选择 ----
+    const reportDirSelected = Vue.ref(false);
+    const reportDirName = Vue.ref('');
+    const fsApiSupported = Vue.ref(ReportFS.isSupported());
+
     // ---- 版本管理 ----
     const versionList = Vue.ref([]);
     const currentVersionFile = Vue.ref(null);
@@ -75,20 +80,18 @@ const PreviewPage = {
     /** 刷新版本列表 */
     async function refreshVersionList() {
       try {
-        var resp = await fetch('/api/reports');
-        var data = await resp.json();
-        // 按当前报告文件名过滤
+        var files = await ReportFS.listReports();
         var baseName = state.reportFileName || state.reportTopic || '';
         if (baseName) {
-          versionList.value = (data.files || []).filter(function (f) {
+          versionList.value = files.filter(function (f) {
             return f.baseName === baseName;
           });
         } else {
-          versionList.value = data.files || [];
+          versionList.value = files;
         }
       } catch (e) {
         console.error('获取版本列表失败：', e);
-        state.toast = { show: true, type: 'error', message: '获取版本列表失败，请确认服务已启动' };
+        state.toast = { show: true, type: 'error', message: '获取版本列表失败，请确认已选择目录' };
         setTimeout(function () { state.toast.show = false; }, 3000);
       }
     }
@@ -97,9 +100,8 @@ const PreviewPage = {
     async function loadVersion(filename) {
       loadingVersion.value = true;
       try {
-        var resp = await fetch('/api/reports/' + encodeURIComponent(filename));
-        if (!resp.ok) throw new Error('文件不存在');
-        var content = await resp.text();
+        var content = await ReportFS.readReport(filename);
+        if (content === null) throw new Error('文件不存在');
         htmlSource.value = content;
         currentVersionFile.value = filename;
         updatePreview(content);
@@ -115,21 +117,15 @@ const PreviewPage = {
     async function saveCurrentVersion() {
       var filename = currentVersionFile.value;
       if (!filename) {
-        // 新建文件
         var baseName = state.reportFileName || '新报告';
         filename = baseName + '_manual_' + Utils.timestamp() + '.html';
       }
       try {
-        var resp = await fetch('/api/reports/' + encodeURIComponent(filename), {
-          method: 'POST',
-          body: htmlSource.value
-        });
-        if (resp.ok) {
-          currentVersionFile.value = filename;
-          state.toast = { show: true, type: 'success', message: '已保存：' + filename };
-          setTimeout(function () { state.toast.show = false; }, 2000);
-          await refreshVersionList();
-        }
+        await ReportFS.saveReport(filename, htmlSource.value);
+        currentVersionFile.value = filename;
+        state.toast = { show: true, type: 'success', message: '已保存：' + filename };
+        setTimeout(function () { state.toast.show = false; }, 2000);
+        await refreshVersionList();
       } catch (e) {
         state.toast = { show: true, type: 'error', message: '保存失败：' + e.message };
         setTimeout(function () { state.toast.show = false; }, 3000);
@@ -274,9 +270,51 @@ const PreviewPage = {
     }
 
     // ================================================================
+    // 目录选择（File System Access API）
+    // ================================================================
+
+    /** 选择 / 更换 reports 目录 */
+    async function selectReportDir() {
+      var dirName = await ReportFS.selectDirectory();
+      if (dirName) {
+        reportDirName.value = dirName;
+        reportDirSelected.value = true;
+        await refreshVersionList();
+      }
+    }
+
+    /** 重新授权已有目录 */
+    async function reauthorizeDir() {
+      var ok = await ReportFS.requestPermission();
+      if (ok) {
+        reportDirName.value = ReportFS.dirHandle.name;
+        reportDirSelected.value = true;
+        await refreshVersionList();
+      }
+    }
+
+    /** 页面加载时尝试恢复目录句柄 */
+    async function initDirectory() {
+      if (!fsApiSupported.value) return;
+      var dirName = await ReportFS.restoreDirectory();
+      if (dirName) {
+        reportDirName.value = dirName;
+        reportDirSelected.value = true;
+        await refreshVersionList();
+      }
+    }
+
+    // ================================================================
     // 返回给主应用
     // ================================================================
     return {
+      reportDirSelected,
+      reportDirName,
+      fsApiSupported,
+      selectReportDir,
+      reauthorizeDir,
+      initDirectory,
+
       versionList,
       currentVersionFile,
       loadingVersion,

@@ -57,8 +57,8 @@
 
       function navClass(view) {
         return state.currentView === view
-          ? 'bg-blue-50 text-blue-700 font-semibold rounded-lg'
-          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg';
+          ? 'bg-blue-600 text-white font-semibold rounded-lg shadow-lg shadow-blue-600/30'
+          : 'text-slate-300 hover:bg-white/5 hover:text-white rounded-lg';
       }
 
       // ---- 获取全局资源 ----
@@ -78,6 +78,10 @@
         // 初始化检查器消息监听
         if (previewMethods.initInspectorListener) {
           previewMethods.initInspectorListener();
+        }
+        // 尝试恢复 reports 目录句柄
+        if (previewMethods.initDirectory) {
+          previewMethods.initDirectory();
         }
       });
 
