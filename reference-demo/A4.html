@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>货币基金月度收益归因分析服务方案</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #f3f6fb;
+      color: #1f2937;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    .page {
+      width: 297mm;
+      height: 210mm;
+      padding: 18mm 22mm;
+      page-break-after: always;
+      break-after: page;
+      background: #f8fafc;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .cover {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .cover .card {
+
+      color: #1f2937;
+    }
+
+    .dark {
+      background: #0f172a;
+      color: white;
+    }
+
+    h1 {
+      font-size: 40px;
+      line-height: 1.25;
+      margin: 0 0 20px;
+    }
+
+    h2 {
+      font-size: 30px;
+      margin: 0 0 14px;
+      color: #0f172a;
+    }
+
+    .dark h2,
+    .cover h1 {
+      color: white;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      color: #1e3a8a;
+      font-size: 18px;
+    }
+
+    .dark h3 {
+      color: #93c5fd;
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      font-size: 18px;
+      color: #64748b;
+      margin-bottom: 26px;
+    }
+
+    .cover .subtitle,
+    .dark .subtitle {
+      color: #cbd5e1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid.four {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      min-height: 120px;
+    }
+
+    .dark .card {
+      background: #1e293b;
+      color: white;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: #1e40af;
+      font-size: 12px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .dark .tag {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 22px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #dbeafe;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    .process {
+      border-left: 4px solid #2563eb;
+      background: white;
+      padding: 14px 18px;
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10mm;
+      left: 22mm;
+      right: 22mm;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .cover .footer,
+    .dark .footer {
+      color: #cbd5e1;
+    }
+
+    .big-number {
+      font-size: 48px;
+      color: #2563eb;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .dark .big-number {
+      color: #93c5fd;
+    }
+
+    @media print {
+      html, body {
+        width: 297mm;
+        height: 210mm;
+        background: white;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        margin: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Page 1 Cover -->
+  <section class="page cover">
+    <h1>货币基金月度收益归因分析<br>服务方案</h1>
+    <p class="subtitle">
+      面向公募基金管理人的货币基金产品，提供基于收益拆解、同类对比、风险识别与管理建议的月度绩效分析服务，
+      帮助投资、风控、产品及管理层更清晰地理解收益来源与组合管理效果。
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>收益来源拆解</h3>
+        <p>识别票息、杠杆、久期、交易/骑乘、费用调整等因素对收益的影响。</p>
+      </div>
+      <div class="card">
+        <h3>同类表现定位</h3>
+        <p>结合竞品货币基金表现，判断产品收益水平的相对位置。</p>
+      </div>
+      <div class="card">
+        <h3>管理建议输出</h3>
+        <p>形成月度复盘结论，为后续投资管理与风险控制提供支持。</p>
+      </div>
+    </div>
+
+
+  </section>
+
+  <!-- Page 2 Background -->
+  <section class="page">
+    <h2>一、服务背景与客户需求</h2>
+    <p class="subtitle">
+      保障货币基金收益稳健，需加强七日年化收益率归因、正偏离储备与释放、申赎与流动性应对三方面分析，考察投资团队与销售团队的协作表现。
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="big-number">01</div>
+        <h3>七日年化收益率归因</h3>
+        <p>识别收益提升或回落是由资产配置、杠杆套息、久期管理还是市场利率变化导致。</p>
+      </div>
+
+      <div class="card">
+        <div class="big-number">02</div>
+        <h3>正偏离储备与释放</h3>
+        <p>定期查看产品正偏离储备，回溯当月正偏离释放对收益率的稳定作用和规模刺激。</p>
+      </div>
+
+      <div class="card">
+        <div class="big-number">03</div>
+        <h3>申赎与流动性管理</h3>
+        <p>检视申赎造成的流动性压力和净值波动，回顾临时费用调整等应对手段的执行。</p>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top: 18px;">
+      <div class="card">
+        <h3>从“结果展示”到“原因解释”</h3>
+        <p>
+          月度归因分析不仅回答“收益是多少”，更回答“收益为什么如此形成”，
+          帮助管理人形成可持续的产品复盘机制。
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>从“单点指标”到“管理视角”</h3>
+        <p>
+          将收益指标、组合结构、市场利率、申赎变化与可得的支付宝竞品数据进行比较，
+          形成更接近投资管理实际的分析框架。
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>服务背景与客户需求</span>
+      <span>02</span>
+    </div>
+  </section>
+
+  <!-- Page 3 Performance Attribution -->
+  <section class="page">
+    <h2>二、月度分析框架</h2>
+    <p class="subtitle">
+      每月围绕产品表现、收益归因、风险观察、同类比较和后续展望五个模块形成收益归因分析；<br>
+      围绕正偏离释放、临时费用调整等具体操作形成管理操作效果复盘。
+    </p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 20%;">分析模块</th>
+          <th style="width: 48%;">主要内容</th>
+          <th style="width: 32%;">输出结果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>产品表现概览</td>
+          <td>统计区间、七日年化、万份收益均值、相对业绩基准及同类超额</td>
+          <td>本月整体表现判断</td>
+        </tr>
+        <tr>
+          <td>票息收益</td>
+          <td>分析同业存单、短债、存款等资产的加权收益率及收益贡献</td>
+          <td>判断基础收益来源</td>
+        </tr>
+        <tr>
+          <td>杠杆套息</td>
+          <td>比较资产收益率与回购融资成本，测算杠杆对收益的增强效果</td>
+          <td>判断杠杆使用效率</td>
+        </tr>
+        <tr>
+          <td>久期与期限结构</td>
+          <td>分析组合久期、剩余期限、期限利差及资金面变化</td>
+          <td>评估久期管理效果</td>
+        </tr>
+        <tr>
+          <td>交易与骑乘策略</td>
+          <td>分析波段交易、收益率曲线骑乘及资本利得贡献</td>
+          <td>识别主动管理收益</td>
+        </tr>
+        <tr>
+          <td>流动性与规模影响</td>
+          <td>分析申赎波动、现金备付、规模变化及费用摊薄影响</td>
+          <td>评估流动性安排影响</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2><br></h2>
+    
+    <div class="grid two" style="margin-top: 18px;">
+      <div class="card">
+        <h3>收益平滑成效</h3>
+        <p>
+          通过控制变量法，分析正偏离释放操作、临时费用调整在当月实际申赎影响下对产品收益的平滑效果。
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>规模刺激成效</h3>
+        <p>
+          通过时间序列分析，考察正偏离释放对产品规模是否起到显著的刺激效果。
+        </p>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <span>月度分析框架</span>
+      <span>04</span>
+    </div>
+  </section>
+  
+
+
+  <!-- Page 5 Report Structure -->
+  <section class="page">
+    <h2>三、报告交付结构</h2>
+    <p class="subtitle">
+      报告以“表现概览—归因拆解—操作复盘—同类比较—后续建议”为主线，兼顾数据、解释和管理建议。
+    </p>
+
+    <div class="process">
+      <h3>1. 产品表现概览</h3>
+      <p>展示基金七日年化、万份收益、规模变化、同类排名及相对业绩基准表现。</p>
+    </div>
+
+    <div class="process">
+      <h3>2. 收益核心归因</h3>
+      <p>按照五个维度量化和解释收益贡献，形成“主因—次因—扰动项”的归因结论。</p>
+    </div>
+
+    <div class="process">
+      <h3>3. 管理操作复盘</h3>
+      <p>复盘正偏离释放规模、时点、效果，帮助管理层讨论投资与销售部门的协调。</p>
+    </div>
+
+    <div class="process">
+      <h3>4. 同类产品比较</h3>
+      <p>在数据可得情况下，比较竞品货币基金收益、久期、杠杆和资产配置差异，解释相对表现。</p>
+    </div>
+
+    <div class="process">
+      <h3>5. 后续展望与建议</h3>
+      <p>结合产品正偏离储备、存单利率水平、回购成本和申赎趋势，提出下月管理关注事项。</p>
+    </div>
+
+    <div class="footer">
+      <span>报告交付结构</span>
+      <span>05</span>
+    </div>
+  </section>
+
+  <!-- Page 6 Team -->
+  <section class="page dark">
+    <h2>四、服务团队介绍</h2>
+    <p class="subtitle">
+      本次服务由容诚金融工程团队领衔，搭配资深资管行业高管与基金财务专业人员，能够充分理解货币基金管理逻辑、
+      估值规则、收益归因方法和报告交付要求。
+    </p>
+
+    <div class="grid four">
+      <div class="card">
+        <h3>项目负责人</h3>
+        <p>负责整体服务质量、客户沟通、分析框架设计及关键结论审核。</p>
+      </div>
+
+      <div class="card">
+        <h3>金融工程团队</h3>
+        <p>负责收益归因模型、久期分析、杠杆测算、曲线分析及数据处理逻辑。</p>
+      </div>
+
+      <div class="card">
+        <h3>资深行业高管</h3>
+        <p>负责市场环境解读、同类产品比较、投资策略复盘及管理建议形成。</p>
+      </div>
+
+      <div class="card">
+        <h3>基金财务团队</h3>
+        <p>负责报告口径一致性、数据合理性、结论审慎性及交付质量控制。</p>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top: 24px;">
+      <div class="card">
+        <h3>团队优势</h3>
+        <p>兼具估值、金融工程、基金产品分析和监管理解能力，能够将技术计算转化为管理层可理解的分析结论。</p>
+      </div>
+
+      <div class="card">
+        <h3>服务方式</h3>
+        <p>采用固定月度交付机制，并根据客户反馈持续优化报告口径、指标展示和管理建议深度。</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>服务团队介绍</span>
+      <span>06</span>
+    </div>
+  </section>
+
+  <!-- Page 7 Workflow -->
+  <section class="page">
+    <h2>五、月度服务流程</h2>
+    <p class="subtitle">
+      我们将以月度为周期，形成报告和分析底稿，服务于投研复盘、数据留痕和管理层沟通。
+    </p>
+
+    <div class="grid four">
+      <div class="card">
+        <span class="tag">T+1 至 T+3</span>
+        <h3>数据收集与整理</h3>
+        <p>获取组合持仓、收益表现、规模变化、申赎数据及市场利率数据。</p>
+      </div>
+
+      <div class="card">
+        <span class="tag">T+4 至 T+5</span>
+        <h3>归因测算与复核</h3>
+        <p>完成五维度收益归因测算，并对异常波动和关键假设进行复核。</p>
+      </div>
+
+      <div class="card">
+        <span class="tag">T+6 至 T+7</span>
+        <h3>报告撰写</h3>
+        <p>形成月度归因报告初稿，提炼核心结论、风险观察和管理建议。</p>
+      </div>
+
+      <div class="card">
+        <span class="tag">T+8 至 T+9</span>
+        <h3>沟通与定稿</h3>
+        <p>与客户沟通反馈，完成最终报告交付及管理层汇报材料。</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>流程特点</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>标准化</td>
+          <td>固定数据口径、固定归因维度、固定报告结构，便于持续追踪。</td>
+        </tr>
+        <tr>
+          <td>可复核</td>
+          <td>保留归因测算底稿，便于客户内部复核和口径沟通。</td>
+        </tr>
+        <tr>
+          <td>可扩展</td>
+          <td>可根据客户需求增加产品横向比较、专项分析或管理层摘要。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>月度服务流程</span>
+      <span>07</span>
+    </div>
+  </section>
+
+</body>
+</html>

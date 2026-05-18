@@ -1,0 +1,60 @@
+/**
+ * app.css - 工具 UI 定制样式
+ * 仅包含 Tailwind CSS 无法或不便表达的样式
+ * Tailwind 能做的都用 Tailwind 类名，这里只放极少量定制
+ */
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  width: 200px;
+  min-width: 200px;
+}
+
+/* ===== 代码编辑器容器 ===== */
+.editor-wrapper {
+  height: 300px;
+  overflow: hidden;
+}
+
+.editor-wrapper .cm-editor {
+  height: 100%;
+}
+
+.editor-wrapper .cm-editor .cm-scroller {
+  overflow: auto;
+}
+
+/* ===== iframe 预览 ===== */
+.preview-frame {
+  width: 100%;
+  min-height: 500px;
+  border: none;
+  background: #fff;
+}
+
+/* ===== 检查器高亮闪烁 ===== */
+.code-line-highlight {
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* ===== 空状态骨架缩略图容器 ===== */
+.thumbnail-preview {
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+/* ===== CodeMirror 暗色覆盖 ===== */
+.cm-editor {
+  font-size: 14px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+/* ===== toast 提示动画 ===== */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.toast-enter {
+  animation: toast-in 0.25s ease;
+}
