@@ -4,18 +4,15 @@
  */
 const PreviewPage = {
   init(state) {
-    // ---- 目录选择 ----
-    const reportDirSelected = Vue.ref(false);
-    const reportDirName = Vue.ref('');
-    const fsApiSupported = Vue.ref(ReportFS.isSupported());
-
-    // ---- 版本管理 ----
-    const versionList = Vue.ref([]);
+    // ---- 文件管理 ----
+    const fsApiSupported = Vue.ref(typeof window.showOpenFilePicker === 'function');
+    const versionList = Vue.ref([]);      // 已打开过的文件历史（仅内存）
     const currentVersionFile = Vue.ref(null);
     const loadingVersion = Vue.ref(false);
 
     // ---- HTML 编辑 ----
     const htmlSource = Vue.ref('');
+    var codeEditor = null;  // Fix 3: CodeMirror 实例引用
 
     // ---- 预览 ----
     const devicePreview = Vue.ref('desktop');
@@ -84,59 +81,117 @@ const PreviewPage = {
     // 版本管理
     // ================================================================
 
-    /** 刷新版本列表 */
-    async function refreshVersionList() {
+    /** 打开文件：浏览器原生文件选择器，选单个 .html */
+    async function openFile() {
       try {
-        var files = await ReportFS.listReports();
-        var baseName = state.reportFileName || state.reportTopic || '';
-        if (baseName) {
-          versionList.value = files.filter(function (f) {
-            return f.baseName === baseName;
-          });
-        } else {
-          versionList.value = files;
-        }
+        var handles = await window.showOpenFilePicker({
+          types: [{ description: 'HTML文件', accept: { 'text/html': ['.html', '.htm'] } }],
+          multiple: false
+        });
+        var fileHandle = handles[0];
+        var file = await fileHandle.getFile();
+        var content = await file.text();
+
+        var entry = {
+          name: fileHandle.name,
+          baseName: ReportFS._parseVersion(fileHandle.name).baseName,
+          version: ReportFS._parseVersion(fileHandle.name).version,
+          timestamp: ReportFS._parseVersion(fileHandle.name).timestamp,
+          size: file.size,
+          modified: ReportFS._formatDate(file.lastModified),
+          handle: fileHandle
+        };
+
+        // 去重插入到历史最前面
+        versionList.value = versionList.value.filter(function (f) { return f.name !== entry.name; });
+        versionList.value.unshift(entry);
+        if (versionList.value.length > 20) versionList.value.pop();
+
+        _applyLoadedContent(content, fileHandle.name);
       } catch (e) {
-        console.error('获取版本列表失败：', e);
-        state.toast = { show: true, type: 'error', message: '获取版本列表失败，请确认已选择目录' };
-        setTimeout(function () { state.toast.show = false; }, 3000);
+        if (e.name !== 'AbortError') {
+          console.error('打开文件失败：', e);
+          state.toast = { show: true, type: 'error', message: '打开失败：' + e.message };
+          setTimeout(function () { state.toast.show = false; }, 3000);
+        }
       }
     }
 
-    /** 加载某个版本 */
-    async function loadVersion(filename) {
+    /** 内部共用：应用已读取的内容到编辑器+预览 */
+    function _applyLoadedContent(content, filename) {
+      setEditorContent(content);
+      currentVersionFile.value = filename;
+      extractSections();
+      updatePreview(content);
+    }
+
+    /** 点击历史标签：尝试用存储的句柄直接读取 */
+    async function loadHistoryFile(entry) {
+      if (!entry || !entry.handle) {
+        // 降级：打开文件选择器
+        await openFile();
+        return;
+      }
       loadingVersion.value = true;
       try {
-        var content = await ReportFS.readReport(filename);
-        if (content === null) throw new Error('文件不存在');
-        htmlSource.value = content;
-        currentVersionFile.value = filename;
-        extractSections();
-        updatePreview(content);
+        // 检查权限，必要时请求
+        var perm = await entry.handle.queryPermission({ mode: 'read' });
+        if (perm !== 'granted') {
+          perm = await entry.handle.requestPermission({ mode: 'read' });
+        }
+        if (perm === 'granted') {
+          var file = await entry.handle.getFile();
+          var content = await file.text();
+          _applyLoadedContent(content, entry.name);
+        } else {
+          await openFile();
+        }
       } catch (e) {
-        state.toast = { show: true, type: 'error', message: '加载失败：' + e.message };
-        setTimeout(function () { state.toast.show = false; }, 3000);
+        console.error('历史文件加载失败，fallback 到选择器：', e);
+        await openFile();
       } finally {
         loadingVersion.value = false;
       }
     }
 
-    /** 保存当前编辑内容 */
+    /** 另存为新文件（始终创建新文件，不覆盖） */
     async function saveCurrentVersion() {
-      var filename = currentVersionFile.value;
-      if (!filename) {
-        var baseName = state.reportFileName || '新报告';
-        filename = baseName + '_manual_' + Utils.timestamp() + '.html';
-      }
       try {
-        await ReportFS.saveReport(filename, htmlSource.value);
-        currentVersionFile.value = filename;
-        state.toast = { show: true, type: 'success', message: '已保存：' + filename };
+        var baseName = state.reportFileName || '新报告';
+        var suggestedName = Utils.reportFilename(baseName, nextVersion());
+
+        var fileHandle = await window.showSaveFilePicker({
+          suggestedName: suggestedName,
+          types: [{ description: 'HTML文件', accept: { 'text/html': ['.html'] } }]
+        });
+
+        var writable = await fileHandle.createWritable();
+        await writable.write(codeEditor ? codeEditor.getValue() : htmlSource.value);
+        await writable.close();
+
+        currentVersionFile.value = fileHandle.name;
+
+        // 加入历史
+        var entry = {
+          name: fileHandle.name,
+          baseName: ReportFS._parseVersion(fileHandle.name).baseName,
+          version: ReportFS._parseVersion(fileHandle.name).version,
+          timestamp: ReportFS._parseVersion(fileHandle.name).timestamp,
+          size: new Blob([htmlSource.value]).size,
+          modified: new Date().toISOString().slice(0, 16).replace('T', ' ')
+        };
+        versionList.value = versionList.value.filter(function (f) { return f.name !== entry.name; });
+        versionList.value.unshift(entry);
+        if (versionList.value.length > 20) versionList.value.pop();
+
+        state.toast = { show: true, type: 'success', message: '已保存：' + fileHandle.name };
         setTimeout(function () { state.toast.show = false; }, 2000);
-        await refreshVersionList();
       } catch (e) {
-        state.toast = { show: true, type: 'error', message: '保存失败：' + e.message };
-        setTimeout(function () { state.toast.show = false; }, 3000);
+        if (e.name !== 'AbortError') {
+          console.error('保存失败：', e);
+          state.toast = { show: true, type: 'error', message: '保存失败：' + e.message };
+          setTimeout(function () { state.toast.show = false; }, 3000);
+        }
       }
     }
 
@@ -146,26 +201,88 @@ const PreviewPage = {
 
     /** 更新 iframe 预览 */
     function updatePreview(html) {
-      if (!html) return;
+      if (!html || !iframeRef.value) return;
+
+      // 保存滚动位置
+      var scrollY = 0;
+      try { scrollY = iframeRef.value.contentWindow.scrollY; } catch (e) {}
+
       // 注入检查器脚本
       var finalHTML = html;
       if (inspectorEnabled.value) {
         finalHTML = html.replace('</body>', INSPECTOR_SCRIPT + '</body>');
-        // 如果没有 </body>，追加到末尾
         if (finalHTML === html) {
           finalHTML = html + INSPECTOR_SCRIPT;
         }
       }
-      // 通过 ref 更新 iframe
-      if (iframeRef.value) {
-        iframeRef.value.srcdoc = finalHTML;
-      }
+
+      iframeRef.value.srcdoc = finalHTML;
+
+      // 恢复滚动位置
+      var targetY = scrollY;
+      setTimeout(function () {
+        try { iframeRef.value.contentWindow.scrollTo(0, targetY); } catch (e) {}
+      }, 80);
     }
+
+    // Fix 2: 检查器开关变化时自动重渲预览
+    Vue.watch(inspectorEnabled, function () {
+      if (htmlSource.value) updatePreview(htmlSource.value);
+    });
 
     /** 手动触发预览（textarea 编辑后） */
     function manualPreview() {
+      if (codeEditor) htmlSource.value = codeEditor.getValue();
       updatePreview(htmlSource.value);
       extractSections();
+    }
+
+    // Fix 3: CodeMirror 编辑器
+    /** 初始化 CodeMirror 实例 */
+    function initCodeEditor() {
+      var container = document.getElementById('html-editor');
+      if (!container || codeEditor) return;
+      // CodeMirror 可能尚未加载
+      if (typeof CodeMirror === 'undefined') return;
+
+      codeEditor = CodeMirror(container, {
+        value: htmlSource.value || '',
+        mode: 'htmlmixed',
+        theme: 'monokai',
+        lineNumbers: true,
+        lineWrapping: true,
+        tabSize: 2,
+        indentUnit: 2,
+        extraKeys: { 'Ctrl-S': function () { saveCurrentVersion(); } }
+      });
+
+      codeEditor.on('change', function () {
+        htmlSource.value = codeEditor.getValue();
+      });
+
+      // 初始加载已有内容
+      if (htmlSource.value) {
+        codeEditor.setValue(htmlSource.value);
+      }
+    }
+
+    /** 将外部内容同步到 CodeMirror */
+    function setEditorContent(content) {
+      htmlSource.value = content;
+      if (codeEditor) {
+        codeEditor.setValue(content);
+        codeEditor.refresh();
+      }
+    }
+
+    /** 滚动 CodeMirror 到指定行并高亮 */
+    function scrollEditorToLine(lineNum) {
+      if (!codeEditor) return;
+      codeEditor.scrollIntoView({ line: lineNum - 1, ch: 0 }, 60);
+      codeEditor.addLineClass(lineNum - 1, 'background', 'code-line-highlight');
+      setTimeout(function () {
+        codeEditor.removeLineClass(lineNum - 1, 'background', 'code-line-highlight');
+      }, 2000);
     }
 
     /** 图片src直接设置 */
@@ -190,23 +307,23 @@ const PreviewPage = {
 
     /** 在 HTML 源码中搜索并定位 */
     function searchAndLocate(searchText) {
-      var index = htmlSource.value.indexOf(searchText);
+      var source = codeEditor ? codeEditor.getValue() : htmlSource.value;
+      var index = source.indexOf(searchText);
       if (index === -1) return;
 
-      // 计算行号（简单方案：数换行符）
-      var before = htmlSource.value.substring(0, index);
+      var before = source.substring(0, index);
       var lineNum = (before.match(/\n/g) || []).length + 1;
       highlightedLine.value = lineNum;
 
-      // 滚动编辑器到对应行
-      var editor = document.getElementById('html-editor');
-      if (editor) {
-        // 简单估算：每行约 20px
-        var lineHeight = 20;
-        editor.scrollTop = Math.max(0, (lineNum - 5) * lineHeight);
+      if (codeEditor) {
+        scrollEditorToLine(lineNum);
+      } else {
+        var editor = document.getElementById('html-editor');
+        if (editor) {
+          editor.scrollTop = Math.max(0, (lineNum - 5) * 20);
+        }
       }
 
-      // 2 秒后取消高亮
       setTimeout(function () {
         highlightedLine.value = -1;
       }, 2000);
@@ -256,14 +373,27 @@ const PreviewPage = {
       var ver = nextVersion();
       var filename = Utils.reportFilename(baseName, ver);
 
-      regeneratedPrompt.value =
-        '请基于以下现有HTML代码进行修改。\n\n' +
-        '【修改要求】\n' + modifyInstruction.value + '\n\n' +
-        '【现有HTML代码】\n' + htmlSource.value + '\n\n' +
-        '【输出要求】\n' +
-        '1. 将修改后的HTML保存到文件：reports/' + filename + '\n' +
-        '2. 直接输出完整HTML代码，不要解释\n' +
-        '3. 保持原有的 data-cid 属性不变';
+      // Fix 4: 优先引用文件路径，不嵌入完整HTML
+      if (currentVersionFile.value) {
+        regeneratedPrompt.value =
+          '请读取文件 reports/' + currentVersionFile.value + '\n\n' +
+          '【修改要求】\n' + modifyInstruction.value + '\n\n' +
+          '【输出要求】\n' +
+          '0. 不要覆盖原文件，必须保存为带时间戳的新文件\n' +
+          '1. 将修改后的HTML保存为新版本：reports/' + filename + '\n' +
+          '2. 直接输出完整HTML代码，不要解释\n' +
+          '3. 保持原有的 data-cid 属性不变';
+      } else {
+        regeneratedPrompt.value =
+          '请基于以下HTML代码进行修改。\n\n' +
+          '【修改要求】\n' + modifyInstruction.value + '\n\n' +
+          '【当前HTML】\n' + htmlSource.value + '\n\n' +
+          '【输出要求】\n' +
+          '0. 不要覆盖原文件，必须保存为带时间戳的新文件\n' +
+          '1. 将修改后的HTML保存到文件：reports/' + filename + '\n' +
+          '2. 直接输出完整HTML代码，不要解释\n' +
+          '3. 保持原有的 data-cid 属性不变';
+      }
     }
 
     /** 复制修改指令 */
@@ -311,17 +441,34 @@ const PreviewPage = {
       var ver = nextVersion();
       var filename = Utils.reportFilename(baseName, ver);
 
-      fillSectionPrompt.value =
-        '请基于以下HTML，仅修改和填充「' + fillSection.value + '」这个区块的内容，保持其他所有部分完全不变。\n\n' +
-        '【当前HTML】\n' + htmlSource.value + '\n\n' +
-        '【对「' + fillSection.value + '」的填充要求】\n' + fillSectionContent.value + '\n\n' +
-        '【输出要求】\n' +
-        '1. 只修改包含 data-section="' + fillSection.value + '" 的容器内部内容\n' +
-        '2. 保持容器以外的所有HTML完全不变，其他区块一个字都不要改\n' +
-        '3. 使用与现有页面一致的组件风格和Tailwind类名\n' +
-        '4. 不确定的具体数字用 [XX] 或 [待确认] 标记，不要编造\n' +
-        '5. 将修改后的HTML保存到文件：reports/' + filename + '\n' +
-        '6. 直接输出完整HTML代码，不要解释';
+      // Fix 4: 优先引用文件路径，不嵌入完整HTML
+      if (currentVersionFile.value) {
+        fillSectionPrompt.value =
+          '请读取文件 reports/' + currentVersionFile.value + '\n\n' +
+          '仅修改和填充「' + fillSection.value + '」这个区块的内容，保持其他所有部分完全不变。\n\n' +
+          '【对「' + fillSection.value + '」的填充要求】\n' + fillSectionContent.value + '\n\n' +
+          '【输出要求】\n' +
+          '0. 不要覆盖原文件，必须保存为带时间戳的新文件\n' +
+          '1. 只修改包含 data-section="' + fillSection.value + '" 的容器内部内容\n' +
+          '2. 保持容器以外的所有HTML完全不变，其他区块一个字都不要改\n' +
+          '3. 使用与现有页面一致的组件风格和Tailwind类名\n' +
+          '4. 不确定的具体数字用 [XX] 或 [待确认] 标记，不要编造\n' +
+          '5. 将修改后的HTML保存为新版本：reports/' + filename + '\n' +
+          '6. 直接输出完整HTML代码，不要解释';
+      } else {
+        fillSectionPrompt.value =
+          '请基于以下HTML，仅修改和填充「' + fillSection.value + '」这个区块的内容，保持其他所有部分完全不变。\n\n' +
+          '【当前HTML】\n' + htmlSource.value + '\n\n' +
+          '【对「' + fillSection.value + '」的填充要求】\n' + fillSectionContent.value + '\n\n' +
+          '【输出要求】\n' +
+          '0. 不要覆盖原文件，必须保存为带时间戳的新文件\n' +
+          '1. 只修改包含 data-section="' + fillSection.value + '" 的容器内部内容\n' +
+          '2. 保持容器以外的所有HTML完全不变，其他区块一个字都不要改\n' +
+          '3. 使用与现有页面一致的组件风格和Tailwind类名\n' +
+          '4. 不确定的具体数字用 [XX] 或 [待确认] 标记，不要编造\n' +
+          '5. 将修改后的HTML保存到文件：reports/' + filename + '\n' +
+          '6. 直接输出完整HTML代码，不要解释';
+      }
     }
 
     /** 复制区块填充指令 */
@@ -337,59 +484,21 @@ const PreviewPage = {
     }
 
     // ================================================================
-    // 目录选择（File System Access API）
-    // ================================================================
-
-    /** 选择 / 更换 reports 目录 */
-    async function selectReportDir() {
-      var dirName = await ReportFS.selectDirectory();
-      if (dirName) {
-        reportDirName.value = dirName;
-        reportDirSelected.value = true;
-        await refreshVersionList();
-      }
-    }
-
-    /** 重新授权已有目录 */
-    async function reauthorizeDir() {
-      var ok = await ReportFS.requestPermission();
-      if (ok) {
-        reportDirName.value = ReportFS.dirHandle.name;
-        reportDirSelected.value = true;
-        await refreshVersionList();
-      }
-    }
-
-    /** 页面加载时尝试恢复目录句柄 */
-    async function initDirectory() {
-      if (!fsApiSupported.value) return;
-      var dirName = await ReportFS.restoreDirectory();
-      if (dirName) {
-        reportDirName.value = dirName;
-        reportDirSelected.value = true;
-        await refreshVersionList();
-      }
-    }
-
-    // ================================================================
     // 返回给主应用
     // ================================================================
     return {
-      reportDirSelected,
-      reportDirName,
       fsApiSupported,
-      selectReportDir,
-      reauthorizeDir,
-      initDirectory,
+      openFile,
+      saveCurrentVersion,
+      loadHistoryFile,
 
       versionList,
       currentVersionFile,
       loadingVersion,
-      refreshVersionList,
-      loadVersion,
-      saveCurrentVersion,
 
       htmlSource,
+      initCodeEditor,
+      setEditorContent,
       manualPreview,
 
       devicePreview,

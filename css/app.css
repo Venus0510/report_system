@@ -48,6 +48,36 @@
   transition: all 0.2s ease;
 }
 
+/* ===== CodeMirror 编辑器自定义 ===== */
+/* 侧边栏在左侧，CodeMirror 需要避开 */
+#html-editor .CodeMirror {
+  height: 100%;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* HTML 标签：醒目 */
+#html-editor .cm-tag {
+  color: #f78c6c;
+}
+
+/* 属性名和属性值：降低权重 */
+#html-editor .cm-attribute {
+  color: #b0b0b0;
+}
+
+#html-editor .cm-string {
+  color: #9ecbff;
+  opacity: 0.55;
+}
+
+/* 注释：更暗 */
+#html-editor .cm-comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
 /* ===== 检查器高亮闪烁 ===== */
 .code-line-highlight {
   background: rgba(59, 130, 246, 0.2) !important;

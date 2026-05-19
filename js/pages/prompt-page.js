@@ -310,6 +310,7 @@ const PromptPage = {
 
       // 输出要求
       prompt += '【输出要求】\n';
+      prompt += '0. 不要覆盖任何已有文件，必须保存为带时间戳的新文件\n';
       prompt += '1. 生成完整的HTML骨架，包含所有页面/区块的框架结构\n';
       prompt += '2. 每个页面/区块只放标题和占位标记如「[待补充]」或「[此处展示核心指标数据]」，不臆造具体内容\n';
       prompt += '3. 给每个页面/区块的顶层容器添加 data-section="区块名" 属性，这是后续填充的关键标识\n';
@@ -417,6 +418,7 @@ const PromptPage = {
       prompt += '数据源：\n' + dataSourceText + '\n\n';
 
       prompt += '【输出要求】\n';
+      prompt += '0. 不要覆盖任何已有文件，必须保存为带时间戳的新文件\n';
       prompt += '1. 将生成的完整HTML保存到文件：reports/' + reportFileName + '_v001_' + Utils.timestamp() + '.html\n';
       prompt += '2. 输出完整HTML文件，基于Tailwind CSS CDN（<script src="https://cdn.tailwindcss.com"></script>）\n';
       prompt += '3. 兼容桌面端、iPad、手机端响应式\n';

@@ -37,13 +37,9 @@
   // ================================================================
   var promptMethods = typeof PromptPage !== 'undefined' ? PromptPage.init(state) : {};
   var previewMethods = typeof PreviewPage !== 'undefined' ? PreviewPage.init(state) : {};
-  var exportMethods = typeof ExportPage !== 'undefined' ? ExportPage.init(state) : {};
   var layoutsGalleryMethods = typeof LayoutsGallery !== 'undefined' ? LayoutsGallery.init(state) : {};
   var stylesGalleryMethods = typeof StylesGallery !== 'undefined' ? StylesGallery.init(state) : {};
   var componentsGalleryMethods = typeof ComponentsGallery !== 'undefined' ? ComponentsGallery.init(state) : {};
-
-  // 暴露 previewMethods.updatePreview 给 export 页调用
-  window._previewMethods = previewMethods;
 
   // ================================================================
   // 创建 Vue 应用
@@ -79,9 +75,9 @@
         if (previewMethods.initInspectorListener) {
           previewMethods.initInspectorListener();
         }
-        // 尝试恢复 reports 目录句柄
-        if (previewMethods.initDirectory) {
-          previewMethods.initDirectory();
+        // 初始化 CodeMirror 编辑器
+        if (previewMethods.initCodeEditor) {
+          nextTick(function () { previewMethods.initCodeEditor(); });
         }
       });
 
@@ -105,7 +101,6 @@
         },
         promptMethods,
         previewMethods,
-        exportMethods,
         layoutsGalleryMethods,
         stylesGalleryMethods,
         componentsGalleryMethods
