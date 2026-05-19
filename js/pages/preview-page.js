@@ -28,6 +28,13 @@ const PreviewPage = {
     const regeneratedPrompt = Vue.ref('');
     const modifyCopySuccess = Vue.ref(false);
 
+    // ---- 逐模块填充 ----
+    const sections = Vue.ref([]);            // 从 HTML 中提取的 data-section 列表
+    const fillSection = Vue.ref('');         // 当前选中要填充的区块名
+    const fillSectionContent = Vue.ref('');  // 用户对该区块的内容描述
+    const fillSectionPrompt = Vue.ref('');   // 生成的区块填充 prompt
+    const fillCopySuccess = Vue.ref(false);
+
     // ---- iframe 内注入的检查器脚本 ----
     const INSPECTOR_SCRIPT = `
 <script>
@@ -104,6 +111,7 @@ const PreviewPage = {
         if (content === null) throw new Error('文件不存在');
         htmlSource.value = content;
         currentVersionFile.value = filename;
+        extractSections();
         updatePreview(content);
       } catch (e) {
         state.toast = { show: true, type: 'error', message: '加载失败：' + e.message };
@@ -157,6 +165,7 @@ const PreviewPage = {
     /** 手动触发预览（textarea 编辑后） */
     function manualPreview() {
       updatePreview(htmlSource.value);
+      extractSections();
     }
 
     /** 图片src直接设置 */
@@ -270,6 +279,64 @@ const PreviewPage = {
     }
 
     // ================================================================
+    // 逐模块填充
+    // ================================================================
+
+    /** 从当前 HTML 中提取所有 data-section 值 */
+    function extractSections() {
+      var html = htmlSource.value;
+      if (!html) { sections.value = []; return; }
+      var seen = {};
+      var result = [];
+      var regex = /data-section="([^"]+)"/g;
+      var match;
+      while ((match = regex.exec(html)) !== null) {
+        var name = match[1];
+        if (!seen[name]) {
+          seen[name] = true;
+          result.push(name);
+        }
+      }
+      sections.value = result;
+      if (result.length > 0 && !fillSection.value) {
+        fillSection.value = result[0];
+      }
+    }
+
+    /** 生成针对某个区块的填充提示词 */
+    function generateSectionFillPrompt() {
+      if (!fillSection.value || !fillSectionContent.value.trim()) return;
+
+      var baseName = state.reportFileName || '报告';
+      var ver = nextVersion();
+      var filename = Utils.reportFilename(baseName, ver);
+
+      fillSectionPrompt.value =
+        '请基于以下HTML，仅修改和填充「' + fillSection.value + '」这个区块的内容，保持其他所有部分完全不变。\n\n' +
+        '【当前HTML】\n' + htmlSource.value + '\n\n' +
+        '【对「' + fillSection.value + '」的填充要求】\n' + fillSectionContent.value + '\n\n' +
+        '【输出要求】\n' +
+        '1. 只修改包含 data-section="' + fillSection.value + '" 的容器内部内容\n' +
+        '2. 保持容器以外的所有HTML完全不变，其他区块一个字都不要改\n' +
+        '3. 使用与现有页面一致的组件风格和Tailwind类名\n' +
+        '4. 不确定的具体数字用 [XX] 或 [待确认] 标记，不要编造\n' +
+        '5. 将修改后的HTML保存到文件：reports/' + filename + '\n' +
+        '6. 直接输出完整HTML代码，不要解释';
+    }
+
+    /** 复制区块填充指令 */
+    async function copySectionFillPrompt() {
+      generateSectionFillPrompt();
+      if (!fillSectionPrompt.value) return;
+      var success = await Utils.copyToClipboard(fillSectionPrompt.value);
+      if (success) {
+        fillCopySuccess.value = true;
+        state.toast = { show: true, type: 'success', message: '填充指令已复制！请粘贴到 Claude 继续对话' };
+        setTimeout(function () { fillCopySuccess.value = false; state.toast.show = false; }, 3000);
+      }
+    }
+
+    // ================================================================
     // 目录选择（File System Access API）
     // ================================================================
 
@@ -338,7 +405,16 @@ const PreviewPage = {
       regeneratedPrompt,
       modifyCopySuccess,
       generateModifyPrompt,
-      copyModifyPrompt
+      copyModifyPrompt,
+
+      sections,
+      fillSection,
+      fillSectionContent,
+      fillSectionPrompt,
+      fillCopySuccess,
+      extractSections,
+      generateSectionFillPrompt,
+      copySectionFillPrompt
     };
   }
 };

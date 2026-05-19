@@ -23,6 +23,10 @@ const PromptPage = {
     const csvHeaders = Vue.ref([]);
     const jsonText = Vue.ref('');
 
+    // ---- 生成模式 ----
+    const generationMode = Vue.ref('skeleton'); // 'skeleton' | 'full'
+    const skeletonOutline = Vue.ref('');       // 骨架模式下的粗略大纲
+
     // ---- 提示词 ----
     const generatedPrompt = Vue.ref('');
     const copySuccess = Vue.ref(false);
@@ -238,6 +242,88 @@ const PromptPage = {
       var layout = currentLayout();
       var style = currentStyle();
       var configLabels = layoutLabels();
+      var reportFileName = state.reportFileName || state.reportTopic || '未命名报告';
+
+      if (generationMode.value === 'skeleton') {
+        generatedPrompt.value = generateSkeletonPrompt(layout, style, reportFileName);
+      } else {
+        generatedPrompt.value = generateFullPrompt(layout, style, configLabels, reportFileName);
+      }
+      expandedStep.value = -1;
+    }
+
+    /** 骨架模式：仅结构 + 风格 + 粗略大纲，不填具体内容 */
+    function generateSkeletonPrompt(layout, style, reportFileName) {
+      var prompt = '你是金融报告HTML生成专家。请基于以下信息生成一个HTML报告骨架——仅搭建框架结构，用占位符替代具体内容，不要编造数据或长篇文案。\n\n';
+
+      // 基本信息
+      prompt += '【报告基本信息】\n';
+      prompt += '- 报告文件名：' + reportFileName + '\n';
+      prompt += '- 报告主题：' + (state.reportTopic || '未指定') + '\n';
+      prompt += '- 受众：' + (state.audience || '未指定') + '\n';
+      prompt += '- 用途：' + (state.purpose || '未指定') + '\n\n';
+
+      // 版式要求
+      if (layout) {
+        prompt += '【版式要求】\n' + layout.aiPrompt.trim() + '\n\n';
+      }
+
+      // 风格要求
+      if (style) {
+        prompt += '【风格要求】\n' + style.aiPrompt.trim() + '\n\n';
+      }
+
+      // 收集选中组件（骨架模式从 editForm，完整模式从 state.pages，两者合并去重）
+      var allComponentIds = [];
+      function addIds(ids) {
+        if (!ids) return;
+        ids.forEach(function (cid) {
+          if (allComponentIds.indexOf(cid) < 0) allComponentIds.push(cid);
+        });
+      }
+      addIds(editForm.value.componentIds);
+      state.pages.forEach(function (page) { addIds(page.componentIds); });
+      if (allComponentIds.length > 0) {
+        var componentSnippets = allComponentIds.map(function (cid) {
+          var comp = COMPONENTS_BY_ID[cid];
+          if (!comp) return '';
+          return '组件：' + comp.name + '\n```html\n' + comp.htmlSnippet.trim() + '\n```';
+        }).join('\n\n');
+        prompt += '【组件参考 - 请严格参照以下组件的HTML结构和Tailwind类名风格】\n';
+        prompt += componentSnippets + '\n\n';
+      }
+
+      // 粗略大纲
+      var outlineText = skeletonOutline.value.trim();
+      if (!outlineText && state.pages.length > 0) {
+        // 兼容：如果用户在完整模式下配了页面但在骨架模式生成，用页面名拼一个大纲
+        outlineText = state.pages.map(function (p, i) { return (i + 1) + '. ' + p.name; }).join('\n');
+      }
+      prompt += '【大致结构】\n';
+      prompt += (outlineText || '请根据报告主题和受众，自行推断合理的报告结构') + '\n\n';
+
+      // 数据源提示
+      var hasData = state.globalDataSource && state.globalDataSource.type !== 'placeholder';
+      if (hasData) {
+        prompt += '【数据源】\n有数据文件已上传（骨架阶段暂不填充，仅占位标记）\n\n';
+      }
+
+      // 输出要求
+      prompt += '【输出要求】\n';
+      prompt += '1. 生成完整的HTML骨架，包含所有页面/区块的框架结构\n';
+      prompt += '2. 每个页面/区块只放标题和占位标记如「[待补充]」或「[此处展示核心指标数据]」，不臆造具体内容\n';
+      prompt += '3. 给每个页面/区块的顶层容器添加 data-section="区块名" 属性，这是后续填充的关键标识\n';
+      prompt += '4. 严格应用指定的版式和风格，让用户能直观感受最终效果\n';
+      prompt += '5. 如果指定了组件，按组件风格预留对应占位结构\n';
+      prompt += '6. 兼容桌面/iPad/手机响应式\n';
+      prompt += '7. 将HTML保存到文件：reports/' + reportFileName + '_v001_scaffold_' + Utils.timestamp() + '.html\n';
+      prompt += '8. 直接输出HTML代码，不要任何解释文字';
+
+      return prompt;
+    }
+
+    /** 完整模式：现有逻辑，一次性输出所有内容 */
+    function generateFullPrompt(layout, style, configLabels, reportFileName) {
 
       // 收集所有被选中的组件ID
       var allComponentIds = [];
@@ -261,7 +347,6 @@ const PromptPage = {
       // 拼装页面结构描述（根据版式不同）
       var pageStructureText = '';
       if (layout && layout.category === 'slide') {
-        // PPT 版式
         pageStructureText = '整体演讲大纲：\n' + (state.pptOutline || '（用户未填写）') + '\n\n';
         pageStructureText += '各节内容：\n';
         state.pages.forEach(function (p, i) {
@@ -273,13 +358,11 @@ const PromptPage = {
           pageStructureText += '  使用组件：' + getComponentNames(p.componentIds).join('、') + '\n\n';
         });
       } else if (layout && layout.category === 'web') {
-        // Web 版式
         state.pages.forEach(function (p, i) {
           pageStructureText += '区块' + (i + 1) + '（' + p.name + '）：' + (p.outline || '无') + '\n';
           pageStructureText += '  使用组件：' + getComponentNames(p.componentIds).join('、') + '\n\n';
         });
       } else {
-        // A4 版式（默认）
         state.pages.forEach(function (p, i) {
           pageStructureText += '第' + (i + 1) + '页：' + p.name + '\n';
           pageStructureText += '  内容概要：' + (p.outline || '无') + '\n';
@@ -299,11 +382,9 @@ const PromptPage = {
 
       // 拼装最终提示词
       var version = state.pages.length > 0 ? state.pages[0].id % 1000 : 1;
-      var reportFileName = state.reportFileName || state.reportTopic || '未命名报告';
 
       var prompt = '你是金融报告HTML生成专家。基于Tailwind CSS CDN生成专业HTML报告。\n\n';
 
-      // 内容扩展要求
       prompt += '【内容扩展要求】\n';
       prompt += '用户提供的内容大纲可能是简略、口语化的初步想法。你需要：\n';
       prompt += '1. 基于金融报告的专业语境，将粗略想法扩展为正式、结构化的报告文案\n';
@@ -313,23 +394,19 @@ const PromptPage = {
       prompt += '5. 不确定的具体数字用占位符如 [XX%] 或 [待填数据] 标记，不得编造\n';
       prompt += '6. 整体语气和措辞符合受众期待（高管汇报：精炼结论先行；培训：循序渐进；客户展示：亮点突出）\n\n';
 
-      // 版式要求
       if (layout) {
         prompt += layout.aiPrompt.trim() + '\n\n';
       }
 
-      // 风格要求
       if (style) {
         prompt += style.aiPrompt.trim() + '\n\n';
       }
 
-      // 组件参考
       if (componentSnippets) {
         prompt += '【组件参考 - 请严格参照以下组件的HTML结构和Tailwind类名风格】\n';
         prompt += componentSnippets + '\n\n';
       }
 
-      // 用户需求
       prompt += '【用户需求】\n';
       prompt += '- 报告文件名：' + reportFileName + '\n';
       prompt += '- 报告主题：' + (state.reportTopic || '未指定') + '\n';
@@ -339,7 +416,6 @@ const PromptPage = {
       prompt += pageStructureText || '（用户未配置页面结构）\n\n';
       prompt += '数据源：\n' + dataSourceText + '\n\n';
 
-      // 输出要求
       prompt += '【输出要求】\n';
       prompt += '1. 将生成的完整HTML保存到文件：reports/' + reportFileName + '_v001_' + Utils.timestamp() + '.html\n';
       prompt += '2. 输出完整HTML文件，基于Tailwind CSS CDN（<script src="https://cdn.tailwindcss.com"></script>）\n';
@@ -351,8 +427,7 @@ const PromptPage = {
       }
       prompt += '7. 不要输出解释，直接输出HTML代码\n';
 
-      generatedPrompt.value = prompt;
-      expandedStep.value = -1; // 折叠所有步骤，展示提示词
+      return prompt;
     }
 
     /** 复制提示词到剪贴板 */
@@ -406,6 +481,10 @@ const PromptPage = {
       handleCSVUpload,
       handleJSONInput,
       setPlaceholderData,
+
+      // 生成模式
+      generationMode,
+      skeletonOutline,
 
       // 提示词
       generatedPrompt,
