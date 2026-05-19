@@ -32,10 +32,11 @@ const PreviewPage = {
     const fillSectionPrompt = Vue.ref('');   // 生成的区块填充 prompt
     const fillCopySuccess = Vue.ref(false);
 
-    // ---- iframe 内注入的检查器脚本 ----
+    // ---- iframe 内注入的检查器脚本（__ACTIVE__ 会被替换为 true/false） ----
     const INSPECTOR_SCRIPT = `
 <script>
 (function() {
+  var __active = __ACTIVE__;
   var overlay = null;
   function createOverlay() {
     overlay = document.createElement('div');
@@ -44,7 +45,7 @@ const PreviewPage = {
     document.body.appendChild(overlay);
   }
   document.addEventListener('mouseover', function(e) {
-    if (e.target.id === '__inspector_overlay__') return;
+    if (!__active || e.target.id === '__inspector_overlay__') return;
     if (!overlay) createOverlay();
     var t = e.target;
     if (t === document.body || t === document.documentElement) {
@@ -62,6 +63,7 @@ const PreviewPage = {
     if (overlay) overlay.style.display = 'none';
   });
   document.addEventListener('click', function(e) {
+    if (!__active) return;
     e.preventDefault();
     e.stopPropagation();
     var t = e.target;
@@ -74,6 +76,12 @@ const PreviewPage = {
       data: { cid: cid, textSnippet: text, outerSnippet: outer }
     }, '*');
   }, true);
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'inspector-toggle') {
+      __active = e.data.active;
+      if (!__active && overlay) overlay.style.display = 'none';
+    }
+  });
 })();
 <\/script>`;
 
@@ -207,13 +215,11 @@ const PreviewPage = {
       var scrollY = 0;
       try { scrollY = iframeRef.value.contentWindow.scrollY; } catch (e) {}
 
-      // 注入检查器脚本
-      var finalHTML = html;
-      if (inspectorEnabled.value) {
-        finalHTML = html.replace('</body>', INSPECTOR_SCRIPT + '</body>');
-        if (finalHTML === html) {
-          finalHTML = html + INSPECTOR_SCRIPT;
-        }
+      // 始终注入检查器脚本（通过 postMessage 开关，避免 srcdoc 重建）
+      var inspectorTag = INSPECTOR_SCRIPT.replace('__ACTIVE__', inspectorEnabled.value ? 'true' : 'false');
+      var finalHTML = html.replace('</body>', inspectorTag + '</body>');
+      if (finalHTML === html) {
+        finalHTML = html + inspectorTag;
       }
 
       iframeRef.value.srcdoc = finalHTML;
@@ -225,9 +231,15 @@ const PreviewPage = {
       }, 80);
     }
 
-    // Fix 2: 检查器开关变化时自动重渲预览
-    Vue.watch(inspectorEnabled, function () {
-      if (htmlSource.value) updatePreview(htmlSource.value);
+    // 检查器开关：通过 postMessage 动态切换，不重建 srcdoc，保留 iframe 内部翻页/滚动状态
+    Vue.watch(inspectorEnabled, function (newVal) {
+      if (!iframeRef.value) return;
+      try {
+        iframeRef.value.contentWindow.postMessage({
+          type: 'inspector-toggle',
+          active: newVal
+        }, '*');
+      } catch (e) {}
     });
 
     /** 手动触发预览（textarea 编辑后） */
