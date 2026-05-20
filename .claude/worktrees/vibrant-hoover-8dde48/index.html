@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>金融报告 HTML 生成工具</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- 工具 UI 定制样式 -->
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="bg-slate-100 text-gray-800 min-h-screen">
+
+  <!-- ============================================================ -->
+  <!-- Vue 应用根节点                                                -->
+  <!-- ============================================================ -->
+  <div id="app">
+
+    <!-- ===== 顶部标题栏 ===== -->
+    <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 shadow-sm">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-600/20">R</div>
+        <div>
+          <div class="text-sm font-bold text-gray-900 leading-tight">金融报告 HTML 生成工具</div>
+          <div class="text-[10px] text-gray-400 leading-tight">AI-driven · Tailwind CSS · 所见即所得</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 ml-auto">
+        <span class="h-1.5 w-1.5 rounded-full bg-green-400 shadow-sm shadow-green-400/50"></span>
+        <span class="text-xs text-gray-400">系统就绪</span>
+      </div>
+    </header>
+
+    <!-- ===== 主体：侧边栏 + 内容区 ===== -->
+    <div class="flex" style="min-height: calc(100vh - 53px);">
+
+      <!-- ===== 左侧导航（暗色科技风） ===== -->
+      <nav class="sidebar py-5 flex flex-col gap-0.5">
+        <div class="px-5 py-1.5 nav-section">工作台</div>
+        <a href="#" @click.prevent="navigate('prompt')"
+           :class="navClass('prompt')" class="flex items-center gap-3 px-5 py-2.5 text-sm transition-all mx-2">
+          <span class="text-base">✏️</span> 生成提示词
+        </a>
+        <a href="#" @click.prevent="navigate('preview')"
+           :class="navClass('preview')" class="flex items-center gap-3 px-5 py-2.5 text-sm transition-all mx-2">
+          <span class="text-base">👁️</span> 预览修改
+        </a>
+
+        <div class="px-5 py-1.5 mt-5 nav-section">资源库</div>
+        <a href="#" @click.prevent="navigate('layouts-gallery')"
+           :class="navClass('layouts-gallery')" class="flex items-center gap-3 px-5 py-2.5 text-sm transition-all mx-2">
+          <span class="text-base">📐</span> 版式库
+        </a>
+        <a href="#" @click.prevent="navigate('styles-gallery')"
+           :class="navClass('styles-gallery')" class="flex items-center gap-3 px-5 py-2.5 text-sm transition-all mx-2">
+          <span class="text-base">🎨</span> 风格库
+        </a>
+        <a href="#" @click.prevent="navigate('components-gallery')"
+           :class="navClass('components-gallery')" class="flex items-center gap-3 px-5 py-2.5 text-sm transition-all mx-2">
+          <span class="text-base">🧩</span> 组件库
+        </a>
+      </nav>
+
+<!-- ================================================================ -->
+<!-- 右侧内容区                                                     -->
+<!-- ================================================================ -->
+<main class="flex-1 p-6 overflow-auto">
+
+<!-- ============================================================ -->
+<!-- 1. 组件库展示页（默认首页）                                     -->
+<!-- ============================================================ -->
+<div v-show="state.currentView === 'components-gallery'">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">🧩 组件库</h2>
+    <p class="text-sm text-gray-500 mt-1">以下是所有可用组件的预览和代码示例，AI 将参照这些组件风格生成 HTML。</p>
+  </div>
+
+  <div v-for="(comps, category) in componentsByCategory()" :key="category" class="mb-8">
+    <!-- 分类标题 -->
+    <h3 class="text-lg font-bold text-gray-700 mb-3 flex items-center gap-2">
+      <span>{{ categoryIcon(category) }}</span> {{ category }}
+      <span class="text-xs text-gray-400 font-normal">({{ comps.length }}个组件)</span>
+    </h3>
+
+    <!-- 组件卡片 grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div v-for="comp in comps" :key="comp.id"
+           class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <!-- 组件标题栏 -->
+        <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h4 class="font-semibold text-gray-900 text-sm">{{ comp.name }}</h4>
+            <p class="text-xs text-gray-500 mt-0.5">{{ comp.description }}</p>
+          </div>
+          <code class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{{ comp.id }}</code>
+        </div>
+
+        <!-- 缩略图 + 代码切换 -->
+        <div class="p-5">
+          <!-- 真实渲染的组件预览 -->
+          <div class="mb-3 rounded-lg overflow-hidden flex items-center justify-center"
+               style="min-height:160px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);">
+            <div class="transform scale-90 origin-center" v-html="comp.previewHTML"></div>
+          </div>
+
+          <!-- 展开/折叠按钮 -->
+          <button @click="toggleComponentCode(comp.id)"
+                  class="text-xs text-blue-600 hover:text-blue-800 font-medium mb-2 transition-colors">
+            {{ expandedComponents[comp.id] ? '▲ 收起代码' : '▼ 查看代码示例' }}
+          </button>
+
+          <!-- 代码块 -->
+          <div v-show="expandedComponents[comp.id]"
+               class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
+            <pre class="text-xs leading-relaxed font-mono whitespace-pre-wrap">{{ comp.htmlSnippet }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 空状态 -->
+  <div v-if="!allComponents().length" class="text-center py-20 text-gray-400">
+    <div class="text-4xl mb-3">📦</div>
+    <p>暂无组件数据，请检查组件库文件是否正确加载。</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 2. 版式库展示页                                                -->
+<!-- ============================================================ -->
+<div v-show="state.currentView === 'layouts-gallery'">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">📐 版式库</h2>
+    <p class="text-sm text-gray-500 mt-1">选择适合你报告场景的版式。点击「使用此版式」将跳转到提示词页并自动选中。</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-for="layout in allLayouts()" :key="layout.id"
+         class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+      <!-- 版式真实预览微缩图 -->
+      <div class="p-4 flex items-center justify-center border-b border-gray-100"
+           style="min-height:200px;background:linear-gradient(180deg,#f8fafc,#e2e8f0);">
+        <div v-html="layout.previewHTML"></div>
+      </div>
+
+      <!-- 信息区 -->
+      <div class="p-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">{{ layout.icon }}</span>
+          <h3 class="font-bold text-gray-900">{{ layout.name }}</h3>
+          <span :class="layoutCategoryClass(layout.category)"
+                class="text-xs px-2 py-0.5 rounded-full font-medium">
+            {{ layoutCategoryName(layout.category) }}
+          </span>
+        </div>
+        <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ layout.description }}</p>
+        <button @click="selectLayoutForPrompt(layout.id)"
+                class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+          使用此版式 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="!allLayouts().length" class="text-center py-20 text-gray-400">
+    <p>暂无版式数据，请检查版式库文件是否正确加载。</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3. 风格库展示页                                                -->
+<!-- ============================================================ -->
+<div v-show="state.currentView === 'styles-gallery'">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">🎨 风格库</h2>
+    <p class="text-sm text-gray-500 mt-1">为你的报告选择视觉风格。点击色块或按钮跳转到提示词页并自动选中。</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-for="style in allStyles()" :key="style.id"
+         class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+      <!-- 色块区 -->
+      <div class="p-4 flex gap-2 justify-center border-b border-gray-100 bg-gray-50">
+        <div v-for="(color, idx) in style.colorChips" :key="idx"
+             class="w-12 h-12 rounded-full border-2 border-white shadow-md"
+             :style="{ backgroundColor: color }"
+             :title="['主色', '背景', '文字', '强调'][idx]">
+        </div>
+      </div>
+      <!-- 风格真实渲染预览 -->
+      <div class="px-4 py-3 flex items-center justify-center bg-gray-50/50">
+        <div v-html="style.previewHTML"></div>
+      </div>
+
+      <!-- 信息区 -->
+      <div class="p-5">
+        <h3 class="font-bold text-gray-900 mb-1">{{ style.name }}</h3>
+        <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ style.description }}</p>
+        <button @click="selectStyleForPrompt(style.id)"
+                class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+          使用此风格 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="!allStyles().length" class="text-center py-20 text-gray-400">
+    <p>暂无风格数据，请检查风格库文件是否正确加载。</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4. 提示词生成页                                                -->
+<!-- ============================================================ -->
+<div v-show="state.currentView === 'prompt'">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">✏️ 生成提示词</h2>
+    <p class="text-sm text-gray-500 mt-1">按步骤填写信息，系统将自动拼装高质量的 AI 提示词。填完后复制到 Claude 即可生成报告。</p>
+  </div>
+
+  <div class="space-y-4">
+
+    <!-- ===== Step 1: 基本信息 ===== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <button @click="goToStep(expandedStep === 0 ? -1 : 0)"
+              class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">1</span>
+          <div>
+            <h3 class="font-bold text-gray-900">报告基本信息</h3>
+            <p class="text-xs text-gray-400">主题、受众、用途</p>
+          </div>
+        </div>
+        <span class="text-gray-400 text-sm">{{ expandedStep === 0 ? '▲' : '▼' }}</span>
+      </button>
+
+      <div v-show="expandedStep === 0" class="px-5 pb-5 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">报告文件名 <span class="text-red-400">*</span></label>
+          <input v-model="state.reportFileName" type="text" placeholder="如：货币基金月度报告"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <p class="text-xs text-gray-400 mt-1">用于命名生成的 HTML 文件：<code class="bg-gray-100 px-1 rounded">{{ state.reportFileName || '文件名' }}_v001.html</code></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">报告主题 <span class="text-red-400">*</span></label>
+          <textarea v-model="state.reportTopic" rows="2" placeholder="如：面向公募基金管理人的货币基金产品月度收益归因分析"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">受众</label>
+            <select v-model="state.audience" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="">请选择</option>
+              <option value="高管">高管汇报</option>
+              <option value="客户">客户展示</option>
+              <option value="内部">内部培训</option>
+              <option value="项目">项目交付</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">用途</label>
+            <select v-model="state.purpose" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="">请选择</option>
+              <option value="汇报展示">汇报展示</option>
+              <option value="培训材料">培训材料</option>
+              <option value="交付文档">交付文档</option>
+              <option value="方案建议书">方案建议书</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Step 2: 选择版式 ===== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <button @click="goToStep(expandedStep === 1 ? -1 : 1)"
+              class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">2</span>
+          <div>
+            <h3 class="font-bold text-gray-900">选择版式</h3>
+            <p class="text-xs text-gray-400">{{ currentLayout() ? '已选：' + currentLayout().name : 'A4横版 / PPT翻页 / 自由网页' }}</p>
+          </div>
+        </div>
+        <span class="text-gray-400 text-sm">{{ expandedStep === 1 ? '▲' : '▼' }}</span>
+      </button>
+
+      <div v-show="expandedStep === 1" class="px-5 pb-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div v-for="layout in allLayouts()" :key="layout.id" @click="selectLayout(layout.id)"
+               :class="state.selectedLayoutId === layout.id ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200'"
+               class="bg-white border rounded-xl p-4 cursor-pointer hover:shadow-md transition-all">
+            <div class="flex items-center justify-center mb-3 p-3 rounded-lg" style="background:linear-gradient(135deg,#f8fafc,#e2e8f0);" v-html="layout.previewHTML"></div>
+            <div class="text-center">
+              <span class="text-lg">{{ layout.icon }}</span>
+              <h4 class="font-semibold text-gray-900 text-sm mt-1">{{ layout.name }}</h4>
+              <p class="text-xs text-gray-500 mt-1">{{ layout.description.substring(0, 30) }}...</p>
+            </div>
+          </div>
+        </div>
+        <a href="#" @click.prevent="navigate('layouts-gallery')" class="inline-block text-sm text-blue-600 hover:text-blue-800 mt-3">
+          → 去版式库查看详细效果
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== Step 3: 选择风格 ===== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <button @click="goToStep(expandedStep === 2 ? -1 : 2)"
+              class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">3</span>
+          <div>
+            <h3 class="font-bold text-gray-900">选择风格</h3>
+            <p class="text-xs text-gray-400">{{ currentStyle() ? '已选：' + currentStyle().name : '商务蓝白 / 暗黑科技 / 清新简约' }}</p>
+          </div>
+        </div>
+        <span class="text-gray-400 text-sm">{{ expandedStep === 2 ? '▲' : '▼' }}</span>
+      </button>
+
+      <div v-show="expandedStep === 2" class="px-5 pb-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div v-for="style in allStyles()" :key="style.id" @click="selectStyle(style.id)"
+               :class="state.selectedStyleId === style.id ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200'"
+               class="bg-white border rounded-xl p-4 cursor-pointer hover:shadow-md transition-all">
+            <div class="flex gap-2 justify-center mb-3">
+              <div v-for="(color, idx) in style.colorChips" :key="idx"
+                   class="w-10 h-10 rounded-full border-2 border-white shadow"
+                   :style="{ backgroundColor: color }"></div>
+            </div>
+            <div class="text-center">
+              <h4 class="font-semibold text-gray-900 text-sm">{{ style.name }}</h4>
+              <p class="text-xs text-gray-500 mt-1">{{ style.description }}</p>
+            </div>
+          </div>
+        </div>
+        <a href="#" @click.prevent="navigate('styles-gallery')" class="inline-block text-sm text-blue-600 hover:text-blue-800 mt-3">
+          → 去风格库查看详细效果
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== Step 4: 内容结构（版式自适应） ===== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <button @click="goToStep(expandedStep === 3 ? -1 : 3)"
+              class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">4</span>
+          <div>
+            <h3 class="font-bold text-gray-900">内容结构</h3>
+            <p class="text-xs text-gray-400">
+              <template v-if="generationMode === 'skeleton'">骨架模式：填写大致结构大纲，AI 拆页搭框架</template>
+              <template v-else>{{ layoutLabels().itemLabel }}列表 · 已添加 {{ state.pages.length }} 个{{ layoutLabels().itemLabel }}</template>
+            </p>
+          </div>
+        </div>
+        <span class="text-gray-400 text-sm">{{ expandedStep === 3 ? '▲' : '▼' }}</span>
+      </button>
+
+      <div v-show="expandedStep === 3" class="px-5 pb-5">
+
+        <!-- ====== 骨架模式：粗略大纲 ====== -->
+        <div v-if="generationMode === 'skeleton'">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
+            🏗️ <b>骨架模式</b>：只需告诉 AI 报告的大致结构，它会搭好页面框架和占位符，不会编造内容。后续在「预览修改」页逐模块填充。
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">大致结构大纲</label>
+            <textarea v-model="skeletonOutline" rows="6"
+                      placeholder="用口语描述报告大致包含哪些部分即可，AI 会合理拆分页面结构。&#10;&#10;例如：&#10;1. 封面页&#10;2. 核心指标总览——放几个KPI卡片，规模、收益率、波动率&#10;3. 产品业绩分析——表格+趋势图&#10;4. 风险指标&#10;5. 总结与展望"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"></textarea>
+            <p class="text-xs text-gray-400 mt-1">越详细越好，AI 能更准确拆页。不确定的内容不写即可，AI 会标记为 [待补充]。</p>
+          </div>
+
+          <!-- 可选：快速选择组件 -->
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700 mb-2">使用组件（可选，点击选中）</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div v-for="comp in allComponents()" :key="comp.id" @click="toggleComponent(comp.id)"
+                   :class="editForm.componentIds.indexOf(comp.id) >= 0 ? 'ring-2 ring-blue-500 border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'"
+                   class="border rounded-lg p-2 cursor-pointer hover:shadow-sm transition-all text-center">
+                <div class="flex justify-center mb-1 transform scale-75 origin-top" v-html="comp.previewHTML"></div>
+                <span class="text-xs text-gray-700 font-medium">{{ comp.name }}</span>
+                <div v-if="editForm.componentIds.indexOf(comp.id) >= 0" class="text-xs text-blue-600 mt-0.5">✓ 已选</div>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">选中的组件代码会作为参考注入提示词，AI 按此风格生成骨架。</p>
+          </div>
+        </div>
+
+        <!-- ====== 完整模式：逐页/逐节配置 ====== -->
+        <div v-if="generationMode === 'full'">
+          <!-- 提示 -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
+            💡 用户写的内容大纲可以是口语化的初步想法，AI 会自动扩展为正式的报告文案。不确定的数据会自动标记为占位符 [待填]，不会编造。
+          </div>
+
+          <!-- PPT 版式：额外的大纲输入框 -->
+          <div v-if="currentLayout() && currentLayout().category === 'slide'" class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">整体演讲大纲</label>
+            <textarea v-model="state.pptOutline" rows="4"
+                      placeholder="如：本次培训约20分钟，分为三部分&#10;一、估值政策背景与监管要求（5分钟）&#10;二、五大资产类别估值方法论（10分钟）&#10;三、系统操作演示与Q&A（5分钟）"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"></textarea>
+            <p class="text-xs text-gray-400 mt-1">给 AI 一个全局脉络，帮助它合理分配每节 slide 数量。</p>
+          </div>
+
+          <!-- 已添加的页面/节/区块列表 -->
+          <div v-if="state.pages.length > 0" class="space-y-3 mb-4">
+            <div v-for="(page, idx) in state.pages" :key="page.id"
+                 class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h5 class="font-semibold text-gray-900 text-sm">
+                    第{{ idx + 1 }}{{ layoutLabels().itemLabel }}：{{ page.name || '未命名' }}
+                  </h5>
+                  <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ page.outline || '（无内容大纲）' }}</p>
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    <span v-for="cid in page.componentIds" :key="cid"
+                          class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      {{ getComponent(cid) ? getComponent(cid).name : cid }}
+                    </span>
+                    <span v-if="!page.componentIds || !page.componentIds.length" class="text-xs text-gray-400">未选择组件</span>
+                  </div>
+                  <span v-if="page.slideCountHint" class="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full mt-1 inline-block">
+                    📽️ 建议 {{ page.slideCountHint }} slide
+                  </span>
+                </div>
+                <div class="flex gap-1 ml-3 shrink-0">
+                  <button @click="moveItemUp(idx)" :disabled="idx === 0"
+                          class="text-xs text-gray-400 hover:text-gray-600 disabled:opacity-30 px-1">↑</button>
+                  <button @click="moveItemDown(idx)" :disabled="idx === state.pages.length - 1"
+                          class="text-xs text-gray-400 hover:text-gray-600 disabled:opacity-30 px-1">↓</button>
+                  <button @click="openEditItem(idx)" class="text-xs text-blue-500 hover:text-blue-700 px-1">✎</button>
+                  <button @click="removeItem(idx)" class="text-xs text-red-400 hover:text-red-600 px-1">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 添加按钮 -->
+          <button @click="openAddItem()"
+                  class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
+            {{ layoutLabels().addButton }}
+          </button>
+
+          <!-- 编辑/新增表单（覆盖层） -->
+          <div v-if="editingItem" class="mt-4 border-2 border-blue-300 rounded-xl p-5 bg-blue-50/30">
+            <h4 class="font-bold text-gray-900 mb-3">
+              {{ editingItemIndex >= 0 ? '编辑' + layoutLabels().itemLabel : '新增' + layoutLabels().itemLabel }}
+            </h4>
+
+            <!-- 名称 -->
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ layoutLabels().nameLabel }}</label>
+              <input v-model="editForm.name" type="text" :placeholder="'如：核心指标概览'"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- 内容大纲 -->
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ layoutLabels().outlineLabel }}</label>
+              <textarea v-model="editForm.outline" rows="3"
+                        placeholder="用口语描述即可，AI 会自动扩展为专业文案..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <!-- PPT slide 数 -->
+            <div v-if="currentLayout() && currentLayout().category === 'slide'" class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">建议拆为多少页 slide</label>
+              <select v-model="editForm.slideCountHint" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="AI自行判断">AI 自行判断</option>
+                <option value="1-2页">1-2 页</option>
+                <option value="2-3页">2-3 页</option>
+                <option value="3-5页">3-5 页</option>
+                <option value="5-8页">5-8 页</option>
+              </select>
+            </div>
+
+            <!-- 选择组件 -->
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-2">使用组件（可多选，点击缩略图选中）</label>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div v-for="comp in allComponents()" :key="comp.id" @click="toggleComponent(comp.id)"
+                     :class="editForm.componentIds.indexOf(comp.id) >= 0 ? 'ring-2 ring-blue-500 border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'"
+                     class="border rounded-lg p-2 cursor-pointer hover:shadow-sm transition-all text-center">
+                  <div class="flex justify-center mb-1 transform scale-75 origin-top" v-html="comp.previewHTML"></div>
+                  <span class="text-xs text-gray-700 font-medium">{{ comp.name }}</span>
+                  <div v-if="editForm.componentIds.indexOf(comp.id) >= 0" class="text-xs text-blue-600 mt-0.5">✓ 已选</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex gap-2">
+              <button @click="saveItem()"
+                      :disabled="!editForm.name.trim()"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                确认保存
+              </button>
+              <button @click="closeEditForm()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                取消
+              </button>
+            </div>
+          </div>
+        </div><!-- full mode -->
+      </div>
+    </div>
+
+    <!-- ===== Step 5: 数据来源 ===== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <button @click="goToStep(expandedStep === 4 ? -1 : 4)"
+              class="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">5</span>
+          <div>
+            <h3 class="font-bold text-gray-900">数据来源</h3>
+            <p class="text-xs text-gray-400">CSV上传 / JSON输入 / 占位数据</p>
+          </div>
+        </div>
+        <span class="text-gray-400 text-sm">{{ expandedStep === 4 ? '▲' : '▼' }}</span>
+      </button>
+
+      <div v-show="expandedStep === 4" class="px-5 pb-5 space-y-4">
+        <!-- CSV 上传 -->
+        <div>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="radio" value="csv" v-model="globalDataSourceType" class="text-blue-600">
+            <span class="text-sm font-medium text-gray-700">上传 CSV 文件</span>
+          </label>
+          <div v-show="globalDataSourceType === 'csv'" class="mt-2 ml-6">
+            <input type="file" accept=".csv" @change="handleCSVUpload"
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            <div v-if="csvHeaders.length" class="mt-2 text-xs text-gray-600 bg-gray-50 rounded p-2">
+              <span class="font-medium">列名：</span>{{ csvHeaders.join(', ') }}
+              <span class="text-gray-400 ml-2">（共 {{ csvPreview.length }} 行预览）</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- JSON 手写 -->
+        <div>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="radio" value="json" v-model="globalDataSourceType" class="text-blue-600">
+            <span class="text-sm font-medium text-gray-700">手写 JSON 数据</span>
+          </label>
+          <div v-show="globalDataSourceType === 'json'" class="mt-2 ml-6">
+            <textarea v-model="jsonText" rows="5" placeholder='{"kpi_revenue": 3.28, "kpi_scale": 800}'
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500"></textarea>
+            <button @click="handleJSONInput()" class="mt-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors">
+              校验 JSON 格式
+            </button>
+          </div>
+        </div>
+
+        <!-- 占位 -->
+        <div>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="radio" value="placeholder" v-model="globalDataSourceType" @change="setPlaceholderData()" class="text-blue-600">
+            <span class="text-sm font-medium text-gray-700">占位数据（AI 自动生成示例数据）</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 生成提示词按钮 ===== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <!-- 生成模式切换 -->
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <span class="text-xs text-gray-500 font-medium">生成模式：</span>
+        <label class="flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all"
+               :class="generationMode === 'skeleton' ? 'bg-blue-50 border border-blue-300 text-blue-700' : 'bg-gray-50 border border-gray-200 text-gray-500'">
+          <input type="radio" value="skeleton" v-model="generationMode" class="text-blue-600">
+          <span class="text-sm font-medium">🏗️ 生成骨架</span>
+          <span class="text-xs opacity-70">结构+风格，内容留空</span>
+        </label>
+        <label class="flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all"
+               :class="generationMode === 'full' ? 'bg-blue-50 border border-blue-300 text-blue-700' : 'bg-gray-50 border border-gray-200 text-gray-500'">
+          <input type="radio" value="full" v-model="generationMode" class="text-blue-600">
+          <span class="text-sm font-medium">📝 完整生成</span>
+          <span class="text-xs opacity-70">一次性输出全部内容</span>
+        </label>
+      </div>
+
+      <button @click="generatePrompt()"
+              :disabled="!state.reportFileName && !state.reportTopic"
+              class="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl text-base font-bold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg">
+        {{ generationMode === 'skeleton' ? '🏗️ 生成骨架提示词' : '🪄 生成提示词' }}
+      </button>
+      <p class="text-xs text-gray-400 text-center mt-2">
+        <template v-if="generationMode === 'skeleton'">骨架模式：先生成报告框架，再逐模块填充内容，避免一次性输出过大</template>
+        <template v-else>完整模式：适合内容较少的简单报告，一次性生成所有内容</template>
+      </p>
+    </div>
+
+    <!-- ===== 生成的提示词展示 ===== -->
+    <div v-if="generatedPrompt" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="font-bold text-gray-900 text-sm">📋 生成的提示词</h3>
+        <div class="flex items-center gap-2">
+          <span v-if="copySuccess" class="text-xs text-green-600 font-medium">✓ 已复制</span>
+          <button @click="copyPrompt()"
+                  class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
+            {{ copySuccess ? '✓ 已复制' : '📋 一键复制' }}
+          </button>
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-3 mb-4 text-sm text-orange-800 rounded-r-lg">
+          ⚠️ 在切换页面或刷新浏览器前，请确保已将提示词复制到剪贴板。
+        </div>
+        <pre class="bg-gray-900 text-green-300 rounded-lg p-4 text-xs leading-relaxed font-mono whitespace-pre-wrap overflow-x-auto max-h-96 overflow-y-auto">{{ generatedPrompt }}</pre>
+      </div>
+    </div>
+
+  </div>
+</div><!-- prompt page -->
+
+<!-- ============================================================ -->
+<!-- 5. 预览修改页（版本标签栏 + 双栏布局）                         -->
+<!-- ============================================================ -->
+<div v-show="state.currentView === 'preview'">
+
+  <!-- ===== 顶部操作栏：文件选择 + 版本标签 + 操作按钮 ===== -->
+  <div class="mb-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-bold text-gray-900">👁️ 预览 & 修改</h2>
+      <div class="flex items-center gap-2">
+        <button v-if="fsApiSupported" @click="openFile()" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-200 transition-colors">
+          📂 打开文件
+        </button>
+        <button v-if="fsApiSupported" @click="saveCurrentVersion()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors shadow-sm">
+          💾 另存为
+        </button>
+      </div>
+    </div>
+
+    <!-- 浏览器不支持 -->
+    <div v-if="!fsApiSupported" class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+      ⚠️ 当前浏览器不支持 File System Access API，请使用 <b>Chrome</b> 或 <b>Edge</b> 浏览器打开此工具。
+    </div>
+
+    <!-- 正常模式 -->
+    <div v-else>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-gray-500 font-medium shrink-0">文件历史</span>
+        <div v-if="versionList.length" class="flex items-center gap-1.5 flex-wrap">
+          <button v-for="ver in versionList" :key="ver.name" @click="loadHistoryFile(ver)"
+                  :class="currentVersionFile === ver.name ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'"
+                  class="version-tab border rounded-lg px-3 py-1.5 text-xs font-medium transition-all">
+            <span class="font-semibold">{{ ver.name.length > 28 ? ver.name.substring(0, 28) + '...' : ver.name }}</span>
+            <span class="text-gray-400 ml-1.5">{{ ver.modified }}</span>
+            <span class="text-gray-400 ml-1">· {{ Utils.formatFileSize(ver.size) }}</span>
+          </button>
+        </div>
+        <div v-else class="text-xs text-gray-400">
+          点击「📂 打开文件」选择 HTML 报告
+        </div>
+        <span v-if="loadingVersion" class="text-xs text-blue-600 ml-2">加载中...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 双栏布局：预览｜编辑器+修改 ===== -->
+  <div class="flex gap-4">
+
+    <!-- 左栏：预览 -->
+    <div class="flex-1 space-y-3">
+      <!-- 设备切换 + 检查器 -->
+      <div class="flex items-center gap-2">
+        <button @click="setDevice('desktop')" :class="devicePreview === 'desktop' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 border border-gray-200'"
+                class="px-3 py-1 rounded-lg text-xs font-medium transition-all">🖥 桌面</button>
+        <button @click="setDevice('ipad')" :class="devicePreview === 'ipad' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 border border-gray-200'"
+                class="px-3 py-1 rounded-lg text-xs font-medium transition-all">📱 iPad</button>
+        <button @click="setDevice('mobile')" :class="devicePreview === 'mobile' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 border border-gray-200'"
+                class="px-3 py-1 rounded-lg text-xs font-medium transition-all">📱 手机</button>
+        <label class="flex items-center gap-1.5 ml-3 text-xs text-gray-500 cursor-pointer bg-white border border-gray-200 px-3 py-1 rounded-lg">
+          <input type="checkbox" v-model="inspectorEnabled" class="rounded"> 元素检查器
+        </label>
+      </div>
+
+      <!-- iframe 预览 -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-4 py-2 bg-slate-50 border-b border-gray-100 text-xs text-gray-500 flex items-center gap-2">
+          <span class="font-medium text-gray-700">实时预览</span>
+          <span class="text-gray-300">·</span>
+          <span>hover 高亮 · click 定位代码</span>
+        </div>
+        <div class="overflow-auto bg-slate-200 flex justify-center p-2" :style="{ maxWidth: previewWidth() }">
+          <iframe id="preview-iframe" ref="iframeRef" class="preview-frame w-full bg-white"
+                  style="min-height:520px;border:none;" srcdoc="<html><body style='display:flex;align-items:center;justify-content:center;height:100vh;color:#999;font-family:sans-serif;'><p>请加载版本或粘贴 HTML 代码</p></body></html>">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- 修改意见 -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h4 class="text-sm font-bold text-gray-700 mb-2">✍️ 自由修改</h4>
+        <p class="text-xs text-gray-400 mb-2">通用的修改续写，不限定具体区块。适合整体调整、风格切换等场景。</p>
+        <div class="flex gap-2">
+          <textarea v-model="modifyInstruction" rows="2"
+                    placeholder="用自然语言描述要修改的内容..."
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+          <div class="flex flex-col gap-1.5 shrink-0">
+            <button @click="generateModifyPrompt()" :disabled="!modifyInstruction.trim()"
+                    class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-200 disabled:opacity-40 transition-colors whitespace-nowrap">
+              📝 生成指令
+            </button>
+            <button @click="copyModifyPrompt()" :disabled="!modifyInstruction.trim()"
+                    class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors whitespace-nowrap">
+              {{ modifyCopySuccess ? '✓ 已复制' : '📋 复制到剪贴板' }}
+            </button>
+          </div>
+        </div>
+        <div v-if="regeneratedPrompt" class="mt-2">
+          <pre class="bg-slate-900 text-green-300 rounded-lg p-3 text-xs leading-relaxed font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">{{ regeneratedPrompt }}</pre>
+        </div>
+      </div>
+
+      <!-- 逐模块填充（仅当HTML含 data-section 时显示） -->
+      <div v-if="sections.length > 0" class="bg-white rounded-xl shadow-sm border border-blue-200 p-4">
+        <h4 class="text-sm font-bold text-blue-700 mb-2">📝 逐模块填充</h4>
+        <p class="text-xs text-gray-400 mb-1">针对骨架中的某个区块单独填充内容，AI 只修改该区块，不影响其他部分。</p>
+        <p class="text-xs text-amber-600 bg-amber-50 rounded px-2 py-1 mb-3">💡 如果填充内容来自数据文件或会议纪要，建议先在 Claude 中分析提炼，再将结构化要点粘贴到此处。</p>
+
+        <!-- 区块选择 -->
+        <div class="mb-3">
+          <label class="block text-xs font-medium text-gray-600 mb-1.5">选择目标区块</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button v-for="sec in sections" :key="sec" @click="fillSection = sec"
+                    :class="fillSection === sec ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                    class="px-3 py-1 rounded-full text-xs font-medium transition-colors">
+              {{ sec }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 填充内容 -->
+        <div v-if="fillSection" class="mb-3">
+          <label class="block text-xs font-medium text-gray-600 mb-1">「{{ fillSection }}」的填充内容</label>
+          <textarea v-model="fillSectionContent" rows="3"
+                    :placeholder="'描述这个区块应该展示什么内容...\n\n例如：展示3个KPI卡片——基金规模856亿、七日年化2.15%、万份收益0.58；下方一个近30日收益走势折线图'"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="flex gap-2">
+          <button @click="generateSectionFillPrompt()" :disabled="!fillSection || !fillSectionContent.trim()"
+                  class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-200 disabled:opacity-40 transition-colors">
+            📝 生成填充指令
+          </button>
+          <button @click="copySectionFillPrompt()" :disabled="!fillSection || !fillSectionContent.trim()"
+                  class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors">
+            {{ fillCopySuccess ? '✓ 已复制' : '📋 复制到剪贴板' }}
+          </button>
+        </div>
+        <div v-if="fillSectionPrompt" class="mt-2">
+          <pre class="bg-slate-900 text-green-300 rounded-lg p-3 text-xs leading-relaxed font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">{{ fillSectionPrompt }}</pre>
+        </div>
+      </div>
+
+      <!-- 无区块提示 -->
+      <div v-else-if="htmlSource && sections.length === 0" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h4 class="text-sm font-bold text-gray-400 mb-1">📝 逐模块填充</h4>
+        <p class="text-xs text-gray-400">当前 HTML 中没有检测到 data-section 标识。请先生成骨架（骨架模式下 AI 会自动添加区块标识）。</p>
+      </div>
+    </div>
+
+    <!-- 右栏：HTML 编辑器 -->
+    <div class="w-[420px] shrink-0 space-y-3">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-4 py-2.5 bg-slate-50 border-b border-gray-100 flex items-center justify-between">
+          <span class="text-sm font-bold text-gray-700">HTML 源码</span>
+          <button @click="manualPreview()" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors shadow-sm">
+            ▶ 更新预览
+          </button>
+        </div>
+        <div id="html-editor" class="w-full border-0 outline-none"
+             style="height:calc(100vh - 300px);min-height:400px;"></div>
+      </div>
+    </div>
+
+  </div><!-- flex -->
+</div><!-- preview page -->
+
+
+</main>
+</div><!-- flex -->
+
+<!-- ===== Toast 提示 ===== -->
+<div v-if="state.toast.show" class="fixed top-4 right-4 z-50 toast-enter">
+  <div :class="state.toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
+       class="text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium max-w-md">
+    {{ state.toast.message }}
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<!-- ============================================================ -->
+<!-- 脚本：按依赖顺序加载                                          -->
+<!-- ============================================================ -->
+
+<!-- Vue 3 -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+<!-- Papa Parse (CSV 解析) -->
+<script src="https://unpkg.com/papaparse@5/papaparse.min.js"></script>
+
+<!-- CodeMirror 5 (HTML 语法高亮编辑器) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+
+<!-- 工具函数 -->
+<script src="js/utils.js"></script>
+
+<!-- 资源库：版式 -->
+<script src="js/resources/layouts/a4-landscape.js"></script>
+<script src="js/resources/layouts/ppt-slide.js"></script>
+<script src="js/resources/layouts/web-scroll.js"></script>
+<script src="js/resources/layouts/index.js"></script>
+
+<!-- 资源库：风格 -->
+<script src="js/resources/styles/business-blue.js"></script>
+<script src="js/resources/styles/dark-tech.js"></script>
+<script src="js/resources/styles/fresh-clean.js"></script>
+<script src="js/resources/styles/index.js"></script>
+
+<!-- 资源库：组件 -->
+<script src="js/resources/components/kpi-card/index.js"></script>
+<script src="js/resources/components/info-card/index.js"></script>
+<script src="js/resources/components/process-step/index.js"></script>
+<script src="js/resources/components/data-table/index.js"></script>
+<script src="js/resources/components/compare-card/index.js"></script>
+<script src="js/resources/components/team-grid/index.js"></script>
+<script src="js/resources/components/highlight-quote/index.js"></script>
+<script src="js/resources/components/big-number-row/index.js"></script>
+<script src="js/resources/components/index.js"></script>
+
+<!-- 页面模块 -->
+<script src="js/filesystem.js"></script>
+<script src="js/pages/layouts-gallery.js"></script>
+<script src="js/pages/styles-gallery.js"></script>
+<script src="js/pages/components-gallery.js"></script>
+<script src="js/pages/prompt-page.js"></script>
+<script src="js/pages/preview-page.js"></script>
+
+<!-- 主应用（最后加载） -->
+<script src="js/app.js"></script>
+
+</body>
+</html>
