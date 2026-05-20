@@ -1,0 +1,43 @@
+/* ============================================================
+ * 组件：大数字 Big Number
+ * 来源：A4.html
+ * 适用主题：theme-business
+ * ============================================================
+ * 类名：.big-number
+ *
+ * 使用示例：
+ *   <div class="big-number">01</div>
+ *   <div class="big-number accent">+12.5%</div>
+ */
+
+.big-number {
+  font-size: 48px;
+  color: var(--color-primary, #2563eb);
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+/* ── 深色模式 ── */
+.dark .big-number,
+.page.dark .big-number {
+  color: var(--color-primary-soft, #93c5fd);
+}
+
+/* ── 强调色变体 ── */
+.big-number.accent-green {
+  color: #16a34a;
+}
+
+.big-number.accent-red {
+  color: var(--color-danger, #b91c1c);
+}
+
+.big-number.accent-amber {
+  color: #d97706;
+}
+
+/* ── 小号变体 ── */
+.big-number.small {
+  font-size: 30px;
+}

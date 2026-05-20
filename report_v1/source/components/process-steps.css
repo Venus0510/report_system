@@ -1,0 +1,34 @@
+/* ============================================================
+ * 组件：流程步骤 Process Steps
+ * 来源：A4.html
+ * ============================================================
+ * 类名：.process
+ *
+ * 使用示例：
+ *   <div class="process">
+ *     <h3>1. 步骤标题</h3>
+ *     <p>步骤说明</p>
+ *   </div>
+ */
+
+.process {
+  border-left: 4px solid var(--color-primary, #2563eb);
+  background: var(--color-surface, #ffffff);
+  padding: 14px 18px;
+  border-radius: 0 12px 12px 0;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-process, 0 6px 18px rgba(15, 23, 42, 0.06));
+}
+
+.process h3 {
+  margin: 0 0 6px;
+  color: var(--color-primary-dark, #1e3a8a);
+  font-size: 16px;
+}
+
+.process p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary, #64748b);
+  line-height: 1.6;
+}

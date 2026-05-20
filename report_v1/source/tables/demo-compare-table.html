@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>同业对比表 | 资源库</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+  .table-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px;overflow:auto}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+
+  /* ═══ 对比表样式 ═══ */
+  .compare-table{width:100%;border-collapse:collapse;font-size:13px}
+  .compare-table th{background:#f1f5f9;color:#1e3a8a;font-weight:700;padding:12px 14px;text-align:center;border-bottom:2px solid #2563eb}
+  .compare-table th:first-child{text-align:left;border-bottom:2px solid transparent}
+  .compare-table td{padding:12px 14px;border-bottom:1px solid #e5e7eb;text-align:center}
+  .compare-table td:first-child{text-align:left;font-weight:700;color:#1f2937}
+  .compare-table .highlight{background:#fef3c7;font-weight:800}
+  .compare-table .target-col{background:rgba(15,118,110,0.06)}
+  .compare-table .best{color:#16a34a;font-weight:800}
+  .compare-table .worst{color:#b91c1c}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">table</span> 同业对比表 — 季度指标 vs 竞品</h2>
+<p class="meta">适用：同业横向对比、多维度排名、Highlight目标基金 | 来源：mmf_BI</p>
+
+<div class="table-container">
+<table class="compare-table">
+<thead>
+  <tr>
+    <th></th>
+    <th class="target-col">目标基金</th>
+    <th>竞品A</th><th>竞品B</th><th>竞品C</th><th>竞品D</th>
+    <th>同类均值</th><th>同类排名</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>七日年化</td>
+    <td class="target-col highlight">2.35%</td>
+    <td>2.18%</td><td>2.42%</td><td>1.95%</td><td>2.28%</td>
+    <td>2.08%</td><td class="best">12/85</td>
+  </tr>
+  <tr>
+    <td>管理费率</td>
+    <td class="target-col">0.15%</td>
+    <td>0.20%</td><td>0.15%</td><td>0.33%</td><td>0.25%</td>
+    <td>0.22%</td><td class="best">前20%</td>
+  </tr>
+  <tr>
+    <td>资产规模</td>
+    <td class="target-col">125.8亿</td>
+    <td>98.2亿</td><td>210.5亿</td><td>45.3亿</td><td>156.8亿</td>
+    <td>86.5亿</td><td>前15%</td>
+  </tr>
+  <tr>
+    <td>平均偏离度</td>
+    <td class="target-col">5.2bp</td>
+    <td>8.3bp</td><td>3.8bp</td><td>12.5bp</td><td>6.1bp</td>
+    <td>4.5bp</td><td>28/85</td>
+  </tr>
+  <tr>
+    <td>存款占比</td>
+    <td class="target-col">22.1%</td>
+    <td>28.5%</td><td>18.2%</td><td>35.8%</td><td>25.3%</td>
+    <td>24.5%</td><td>42/85</td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">&lt;!-- 同业对比表 --&gt;
+&lt;table class="compare-table"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th class="target-col"&gt;目标基金&lt;/th&gt;...&lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tr&gt;
+    &lt;td&gt;指标名&lt;/td&gt;
+    &lt;td class="target-col highlight"&gt;目标值&lt;/td&gt;
+    &lt;td&gt;竞品值&lt;/td&gt;
+    &lt;td class="best"&gt;优质排名&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+</div>
+
+</div>
+</body>
+</html>

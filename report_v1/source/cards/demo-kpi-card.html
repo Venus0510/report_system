@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KPI指标卡 | 资源库</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+
+  /* ═══ KPI指标卡样式 ═══ */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .kpi-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(15,23,42,.08);min-height:120px;display:flex;flex-direction:column;justify-content:space-between}
+  .kpi-card .kpi-label{font-size:12px;color:#64748b;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .kpi-card .kpi-value{font-size:36px;font-weight:700;line-height:1;color:#0f172a}
+  .kpi-card .kpi-change{font-size:13px;margin-top:6px;font-weight:600}
+  .kpi-change.up{color:#16a34a}
+  .kpi-change.down{color:#b91c1c}
+  .kpi-card .kpi-subtitle{font-size:11px;color:#94a3b8;margin-top:4px}
+
+  @media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">card</span> KPI指标卡 — 核心指标概览</h2>
+<p class="meta">适用：Dashboard概览、核心KPI展示、四指标一行 | 来源：mmf_BI + A4.html</p>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">七日年化收益率</div>
+    <div class="kpi-value">2.35%</div>
+    <div class="kpi-change up">▲ +0.17% vs 上月</div>
+    <div class="kpi-subtitle">同类均值 2.08% | 排名 12/85</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">基金规模</div>
+    <div class="kpi-value">125.8亿</div>
+    <div class="kpi-change down">▼ -2.4亿 vs 上月</div>
+    <div class="kpi-subtitle">同类均值 86.5亿 | 排名 8/85</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">平均偏离度</div>
+    <div class="kpi-value">5.2<span style="font-size:18px;color:#64748b">bp</span></div>
+    <div class="kpi-change down">▼ -1.6bp vs 上月</div>
+    <div class="kpi-subtitle">正偏离储备 18.5bp | 充裕</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">杠杆率</div>
+    <div class="kpi-value">1.08<span style="font-size:18px;color:#64748b">x</span></div>
+    <div class="kpi-change down">▼ -0.04x vs 上月</div>
+    <div class="kpi-subtitle">同业均值 1.05x</div>
+  </div>
+</div>
+
+<div class="code-block">&lt;!-- KPI指标卡：四列网格 --&gt;
+&lt;div class="kpi-grid"&gt;
+  &lt;div class="kpi-card"&gt;
+    &lt;div class="kpi-label"&gt;七日年化收益率&lt;/div&gt;
+    &lt;div class="kpi-value"&gt;2.35%&lt;/div&gt;
+    &lt;div class="kpi-change up"&gt;▲ +0.17% vs 上月&lt;/div&gt;
+    &lt;div class="kpi-subtitle"&gt;同类均值 2.08%&lt;/div&gt;
+  &lt;/div&gt;
+  ...
+&lt;/div&gt;
+</div>
+
+</div>
+</body>
+</html>

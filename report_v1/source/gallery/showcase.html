@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HTML资源库 — 金融估值团队</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   综合展示页 — 全量资源可视化对比
+   ═══════════════════════════════════════════ */
+
+:root {
+  --ink:#1f2937; --muted:#64748b; --line:#e5e7eb;
+  --bg:#f3f6fb; --surface:#fff;
+  --brand:#0f766e;
+  --max:1180px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+
+/* ── 顶部导航 ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:0 24px}
+.topbar-inner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+.topbar .brand{font-weight:800;font-size:16px;color:var(--brand)}
+.topbar nav{display:flex;gap:18px;font-size:13px}
+.topbar nav a{color:var(--muted);text-decoration:none;transition:color .15s}
+.topbar nav a:hover{color:var(--ink)}
+
+/* ── Hero ── */
+.hero{max-width:var(--max);margin:0 auto;padding:60px 24px 40px;text-align:center}
+.hero h1{font-size:clamp(28px,4vw,48px);margin:0 0 12px;color:#0f172a}
+.hero p{color:var(--muted);font-size:18px;max-width:680px;margin:0 auto}
+
+/* ── Section ── */
+section{max-width:var(--max);margin:0 auto;padding:40px 24px}
+section h2{font-size:24px;margin:0 0 8px;color:#0f172a;display:flex;align-items:center;gap:12px}
+section h2 .emoji{font-size:26px}
+section .sect-desc{color:var(--muted);margin-bottom:24px;font-size:14px}
+
+/* ── 主题色卡 ── */
+.theme-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.theme-card{border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)}
+.theme-preview{padding:32px 20px;text-align:center}
+.theme-preview .swatch{width:56px;height:56px;border-radius:16px;margin:0 auto 12px}
+.theme-preview h4{margin:0;font-size:14px}
+.theme-meta{background:#fff;padding:12px 16px;font-size:11px;color:var(--muted);border-top:1px solid var(--line)}
+.theme-meta code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px}
+
+/* ── 版式预览 ── */
+.layout-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.layout-card{background:var(--surface);border-radius:16px;padding:0;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)}
+.layout-visual{height:160px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:.04em}
+.layout-visual.a4{background:linear-gradient(135deg,#f8fafc,#e2e8f0);color:#1e3a8a;border:2px dashed #cbd5e1;margin:16px;border-radius:8px;aspect-ratio:297/210;height:auto;max-height:120px}
+.layout-visual.slide{background:linear-gradient(135deg,#fff,#eef8fc);color:#0096d6;border:2px dashed #bae6fd;margin:16px;border-radius:8px;height:120px}
+.layout-visual.web{background:linear-gradient(180deg,#0b1020,#121a33);color:#6ea8ff;border:2px dashed rgba(110,168,255,.3);margin:16px;border-radius:8px;height:120px}
+.layout-visual.bi{background:linear-gradient(135deg,#e8eef3,#f0fdfa);color:#0f766e;border:2px dashed #99f6e4;margin:16px;border-radius:8px;height:120px}
+.layout-info{padding:16px 20px;border-top:1px solid var(--line)}
+.layout-info h4{margin:0;font-size:15px}
+.layout-info .file{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── 组件列表 ── */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.comp-card{background:var(--surface);border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(15,23,42,.04);border:1px solid var(--line)}
+.comp-card h4{margin:0 0 4px;font-size:14px}
+.comp-card .comp-class{font-size:11px;color:var(--brand);font-family:monospace;margin-bottom:6px}
+.comp-card p{margin:0;font-size:12px;color:var(--muted)}
+
+/* ── 数量徽章 ── */
+.count-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:var(--brand);color:#fff;font-size:12px;font-weight:800}
+
+/* ── Footer ── */
+.footer-note{max-width:var(--max);margin:0 auto;padding:32px 24px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+
+@media(max-width:760px){
+  .theme-cards{grid-template-columns:repeat(2,1fr)}
+  .layout-cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ 顶栏 ═══════ -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">📊 HTML资源库 v1.0</div>
+    <nav>
+      <a href="#themes">主题</a>
+      <a href="#layouts">版式</a>
+      <a href="#charts">图表</a>
+      <a href="#tables">表格</a>
+      <a href="#cards">卡片</a>
+      <a href="#howto">使用</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════ 标题 ═══════ -->
+<div class="hero">
+  <h1>金融估值团队 · HTML资源库</h1>
+  <p>支撑业务同事通过AI生成HTML版PPT、BI看板和网页交付物。<br>从现有4个参考文件中提取，包含主题、版式、图表、表格、卡片五大类可复用资源。</p>
+</div>
+
+<!-- ═══════ 主题 ═══════ -->
+<section id="themes">
+  <h2><span class="emoji">🎨</span> 4套风格主题</h2>
+  <p class="sect-desc">每套主题定义为独立的CSS变量文件，改一行 &lt;link&gt; 即可切换整个页面的视觉风格。</p>
+  <div class="theme-cards">
+    <div class="theme-card">
+      <div class="theme-preview" style="background:#f8fafc">
+        <div class="swatch" style="background:linear-gradient(135deg,#2563eb,#93c5fd)"></div>
+        <h4 style="color:#1e3a8a">清爽商务风</h4>
+      </div>
+      <div class="theme-meta">
+        来源：A4.html<br>
+        文件：<code>theme-business.css</code><br>
+        适用：A4打印报告、正式文档
+      </div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-preview" style="background:#eef8fc">
+        <div class="swatch" style="background:linear-gradient(135deg,#0096d6,#123a63)"></div>
+        <h4 style="color:#123a63">企业蓝白风</h4>
+      </div>
+      <div class="theme-meta">
+        来源：ppt.html<br>
+        文件：<code>theme-corporate.css</code><br>
+        适用：全屏Slide演示、培训
+      </div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-preview" style="background:linear-gradient(180deg,#08101f,#0b1020)">
+        <div class="swatch" style="background:linear-gradient(135deg,#6ea8ff,#9ee8c8)"></div>
+        <h4 style="color:#f5f7fb">暗色科技风</h4>
+      </div>
+      <div class="theme-meta">
+        来源：web.html<br>
+        文件：<code>theme-darktech.css</code><br>
+        适用：Landing Page、对外展示
+      </div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-preview" style="background:linear-gradient(135deg,#e8eef3,#edf7f5)">
+        <div class="swatch" style="background:linear-gradient(135deg,#0f766e,#ccfbf1)"></div>
+        <h4 style="color:#0f766e">金融专业风</h4>
+      </div>
+      <div class="theme-meta">
+        来源：mmf_BI<br>
+        文件：<code>theme-finance.css</code><br>
+        适用：BI仪表盘、数据分析
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 版式 ═══════ -->
+<section id="layouts">
+  <h2><span class="emoji">📐</span> 4种版式骨架</h2>
+  <p class="sect-desc">每种版式提供 CSS + HTML骨架 + JS控制，覆盖业务常用的四种交付形态。</p>
+  <div class="layout-cards">
+    <div class="layout-card">
+      <div class="layout-visual a4">A4 横版打印 · 297×210mm</div>
+      <div class="layout-info">
+        <h4>A4 仿PPT打印</h4>
+        <div class="file">a4-landscape.css + .html</div>
+        <p style="font-size:13px;color:var(--muted);margin:4px 0 0">page-by-page 布局 | 封面/深色页变体 | 打印优化 | 网格系统</p>
+      </div>
+    </div>
+    <div class="layout-card">
+      <div class="layout-visual slide">全屏Slide · 100vw×100vh</div>
+      <div class="layout-info">
+        <h4>全屏Slide演示</h4>
+        <div class="file">slides-fullscreen.css + .html + base-slides.js</div>
+        <p style="font-size:13px;color:var(--muted);margin:4px 0 0">翻页导航 | 封面/目录/模块分隔页 | 键盘+触摸控制 | iframe嵌入</p>
+      </div>
+    </div>
+    <div class="layout-card">
+      <div class="layout-visual web">长滚动网页 · max-width 1180px</div>
+      <div class="layout-info">
+        <h4>长滚动网页</h4>
+        <div class="file">web-scrolling.css + .html</div>
+        <p style="font-size:13px;color:var(--muted);margin:4px 0 0">Sticky导航 | Hero区 | Section布局 | Landing Grid | CTA按钮</p>
+      </div>
+    </div>
+    <div class="layout-card">
+      <div class="layout-visual bi">BI仪表盘 · Slide + 工具栏</div>
+      <div class="layout-info">
+        <h4>BI仪表盘</h4>
+        <div class="file">bi-dashboard.css + .html</div>
+        <p style="font-size:13px;color:var(--muted);margin:4px 0 0">工具栏 | Slide列表 | 交互式图表 | 可编辑注释 | 打印导出</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 图表 ═══════ -->
+<section id="charts">
+  <h2><span class="emoji">📈</span> 6种金融图表 <span class="count-badge">6</span></h2>
+  <p class="sect-desc">每种图表一个独立HTML文件，含示例数据，可直接浏览器打开。依赖 Chart.js CDN。</p>
+
+  <div class="comp-grid" style="margin-bottom:24px">
+    <div class="comp-card"><h4>📉 折线趋势图</h4><div class="comp-class">demo-line.html</div><p>时间序列对比、收益趋势、同业vs目标</p></div>
+    <div class="comp-card"><h4>📊 柱状对比图</h4><div class="comp-class">demo-bar.html</div><p>多类别对比、Target vs Market</p></div>
+    <div class="comp-card"><h4>🎯 散点图</h4><div class="comp-class">demo-scatter.html</div><p>双指标定位、业绩vs风险分析</p></div>
+    <div class="comp-card"><h4>📊 直方分布图</h4><div class="comp-class">demo-histogram.html</div><p>分布分析、排名定位、highlight目标</p></div>
+    <div class="comp-card"><h4>🍩 环形占比图</h4><div class="comp-class">demo-doughnut.html</div><p>资产配置、债券分类、占比分析</p></div>
+    <div class="comp-card"><h4>📦 箱体偏离图</h4><div class="comp-class">demo-boxplot.html</div><p>min-Q1-median-Q3-max、偏离度分布</p></div>
+  </div>
+
+  <!-- 实时图表演示 -->
+  <p style="font-size:14px;color:var(--muted);margin-bottom:16px"><strong>实时预览：</strong>折线趋势图 & 环形占比图</p>
+  <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:16px">
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 24px rgba(15,23,42,.08)">
+      <div style="position:relative;height:300px"><canvas id="showcaseLine"></canvas></div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 24px rgba(15,23,42,.08)">
+      <div style="position:relative;height:300px"><canvas id="showcaseRing"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 表格 ═══════ -->
+<section id="tables">
+  <h2><span class="emoji">📋</span> 4种数据表格 <span class="count-badge">4</span></h2>
+  <p class="sect-desc">每种表格提供完整CSS + 示例HTML，含金融业务典型数据。</p>
+  <div class="comp-grid">
+    <div class="comp-card"><h4>📋 标准数据表</h4><div class="comp-class">demo-data-table.html</div><p>结构化数据、分析框架、多列</p></div>
+    <div class="comp-card"><h4>🎯 KPI汇总表</h4><div class="comp-class">demo-kpi-table.html</div><p>多指标汇总、月度对比、趋势标记</p></div>
+    <div class="comp-card"><h4>⚖️ 同业对比表</h4><div class="comp-class">demo-compare-table.html</div><p>横向对比、多维度排名、Highlight</p></div>
+    <div class="comp-card"><h4>🔍 归因分析表</h4><div class="comp-class">demo-attribution-table.html</div><p>收益拆解、贡献度、可视化贡献条</p></div>
+  </div>
+</section>
+
+<!-- ═══════ 卡片 ═══════ -->
+<section id="cards">
+  <h2><span class="emoji">🃏</span> 4种卡片组件 <span class="count-badge">4</span></h2>
+  <p class="sect-desc">通用UI卡片，覆盖KPI展示、概览介绍、数据统计、流程说明四种场景。</p>
+  <div class="comp-grid">
+    <div class="comp-card"><h4>💎 KPI指标卡</h4><div class="comp-class">demo-kpi-card.html</div><p>核心指标展示、涨跌标记、四列网格</p></div>
+    <div class="comp-card"><h4>🔢 概览卡</h4><div class="comp-class">demo-overview-card.html</div><p>大数字+标题+描述、左侧色条</p></div>
+    <div class="comp-card"><h4>📊 统计卡</h4><div class="comp-class">demo-stat-card.html</div><p>暗色主题数据展示、Landing Page</p></div>
+    <div class="comp-card"><h4>🔗 流程步骤卡</h4><div class="comp-class">demo-process-card.html</div><p>左侧色条+流程说明、含时间标签</p></div>
+  </div>
+</section>
+
+<!-- ═══════ 使用方式 ═══════ -->
+<section id="howto">
+  <h2><span class="emoji">🚀</span> 如何使用</h2>
+  <p class="sect-desc">业务同事通过AI生成HTML的标准流程。</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px">
+    <div class="comp-card" style="text-align:center;padding:24px">
+      <div style="font-size:32px;margin-bottom:8px">1️⃣</div>
+      <h4 style="margin-bottom:6px">选择版式 + 主题</h4>
+      <p style="color:var(--muted)">确定交付形态（A4/Slide/网页/BI）和视觉风格</p>
+    </div>
+    <div class="comp-card" style="text-align:center;padding:24px">
+      <div style="font-size:32px;margin-bottom:8px">2️⃣</div>
+      <h4 style="margin-bottom:6px">选择页面 + 组件</h4>
+      <p style="color:var(--muted)">每页用哪些图表、表格、卡片，从资源库中选取</p>
+    </div>
+    <div class="comp-card" style="text-align:center;padding:24px">
+      <div style="font-size:32px;margin-bottom:8px">3️⃣</div>
+      <h4 style="margin-bottom:6px">指定数据 + AI生成</h4>
+      <p style="color:var(--muted)">按规范准备CSV/JS数据，填入需求卡，AI拼装生成HTML</p>
+    </div>
+  </div>
+
+  <div style="background:#1e293b;color:#e2e8f0;border-radius:16px;padding:24px;font-size:13px;line-height:1.7;white-space:pre-wrap;font-family:monospace">┌─────────────────────────────────────────────────────┐
+│               <strong>业务需求输入卡</strong>（模板）                  │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  1. 版式选择：  □ A4横版  □ 全屏Slide  □ 网页  □ BI  │
+│  2. 美术风格：  □ 商务风  □ 企业风  □ 暗色  □ 金融  │
+│  3. 页面结构：                                         │
+│     - 封面页                                          │
+│     - 概览页（KPI卡×4 + 环形图×1）                     │
+│     - 趋势页（折线图×1 + 指标芯片×6）                   │
+│     - 对比页（柱状图×1 + 同业对比表×1）                 │
+│  4. 数据来源：  data/fund_info.csv                     │
+│                data/time_series.csv                    │
+│                data/allocation.csv                     │
+│                                                      │
+│  → 提交AI，自动拼装生成完整HTML                          │
+└─────────────────────────────────────────────────────┘</div>
+</section>
+
+<!-- ═══════ 文件全景 ═══════ -->
+<section>
+  <h2><span class="emoji">🗂️</span> 文件总览</h2>
+  <p class="sect-desc">source/ 目录下一共 <strong>28个文件</strong>，组织在6个子目录中。</p>
+
+  <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(15,23,42,.08);font-size:13px;line-height:1.8;font-family:monospace;white-space:pre-wrap;color:#1e293b">source/
+  ├── <strong style="color:#0f766e">tokens/</strong>      4套CSS设计Token（theme-*.css）
+  ├── <strong style="color:#0f766e">layouts/</strong>     4种版式（CSS + HTML骨架 + JS控制）
+  ├── <strong style="color:#0f766e">components/</strong>  9个独立CSS组件
+  ├── <strong style="color:#0f766e">charts/</strong>      3个JS封装 + 6个可运行demo
+  ├── <strong style="color:#0f766e">tables/</strong>      4个可运行table demo
+  ├── <strong style="color:#0f766e">cards/</strong>       4个可运行card demo
+  ├── <strong style="color:#0f766e">data/</strong>        数据加载器 + 规范文档 + 蓝图示例
+  └── <strong style="color:#0f766e">gallery/</strong>     本综合展示页</div>
+</section>
+
+<div class="footer-note">
+  💡 下一步：业务需求输入卡 → AI生成HTML → 大部分在业务端交付，数据标头与系统一致的进入Vue开发<br>
+  金融估值团队 · 2026年5月
+</div>
+
+<!-- ═══════ 实时图表脚本 ═══════ -->
+<script>
+// ---- 折线趋势图 ----
+(function(){
+  const dates=[], t=[], p=[];
+  const start=new Date('2025-10-01');
+  for(let i=0;i<60;i++){
+    const d=new Date(start); d.setDate(d.getDate()+i);
+    dates.push(d.toISOString().slice(0,10));
+    t.push(+(2.1+Math.sin(i/8)*.25+Math.sin(i/3)*.12+(Math.random()-.5)*.08).toFixed(2));
+    p.push(+(2.05+Math.sin(i/8)*.2+Math.sin(i/3)*.1+(Math.random()-.5)*.1).toFixed(2));
+  }
+  new Chart(document.getElementById('showcaseLine').getContext('2d'),{
+    type:'line',
+    data:{labels:dates,datasets:[
+      {label:'目标基金',data:t,borderColor:'#0f766e',backgroundColor:'rgba(15,118,110,0.06)',borderWidth:2.2,pointRadius:0,pointHoverRadius:5,tension:.3,fill:true},
+      {label:'同业均值',data:p,borderColor:'#94a3b8',borderWidth:1.5,borderDash:[6,3],pointRadius:0,tension:.3}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16,font:{size:11}}}},
+      scales:{
+        x:{grid:{display:false},ticks:{maxTicksLimit:8,color:'#94a3b8',font:{size:9}}},
+        y:{grid:{color:'rgba(226,232,240,0.6)'},ticks:{color:'#1f2937',font:{size:9},callback:v=>v.toFixed(2)+'%'}}
+      }
+    }
+  });
+})();
+
+// ---- 环形占比图 ----
+(function(){
+  new Chart(document.getElementById('showcaseRing').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:['同业存单','短期融资券','银行存款','ABS','其他'],
+      datasets:[{data:[35.2,28.5,22.1,8.8,5.4],backgroundColor:['#0f766e','#3b82f6','#f59e0b','#8b5cf6','#94a3b8'],borderColor:'#fff',borderWidth:2.5,borderRadius:4}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,font:{size:11}}}}
+    }
+  });
+})();
+</script>
+</body>
+</html>

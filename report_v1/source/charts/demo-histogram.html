@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>直方分布图 | 资源库</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .chart-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px}
+  .chart-box{position:relative;height:360px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">chart</span> 直方分布图 — 同类基金季度万份收益分布</h2>
+<p class="meta">适用：分布分析、排名定位、highlight目标基金位置 | 来源：mmf_BI</p>
+
+<div class="chart-container">
+  <div class="chart-box"><canvas id="histChart"></canvas></div>
+</div>
+
+<div class="code-block">&lt;!-- 直方图：原始数据 → 分bin → Chart.js bar --&gt;
+function buildHistogram(rawData, binCount) {
+  const min=Math.min(...rawData), max=Math.max(...rawData);
+  const binW=(max-min)/binCount;
+  const bins=Array(binCount).fill(0);
+  rawData.forEach(v=>{ const i=Math.min(Math.floor((v-min)/binW),binCount-1); bins[i]++; });
+  return { labels: bins.map((_,i)=>(min+i*binW).toFixed(1)+'-'+(min+(i+1)*binW).toFixed(1)), data:bins };
+}
+</div>
+
+</div>
+<script>
+// 生成120个基金的季度万份收益（正态分布 + 目标基金位置）
+function normalRandom(mean,std) {
+  let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random();
+  return mean+std*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+const rawData = [];
+for(let i=0;i<120;i++) rawData.push(+normalRandom(31,2.5).toFixed(1));
+const targetValue = 33.5; // 目标基金位置
+
+// 分10个bin
+const binCount=10, min=Math.min(...rawData), max=Math.max(...rawData);
+const binW=(max-min)/binCount;
+const bins=Array(binCount).fill(0);
+rawData.forEach(v=>{ const i=Math.min(Math.floor((v-min)/binW),binCount-1); bins[i]++; });
+const labels=bins.map((_,i)=>(min+i*binW).toFixed(1));
+
+// 找到target所在bin
+const targetBin=Math.min(Math.floor((targetValue-min)/binW),binCount-1);
+const bgColors=Array(binCount).fill('rgba(148,163,184,0.6)');
+const borderColors=Array(binCount).fill('transparent');
+bgColors[targetBin]='rgba(15,118,110,0.7)';
+borderColors[targetBin]='#0f766e';
+
+// Chart.js 4.x annotation via plugin (简化版：用text标注)
+// 此处用annotation plugin或直接用第二个dataset画竖线
+
+new Chart(document.getElementById('histChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      label:'基金数量', data:bins,
+      backgroundColor:bgColors, borderColor:borderColors,
+      borderWidth:2, borderRadius:4, borderSkipped:false
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      tooltip:{ backgroundColor:'rgba(15,23,42,0.92)',padding:12,cornerRadius:10 },
+      legend:{ display:false },
+      title:{ display:true, text:'◉ 绿色柱 = 目标基金所在区间（'+targetValue+'万份）', position:'bottom',
+        font:{size:12}, color:'#0f766e', padding:10 }
+    },
+    scales:{
+      x:{ title:{display:true,text:'季度万份收益总额',color:'#64748b'},
+        grid:{display:false}, ticks:{font:{size:9}} },
+      y:{ title:{display:true,text:'基金数量（只）',color:'#64748b'},
+        grid:{color:'rgba(226,232,240,0.6)'}, ticks:{stepSize:5,font:{size:10}} }
+    }
+  }
+});
+</script>
+</body>
+</html>

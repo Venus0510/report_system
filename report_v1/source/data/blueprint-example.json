@@ -1,0 +1,90 @@
+{
+  "project": {
+    "name": "示例：XX基金月度分析报告",
+    "language": "zh-CN",
+    "purpose": "作为AI生成HTML时的项目蓝图，描述页面结构、展品和数据源",
+    "template": "a4-landscape",
+    "theme": "theme-business"
+  },
+  "pages": [
+    {
+      "id": "page_cover",
+      "name": "封面",
+      "layout": "cover",
+      "content": [
+        {
+          "type": "heading",
+          "text": "XX基金月度收益归因分析报告"
+        },
+        {
+          "type": "subtitle",
+          "text": "2026年X月 | 估值团队"
+        }
+      ]
+    },
+    {
+      "id": "page_overview",
+      "name": "产品概览",
+      "layout": "grid-3",
+      "exhibits": [
+        {
+          "type": "card",
+          "title": "七日年化",
+          "content": "big-number",
+          "data": { "source": "summary.js", "field": "sevenDayYield", "format": "percent" }
+        },
+        {
+          "type": "card",
+          "title": "万份收益",
+          "content": "big-number",
+          "data": { "source": "summary.js", "field": "navReturn", "format": "number" }
+        },
+        {
+          "type": "card",
+          "title": "规模(AUM)",
+          "content": "big-number",
+          "data": { "source": "summary.js", "field": "totalAUM", "format": "amount" }
+        }
+      ]
+    },
+    {
+      "id": "page_allocation",
+      "name": "资产配置分析",
+      "layout": "grid-2",
+      "exhibits": [
+        {
+          "type": "chart-doughnut",
+          "title": "资产类别占比",
+          "data": { "source": "df_assets.csv", "filter": "asset_type", "field_label": "asset_type", "field_value": "allocation_pct" }
+        },
+        {
+          "type": "chart-doughnut",
+          "title": "债券类型占比",
+          "data": { "source": "df_bond.csv", "filter": "bond_type", "field_label": "bond_type", "field_value": "allocation_pct" }
+        }
+      ]
+    },
+    {
+      "id": "page_trend",
+      "name": "收益趋势",
+      "layout": "full",
+      "exhibits": [
+        {
+          "type": "chart-time-series",
+          "title": "七日年化收益率走势",
+          "data": {
+            "source": "target_time_series.csv",
+            "date_field": "date",
+            "main_series": [{ "field": "seven_day_yield", "label": "七日年化", "color": "#0f766e" }],
+            "peer_series": [{ "field": "peers_time_series.csv", "label": "同业均值", "color": "#94a3b8", "dashed": true }]
+          }
+        }
+      ]
+    }
+  ],
+  "data_sources": [
+    { "name": "基金信息", "file": "fund_info.csv" },
+    { "name": "日频表现", "files": ["target_time_series.csv", "peers_time_series.csv"] },
+    { "name": "资产配置", "files": ["df_assets.csv", "df_bond.csv"] }
+  ]
+}

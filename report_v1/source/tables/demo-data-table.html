@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>标准数据表 | 资源库</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+
+  /* ═══ 表格样式 ═══ */
+  .table-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:12px 14px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
+  th{background:#dbeafe;color:#1e3a8a;font-weight:700;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#f8fafc}
+
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">table</span> 标准数据表 — 月度收益归因分析框架</h2>
+<p class="meta">适用：结构化数据展示、分析框架、多列信息 | 来源：A4.html</p>
+
+<div class="table-container">
+<table>
+<thead>
+  <tr><th style="width:20%">分析模块</th><th style="width:48%">主要内容</th><th style="width:32%">输出结果</th></tr>
+</thead>
+<tbody>
+  <tr><td>产品表现概览</td><td>统计区间、七日年化、万份收益均值、相对业绩基准及同类超额</td><td>本月整体表现判断</td></tr>
+  <tr><td>票息收益</td><td>分析同业存单、短债、存款等资产的加权收益率及收益贡献</td><td>判断基础收益来源</td></tr>
+  <tr><td>杠杆套息</td><td>比较资产收益率与回购融资成本，测算杠杆对收益的增强效果</td><td>判断杠杆使用效率</td></tr>
+  <tr><td>久期与期限结构</td><td>分析组合久期、剩余期限、期限利差及资金面变化</td><td>评估久期管理效果</td></tr>
+  <tr><td>交易与骑乘策略</td><td>分析波段交易、收益率曲线骑乘及资本利得贡献</td><td>识别主动管理收益</td></tr>
+  <tr><td>流动性与规模影响</td><td>分析申赎波动、现金备付、规模变化及费用摊薄影响</td><td>评估流动性安排影响</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">&lt;!-- 标准表格，引入 table.css 即可 --&gt;
+&lt;link rel="stylesheet" href="components/table.css"&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;&lt;th&gt;列A&lt;/th&gt;&lt;th&gt;列B&lt;/th&gt;&lt;th&gt;列C&lt;/th&gt;&lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;td&gt;数据1&lt;/td&gt;&lt;td&gt;数据2&lt;/td&gt;&lt;td&gt;数据3&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</div>
+
+</div>
+</body>
+</html>

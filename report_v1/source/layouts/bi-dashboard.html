@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BI仪表盘骨架</title>
+  <!-- 1. 主题 -->
+  <link rel="stylesheet" href="../tokens/theme-finance.css" />
+  <!-- 2. 版式 -->
+  <link rel="stylesheet" href="bi-dashboard.css" />
+  <!-- 3. 组件 -->
+  <link rel="stylesheet" href="../components/card.css" />
+  <link rel="stylesheet" href="../components/metric-chip.css" />
+  <link rel="stylesheet" href="../components/table.css" />
+  <!-- 4. 外部依赖 -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- 5. 图表封装 -->
+  <script src="../charts/chart-wrapper.js"></script>
+  <script src="../charts/chart-doughnut.js"></script>
+  <script src="../charts/chart-time-series.js"></script>
+  <!-- 6. 数据加载器 -->
+  <script src="../data/data-loader.js"></script>
+</head>
+<body class="theme-finance bg-dot-grid">
+
+  <!-- ==================== 工具栏 ==================== -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <strong>BI仪表盘标题</strong>
+      <span class="hint">数据来源：CSV文件 | 点击图表可交互</span>
+    </div>
+    <div class="toolbar-actions">
+      <button onclick="reloadData()">刷新数据</button>
+      <button class="primary" onclick="printReport()">打印报告</button>
+    </div>
+  </div>
+
+  <!-- ==================== 工作区 ==================== -->
+  <div class="workspace">
+    <div class="deck" id="deck">
+
+      <!-- Slide 1: 示例slide -->
+      <section class="slide" id="slide1">
+        <div class="slide-header">
+          <div class="title-panel">
+            <div class="title-main">
+              <div class="title-top-row">
+                <select class="fund-title-select" id="fundSelect">
+                  <option>选择基金...</option>
+                </select>
+              </div>
+            </div>
+            <div class="title-comment" contenteditable="true"
+                 data-placeholder="点击此处添加备注或结论...">
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-inner">
+          <div class="main-panel">
+            <!-- 上方：时间序列图 -->
+            <div class="chart-card card">
+              <div class="panel-title-row">
+                <h3>时间序列分析</h3>
+              </div>
+              <div class="metric-grid" id="metricGrid">
+                <div class="metric-chip">
+                  <div class="metric-label">七日年化</div>
+                  <div class="metric-value">--</div>
+                </div>
+                <div class="metric-chip">
+                  <div class="metric-label">万份收益</div>
+                  <div class="metric-value">--</div>
+                </div>
+              </div>
+              <div class="chart-box">
+                <canvas id="mainChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 下方：左右配置面板 -->
+            <div class="allocation-panel">
+              <div class="ring-card card">
+                <div class="ring-toggle-row">
+                  <h3>配置分析</h3>
+                  <div class="ring-toggle-group">
+                    <button class="active">资产</button>
+                    <button>债券</button>
+                  </div>
+                </div>
+                <div class="ring-chart-box">
+                  <canvas id="ringChart"></canvas>
+                </div>
+              </div>
+              <div class="card blank-card">
+                <h3>归因分析</h3>
+                <p style="color:var(--color-muted)">待填充</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <span>数据日期：--</span>
+          <span>--</span>
+        </div>
+      </section>
+
+    </div><!-- /deck -->
+  </div><!-- /workspace -->
+
+  <script>
+  // ===== 基础初始化示例 =====
+
+  // 打印报告
+  function printReport() {
+    window.print();
+  }
+
+  // 刷新数据（示例函数，实际使用时替换为data-loader逻辑）
+  function reloadData() {
+    console.log('reloadData() - 请接入data-loader.js');
+  }
+  </script>
+</body>
+</html>

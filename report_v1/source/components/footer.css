@@ -1,0 +1,50 @@
+/* ============================================================
+ * 组件：页脚 Footer
+ * 适用主题：theme-business（A4），theme-finance（BI）
+ * ============================================================
+ * 类名：.footer（配合.page使用）
+ *
+ * 使用示例：
+ *   <div class="footer">
+ *     <span>章节名称</span>
+ *     <span>页码</span>
+ *   </div>
+ */
+
+/* ── A4页面页脚 ── */
+.page > .footer {
+  position: absolute;
+  bottom: 10mm;
+  left: 22mm;
+  right: 22mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+/* ── BI Slide页脚 ── */
+.slide .footer {
+  padding: 0 18mm 8mm;
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-muted, #64748b);
+  font-size: 11px;
+}
+
+/* ── 深色模式 ── */
+.page.cover > .footer,
+.page.dark > .footer {
+  color: var(--color-dark-muted, #cbd5e1);
+}
+
+/* ── 独立页脚组件 ── */
+.footer-standalone {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  font-size: 12px;
+  color: var(--color-text-muted, #94a3b8);
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}

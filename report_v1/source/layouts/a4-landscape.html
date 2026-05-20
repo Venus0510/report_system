@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>A4横版报告骨架</title>
+  <!-- 1. 引入主题 -->
+  <link rel="stylesheet" href="../tokens/theme-business.css" />
+  <!-- 2. 引入版式 -->
+  <link rel="stylesheet" href="a4-landscape.css" />
+  <!-- 3. 按需引入组件 -->
+  <link rel="stylesheet" href="../components/card.css" />
+  <link rel="stylesheet" href="../components/table.css" />
+  <link rel="stylesheet" href="../components/tag.css" />
+  <link rel="stylesheet" href="../components/big-number.css" />
+  <link rel="stylesheet" href="../components/process-steps.css" />
+  <link rel="stylesheet" href="../components/footer.css" />
+</head>
+<body>
+
+  <!-- ==================== 封面页 ==================== -->
+  <section class="page cover">
+    <!-- 在此填充封面内容 -->
+    <h1>报告标题</h1>
+    <p class="subtitle">副标题或摘要说明</p>
+  </section>
+
+  <!-- ==================== 内容页模板 ==================== -->
+  <section class="page">
+    <h2>一、章节标题</h2>
+    <p class="subtitle">章节副标题或引导语</p>
+
+    <!-- 三列卡片网格 -->
+    <div class="grid">
+      <div class="card">
+        <div class="big-number">01</div>
+        <h3>卡片标题</h3>
+        <p>卡片内容描述。</p>
+      </div>
+      <div class="card">
+        <div class="big-number">02</div>
+        <h3>卡片标题</h3>
+        <p>卡片内容描述。</p>
+      </div>
+      <div class="card">
+        <div class="big-number">03</div>
+        <h3>卡片标题</h3>
+        <p>卡片内容描述。</p>
+      </div>
+    </div>
+
+    <!-- 表格 -->
+    <table>
+      <thead>
+        <tr><th>列A</th><th>列B</th><th>列C</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>数据1</td><td>数据2</td><td>数据3</td></tr>
+        <tr><td>数据4</td><td>数据5</td><td>数据6</td></tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <span>章节名称</span>
+      <span>页码</span>
+    </div>
+  </section>
+
+  <!-- ==================== 深色页模板 ==================== -->
+  <section class="page dark">
+    <h2>深色章节标题</h2>
+    <p class="subtitle">适用于需要视觉区分的章节</p>
+
+    <div class="grid four">
+      <div class="card">
+        <h3>卡片A</h3>
+        <p>内容描述</p>
+      </div>
+      <div class="card">
+        <h3>卡片B</h3>
+        <p>内容描述</p>
+      </div>
+      <div class="card">
+        <h3>卡片C</h3>
+        <p>内容描述</p>
+      </div>
+      <div class="card">
+        <h3>卡片D</h3>
+        <p>内容描述</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>章节名称</span>
+      <span>页码</span>
+    </div>
+  </section>
+
+</body>
+</html>

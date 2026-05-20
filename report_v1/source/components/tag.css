@@ -1,0 +1,64 @@
+/* ============================================================
+ * 组件：标签 Tag
+ * 适用主题：theme-business（A4），可扩展
+ * ============================================================
+ * 类名：.tag
+ *
+ * 使用示例：
+ *   <span class="tag">标签文字</span>
+ *   <span class="tag tag-blue">蓝色标签</span>
+ */
+
+.tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 999px);
+  background: var(--color-primary-light, #dbeafe);
+  color: var(--color-primary-dark, #1e40af);
+  font-size: var(--font-size-caption, 12px);
+  margin-bottom: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── 深色模式 ── */
+.dark .tag,
+.page.dark .tag {
+  background: #1d4ed8;
+  color: white;
+}
+
+/* ── BI风格标签 ── */
+.tag-bi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-full, 999px);
+  padding: 7px 11px;
+  background: var(--color-brand-soft, #ccfbf1);
+  color: var(--color-brand, #0f766e);
+  font-size: var(--font-size-caption, 12px);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── 颜色变体 ── */
+.tag-blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag-green {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.tag-amber {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tag-red {
+  background: #fee2e2;
+  color: #991b1b;
+}

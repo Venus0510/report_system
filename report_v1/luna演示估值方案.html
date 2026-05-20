@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>估值方案 — 自研估值中台系统</title>
+<style>
+/* ============================================================
+   Inlined: theme-business.css + a4-landscape.css + components
+   ============================================================ */
+
+/* ── CSS变量（theme-business） ── */
+:root {
+  --color-primary:       #2563eb;
+  --color-primary-dark:  #1e3a8a;
+  --color-primary-light: #dbeafe;
+  --color-primary-soft:  #93c5fd;
+  --color-bg:            #f3f6fb;
+  --color-surface:       #ffffff;
+  --color-page:          #f8fafc;
+  --color-text:          #1f2937;
+  --color-text-secondary:#64748b;
+  --color-text-muted:    #94a3b8;
+  --color-border:        #e5e7eb;
+  --color-dark-bg:       #0f172a;
+  --color-dark-surface:  #1e293b;
+  --color-dark-text:     #ffffff;
+  --color-dark-muted:    #cbd5e1;
+  --color-accent-teal:   #0f766e;
+  --color-accent-green:  #16a34a;
+  --color-accent-amber:  #d97706;
+  --font-family:         "Microsoft YaHei", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+  --font-size-h1:        40px;
+  --font-size-h2:        30px;
+  --font-size-h3:        18px;
+  --font-size-body:      15px;
+  --font-size-small:     13px;
+  --font-size-caption:   12px;
+  --line-height-body:    1.7;
+  --line-height-heading: 1.25;
+  --spacing-xs:          4px;
+  --spacing-sm:          10px;
+  --spacing-md:          16px;
+  --spacing-lg:          24px;
+  --spacing-xl:          32px;
+  --radius-sm:           8px;
+  --radius-md:           12px;
+  --radius-lg:           14px;
+  --radius-full:         999px;
+  --shadow-card:         0 8px 24px rgba(15, 23, 42, 0.08);
+  --page-width:          297mm;
+  --page-height:         210mm;
+  --page-padding-v:      18mm;
+  --page-padding-h:      22mm;
+}
+
+/* ── a4-landscape.css 版式 ── */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+.page {
+  width: var(--page-width);
+  height: var(--page-height);
+  padding: var(--page-padding-v) var(--page-padding-h);
+  page-break-after: always;
+  break-after: page;
+  background: var(--color-page);
+  position: relative;
+  overflow: hidden;
+}
+.page:last-child { page-break-after: auto; break-after: auto; }
+
+/* 封面 */
+.page.cover {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 深色分隔页 */
+.page.dark {
+  background: var(--color-dark-bg);
+  color: white;
+}
+
+/* 标题 */
+h1 { font-size: 40px; line-height: 1.25; margin: 0 0 20px; }
+h2 { font-size: 30px; margin: 0 0 14px; color: var(--color-text); }
+.page.dark h2, .page.cover h1 { color: white; }
+h3 { margin: 0 0 10px; color: var(--color-primary-dark); font-size: 18px; }
+.page.dark h3 { color: var(--color-primary-soft); }
+p { font-size: 15px; line-height: 1.7; margin: 0; }
+
+.subtitle {
+  max-width: 850px;
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  margin-bottom: 26px;
+}
+.page.cover .subtitle, .page.dark .subtitle { color: var(--color-dark-muted); }
+
+/* 网格 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+.grid.two { grid-template-columns: repeat(2, 1fr); }
+.grid.four { grid-template-columns: repeat(4, 1fr); }
+
+/* 大数字 */
+.big-number {
+  font-size: 48px;
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.page.dark .big-number { color: var(--color-primary-soft); }
+.big-number.small { font-size: 30px; }
+
+/* 卡片（inlined card.css） */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+  min-height: 120px;
+}
+.page.dark .card {
+  background: var(--color-dark-surface);
+  color: var(--color-dark-text);
+}
+
+/* 表格（inlined table.css） */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: var(--color-surface);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: var(--font-size-small);
+}
+th, td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  font-size: 13px;
+}
+tr:last-child td { border-bottom: none; }
+
+/* 标签（inlined tag.css） */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tag-green { background: #d1fae5; color: #065f46; }
+.tag-amber { background: #fef3c7; color: #92400e; }
+
+/* 页脚（inlined footer.css） */
+.page > .footer {
+  position: absolute;
+  bottom: 10mm;
+  left: 22mm;
+  right: 22mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.page.cover > .footer,
+.page.dark > .footer { color: var(--color-dark-muted); }
+
+/* ── 目录页 ── */
+.page.toc-page { background: var(--color-surface); }
+.toc-title-block { margin-bottom: 40px; }
+.toc-list { list-style: none; padding: 0; margin: 0; }
+.toc-list li {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.toc-num {
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 20px; font-weight: 700;
+}
+.toc-text { font-size: 18px; font-weight: 600; color: var(--color-text); }
+.toc-desc { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+
+/* ── 模块分隔页 ── */
+.page.module-sep {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+  color: white;
+}
+.module-sep .module-kicker {
+  font-size: 14px; color: var(--color-primary-soft);
+  letter-spacing: 0.12em; margin-bottom: 12px; text-transform: uppercase;
+}
+.module-sep .module-num {
+  font-size: 80px; font-weight: 900; line-height: 0.95;
+  color: white; margin-bottom: 8px;
+}
+.module-sep .module-title {
+  font-size: 34px; font-weight: 700; color: var(--color-primary-soft); margin-bottom: 20px;
+}
+.module-sep .module-divider {
+  width: 80px; height: 4px; border-radius: 2px;
+  background: var(--color-primary); margin-bottom: 16px;
+}
+
+/* ── 概览卡（overview card，用于核心亮点页） ── */
+.overview-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-card);
+  min-height: 0;
+  border-top: 4px solid var(--color-primary);
+}
+.overview-card .oc-icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 22px; font-weight: 900;
+  margin-bottom: 14px;
+}
+.overview-card h3 { font-size: 17px; margin-bottom: 8px; }
+.overview-card p { font-size: 14px; line-height: 1.65; color: var(--color-text-secondary); }
+
+/* ── 迷你指标条（用于page 4 大规模数据展示） ── */
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+.metric-strip-item {
+  padding: 14px 18px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.metric-strip-item .ms-value {
+  font-size: 28px; font-weight: 900;
+  color: var(--color-primary-dark);
+  line-height: 1.15;
+}
+.metric-strip-item .ms-label {
+  font-size: 13px; color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+/* ── 架构表行样式加强 ── */
+.arch-table th:first-child { width: 12%; white-space: nowrap; }
+.arch-table td:first-child { font-weight: 700; color: var(--color-primary-dark); vertical-align: middle; }
+.arch-table td:nth-child(2) { font-size: 14px; line-height: 1.55; }
+
+/* ── 打印 ── */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  html, body {
+    width: var(--page-width);
+    height: var(--page-height);
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page { margin: 0; box-shadow: none; }
+}
+
+/* ── 屏幕预览 ── */
+@media screen {
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+  }
+  .page {
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 封面 ==================== -->
+<section class="page cover">
+  <span style="display:inline-block;padding:6px 16px;border:1px solid rgba(255,255,255,0.25);border-radius:999px;color:var(--color-primary-soft);font-size:13px;margin-bottom:32px;width:fit-content;">集团级估值解决方案</span>
+  <h1>估值方案</h1>
+  <p class="subtitle">luna演示 — 专业、高效、合规的自研估值中台系统</p>
+  <div style="margin-top:28px;font-size:15px;color:var(--color-dark-muted);display:flex;gap:32px;">
+    <span>估值团队</span>
+  </div>
+  <div class="footer"><span>估值方案</span><span>封面</span></div>
+</section>
+
+<!-- ==================== 目录 ==================== -->
+<section class="page toc-page">
+  <div class="toc-title-block">
+    <span class="tag" style="margin-bottom:16px;">CONTENTS</span>
+    <h2 style="font-size:34px;">目录</h2>
+  </div>
+  <ol class="toc-list">
+    <li>
+      <div class="toc-num">01</div>
+      <div>
+        <div class="toc-text">自研估值中台系统</div>
+        <div class="toc-desc">面向多资产类别的集团级估值解决方案</div>
+      </div>
+    </li>
+    <li>
+      <div class="toc-num">02</div>
+      <div>
+        <div class="toc-text">核心亮点</div>
+        <div class="toc-desc">头部股份行本地部署验证与性能指标</div>
+      </div>
+    </li>
+    <li>
+      <div class="toc-num">03</div>
+      <div>
+        <div class="toc-text">系统架构</div>
+        <div class="toc-desc">金融服务估值中台五层全景</div>
+      </div>
+    </li>
+    <li>
+      <div class="toc-num">04</div>
+      <div>
+        <div class="toc-text">集团化建账与批量估值</div>
+        <div class="toc-desc">多主体、大规模资产的一站式估值能力</div>
+      </div>
+    </li>
+  </ol>
+  <div class="footer"><span>目录</span><span>i</span></div>
+</section>
+
+<!-- ==================== 模块分隔 A ==================== -->
+<section class="page dark module-sep">
+  <div class="module-kicker">PART A</div>
+  <div class="module-num">01</div>
+  <div class="module-title">解决方案概述</div>
+  <div class="module-divider"></div>
+  <p class="subtitle">自研估值中台的核心定位与市场验证</p>
+  <div class="footer"><span>PART A · 解决方案概述</span><span>1</span></div>
+</section>
+
+<!-- ==================== 第1页：自研估值中台系统（cover） ==================== -->
+<section class="page cover">
+  <span style="display:inline-block;padding:5px 14px;border:1px solid rgba(255,255,255,0.25);border-radius:999px;color:var(--color-primary-soft);font-size:12px;margin-bottom:28px;width:fit-content;letter-spacing:0.06em;">VALUATION PLATFORM</span>
+  <h1 style="font-size:36px;">自研估值中台系统</h1>
+  <p class="subtitle" style="font-size:20px;max-width:900px;">专业、高效、合规的集团级估值解决方案</p>
+
+  <div style="margin-top:32px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+    <div style="padding:18px 20px;background:rgba(255,255,255,0.08);border-radius:var(--radius-md);border:1px solid rgba(255,255,255,0.12);">
+      <div style="font-size:13px;color:var(--color-primary-soft);margin-bottom:6px;">覆盖资产类别</div>
+      <div style="font-size:14px;color:white;line-height:1.6;">非上市股权 / 上市项目 / 不良资产 / ABS / 债权资产</div>
+    </div>
+    <div style="padding:18px 20px;background:rgba(255,255,255,0.08);border-radius:var(--radius-md);border:1px solid rgba(255,255,255,0.12);">
+      <div style="font-size:13px;color:var(--color-primary-soft);margin-bottom:6px;">支持场景</div>
+      <div style="font-size:14px;color:white;line-height:1.6;">多财务主体 · 子基金建账 · 集团财务报告批量估值</div>
+    </div>
+    <div style="padding:18px 20px;background:rgba(255,255,255,0.08);border-radius:var(--radius-md);border:1px solid rgba(255,255,255,0.12);">
+      <div style="font-size:13px;color:var(--color-primary-soft);margin-bottom:6px;">部署模式</div>
+      <div style="font-size:14px;color:white;line-height:1.6;">全栈本地部署 · 符合金融信创要求</div>
+    </div>
+  </div>
+
+  <div class="footer"><span>自研估值中台系统</span><span>2</span></div>
+</section>
+
+<!-- ==================== 第2页：核心亮点（grid-3） ==================== -->
+<section class="page">
+  <h2>核心亮点</h2>
+  <p class="subtitle">头部股份行本地部署验证 — 已承载理财子及金融市场部全量估值业务</p>
+
+  <div class="grid">
+    <div class="overview-card">
+      <div class="oc-icon">✓</div>
+      <h3>头部股份行全量生产验证</h3>
+      <p>已完成某头部股份行本地化部署，承载其理财子公司及总行金融市场部估值业务，日均估值笔数超 <strong>XX</strong> 万。</p>
+    </div>
+    <div class="overview-card" style="border-top-color:var(--color-accent-teal);">
+      <div class="oc-icon" style="background:#ccfbf1;color:var(--color-accent-teal);">⚡</div>
+      <h3>系统稳定与性能保障</h3>
+      <p>支持千万级资产体量下，单批次估值任务完成时间 <strong>&lt; 2小时</strong>（含复杂模型计算）。</p>
+    </div>
+    <div class="overview-card" style="border-top-color:var(--color-accent-amber);">
+      <div class="oc-icon" style="background:#fef3c7;color:var(--color-accent-amber);">◉</div>
+      <h3>合规与审计就绪</h3>
+      <p>内置估值方法论库、参数修改留痕、估值结果版本管理，满足银保监、中基协及外审要求。</p>
+    </div>
+  </div>
+
+  <div class="footer"><span>核心亮点</span><span>3</span></div>
+</section>
+
+<!-- ==================== 模块分隔 B ==================== -->
+<section class="page dark module-sep">
+  <div class="module-kicker">PART B</div>
+  <div class="module-num">02</div>
+  <div class="module-title">系统与能力</div>
+  <div class="module-divider"></div>
+  <p class="subtitle">五层架构设计 · 集团化批量估值能力</p>
+  <div class="footer"><span>PART B · 系统与能力</span><span>4</span></div>
+</section>
+
+<!-- ==================== 第3页：系统架构（full table） ==================== -->
+<section class="page">
+  <h2>系统架构 — 金融服务估值中台全景</h2>
+  <p class="subtitle">从数据接入到业务应用的五层架构设计</p>
+
+  <table class="arch-table">
+    <thead>
+      <tr><th>层级</th><th>功能</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>数据层</td>
+        <td>对接内部OA、ERP、托管行数据，外部Wind、中债、私募股权协会数据，自动清洗与映射</td>
+      </tr>
+      <tr>
+        <td>模型层</td>
+        <td>非上市股权（收益法/市场法）、上市项目（市价/限售折扣）、不良资产（回收率模型）、ABS（现金流分层模型）、债权资产（摊余成本/预期信用损失）</td>
+      </tr>
+      <tr>
+        <td>计算引擎层</td>
+        <td>分布式任务调度，支持多公司/多基金并行估值，计算结果自动校验与异常预警</td>
+      </tr>
+      <tr>
+        <td>应用层</td>
+        <td>财务报告估值、内部管理报表、风险预警、压力测试</td>
+      </tr>
+      <tr>
+        <td>部署方式</td>
+        <td><span class="tag tag-green">全栈本地部署</span> &nbsp;符合金融信创要求</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:14px;padding:12px 16px;background:#f0f9ff;border-radius:var(--radius-sm);border-left:4px solid var(--color-primary);">
+    <p style="font-size:13px;color:var(--color-primary-dark);line-height:1.6;">
+      <strong>设计原则：</strong>分层解耦、模型可插拔、参数可配置、全链路可审计。每一层独立演进，模型层支持自定义估值方法注册与热加载。
+    </p>
+  </div>
+
+  <div class="footer"><span>系统架构</span><span>5</span></div>
+</section>
+
+<!-- ==================== 第4页：集团化建账与批量估值（grid-4 + full） ==================== -->
+<section class="page">
+  <h2>集团化建账与批量估值</h2>
+  <p class="subtitle">多财务主体、大规模资产体量下的一站式估值解决方案</p>
+
+  <!-- 4列卡片 -->
+  <div class="grid four">
+    <div class="card" style="min-height:0;padding:16px;">
+      <div class="big-number small" style="font-size:26px;">01</div>
+      <h3 style="font-size:15px;">多主体独立建账</h3>
+      <p style="font-size:13px;line-height:1.55;">每个法人实体/基金可独立维护：估值参数、会计政策（如OCI/AC分类）、报告币种、估值频率。</p>
+    </div>
+    <div class="card" style="min-height:0;padding:16px;">
+      <div class="big-number small" style="font-size:26px;">02</div>
+      <h3 style="font-size:15px;">科目映射与合并</h3>
+      <p style="font-size:13px;line-height:1.55;">系统内置会计科目表映射引擎，支持集团层面自动合并估值结果，生成合并报表附注。</p>
+    </div>
+    <div class="card" style="min-height:0;padding:16px;">
+      <div class="big-number small" style="font-size:26px;">03</div>
+      <h3 style="font-size:15px;">大规模批量估值</h3>
+      <p style="font-size:13px;line-height:1.55;">季报/年报场景：一键全量估值，结果自动填入ESMA/监管报表模板。</p>
+    </div>
+    <div class="card" style="min-height:0;padding:16px;">
+      <div class="big-number small" style="font-size:26px;">04</div>
+      <h3 style="font-size:15px;">版本与审计追踪</h3>
+      <p style="font-size:13px;line-height:1.55;">每次估值产生完整快照（参数+数据+模型版本），支持按日期回溯与差异归因。</p>
+    </div>
+  </div>
+
+  <!-- 全宽：关键规模指标 -->
+  <div class="metric-strip">
+    <div class="metric-strip-item">
+      <div class="ms-value">&gt; 10万条</div>
+      <div class="ms-label">资产条目（非上市股权+债权+ABS）</div>
+    </div>
+    <div class="metric-strip-item">
+      <div class="ms-value">&gt; 500个</div>
+      <div class="ms-label">子基金 / 产品数量</div>
+    </div>
+    <div class="metric-strip-item">
+      <div class="ms-value">&lt; 2小时</div>
+      <div class="ms-label">单批次全量估值完成时间</div>
+    </div>
+  </div>
+
+  <div class="footer"><span>集团化建账与批量估值</span><span>6</span></div>
+</section>
+
+</body>
+</html>

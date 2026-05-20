@@ -1,0 +1,81 @@
+/* ============================================================
+ * 组件：按钮 Button
+ * 适用主题：theme-darktech（暗色主题按钮），可扩展
+ * ============================================================
+ * 类名：.btn
+ *
+ * 使用示例：
+ *   <button class="btn">普通按钮</button>
+ *   <button class="btn primary">主按钮</button>
+ */
+
+.btn {
+  border: 1px solid var(--color-card-border, rgba(255,255,255,0.16));
+  border-radius: var(--radius-full, 999px);
+  padding: 13px 18px;
+  font-weight: 650;
+  font-size: 14px;
+  background: rgba(255,255,255,0.08);
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ── 主按钮 ── */
+.btn.primary {
+  background: linear-gradient(135deg, var(--color-accent, #6ea8ff), var(--color-accent-2, #9ee8c8));
+  color: #08101f;
+  border: none;
+}
+
+/* ── BI风格按钮 ── */
+.btn-bi {
+  border: 1px solid var(--color-line, #e2e8f0);
+  background: #fff;
+  border-radius: var(--radius-full, 999px);
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--color-ink, #18202a);
+  transition: background 0.15s;
+}
+
+.btn-bi:hover {
+  background: #f1f5f9;
+}
+
+.btn-bi.primary {
+  background: var(--color-brand, #0f766e);
+  color: #fff;
+  border-color: var(--color-brand, #0f766e);
+}
+
+.btn-bi.danger {
+  color: var(--color-danger, #b91c1c);
+  border-color: var(--color-danger, #b91c1c);
+}
+
+/* ── Slide导航按钮（企业蓝白风） ── */
+.btn-nav {
+  border: 0;
+  border-radius: var(--radius-full, 999px);
+  background: var(--color-navy, #123a63);
+  color: #fff;
+  font-weight: 900;
+  padding: 10px 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-nav, 0 8px 22px rgba(18,58,99,0.24));
+  transition: background 0.2s;
+}
+
+.btn-nav:hover {
+  background: #0b2f52;
+}

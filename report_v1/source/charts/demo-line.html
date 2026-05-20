@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>折线趋势图 | 资源库</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .chart-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px}
+  .chart-box{position:relative;height:360px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">chart</span> 折线趋势图 — 七日年化收益率走势</h2>
+<p class="meta">适用：时间序列对比、收益趋势、同业vs目标基金 | 来源：mmf_BI</p>
+
+<div class="chart-container">
+  <div class="chart-box"><canvas id="lineChart"></canvas></div>
+</div>
+
+<div class="code-block">&lt;!-- 引入依赖 --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+&lt;script src="charts/chart-time-series.js"&gt;&lt;/script&gt;
+
+&lt;!-- HTML --&gt;
+&lt;div class="chart-box"&gt;&lt;canvas id="lineChart"&gt;&lt;/canvas&gt;&lt;/div&gt;
+
+&lt;!-- JS调用 --&gt;
+renderTimeSeries('lineChart', {
+  dates: ['2024-06-01','2024-06-02', ...],
+  mainSeries: [{ label:'七日年化', data:[2.15,2.18,...], color:'#0f766e' }],
+  peerSeries: [{ label:'同业均值', data:[2.08,2.10,...], color:'#94a3b8', dashed:true }]
+});
+</div>
+
+</div>
+<script>
+// 生成60天示例数据
+const dates = [];
+const targetYield = [];
+const peerYield = [];
+const start = new Date('2025-10-01');
+for (let i = 0; i < 60; i++) {
+  const d = new Date(start); d.setDate(d.getDate() + i);
+  dates.push(d.toISOString().slice(0,10));
+  targetYield.push(+(2.1 + Math.sin(i/8)*0.25 + Math.sin(i/3)*0.12 + (Math.random()-0.5)*0.08).toFixed(2));
+  peerYield.push(+(2.05 + Math.sin(i/8)*0.2 + Math.sin(i/3)*0.1 + (Math.random()-0.5)*0.1).toFixed(2));
+}
+
+new Chart(document.getElementById('lineChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: dates,
+    datasets: [
+      {
+        label: '目标基金七日年化',
+        data: targetYield,
+        borderColor: '#0f766e', backgroundColor: 'rgba(15,118,110,0.06)', borderWidth: 2.2,
+        pointRadius: 0, pointHoverRadius: 5, tension: 0.3, fill: true
+      },
+      {
+        label: '同业均值',
+        data: peerYield,
+        borderColor: '#94a3b8', borderWidth: 1.5, borderDash: [6,3],
+        pointRadius: 0, tension: 0.3
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      tooltip: { backgroundColor:'rgba(15,23,42,0.92)', padding:12, cornerRadius:10 },
+      legend: { position:'top', labels:{ usePointStyle:true, padding:20, font:{size:12} } }
+    },
+    scales: {
+      x: { grid:{display:false}, ticks:{maxTicksLimit:12,color:'#94a3b8',font:{size:10}} },
+      y: { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{color:'#1f2937',font:{size:10},callback:v=>v.toFixed(2)+'%'} }
+    }
+  }
+});
+</script>
+</body>
+</html>

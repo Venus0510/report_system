@@ -1,0 +1,77 @@
+/* ============================================================
+ * 组件：导航栏 Nav
+ * 适用主题：theme-darktech, theme-corporate
+ * ============================================================
+ * 类名：.nav（见 web-scrolling.css 中的 .nav）
+ *        .nav-slide（全屏Slide专用导航，见 slides-fullscreen.css）
+ *
+ * 本文件提供通用导航栏扩展样式
+ */
+
+/* ── 顶部导航栏 ── */
+.nav-top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding: 0 24px;
+}
+
+.nav-top .nav-top-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-top .brand {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text, #1f2937);
+  letter-spacing: 0.02em;
+}
+
+.nav-top .nav-links {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.nav-top .nav-links a {
+  color: var(--color-text-secondary, #64748b);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav-top .nav-links a:hover,
+.nav-top .nav-links a.active {
+  color: var(--color-text, #1f2937);
+}
+
+/* ── 底部导航点 ── */
+.nav-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px;
+}
+
+.nav-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border, #d1d5db);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-dots .dot.active {
+  background: var(--color-primary, #2563eb);
+  width: 24px;
+  border-radius: 5px;
+}

@@ -1,0 +1,82 @@
+/* ============================================================
+ * 主题：暗色科技风
+ * 来源：web.html - 金融报告目的估值咨询服务 Landing Page
+ * 适用：对外展示网页、产品介绍页、Landing Page
+ * ============================================================
+ * 使用方式：<link rel="stylesheet" href="tokens/theme-darktech.css">
+ * 搭配版式：layouts/web-scrolling.html
+ */
+
+:root {
+  /* ── 基础色板 ── */
+  --color-bg-deep:       #08101f;
+  --color-bg:            #0b1020;
+  --color-bg-soft:       #121a33;
+  --color-accent:        #6ea8ff;
+  --color-accent-2:      #9ee8c8;
+  --color-warning:       #ffd166;
+
+  /* ── 半透明叠加 ── */
+  --color-card-bg:       rgba(255, 255, 255, 0.08);
+  --color-card-border:   rgba(255, 255, 255, 0.14);
+  --color-stat-bg:       rgba(255, 255, 255, 0.07);
+  --color-stat-border:   rgba(255, 255, 255, 0.1);
+  --color-nav-bg:        rgba(8, 16, 31, 0.72);
+
+  /* ── 中性色 ── */
+  --color-text:          #f5f7fb;
+  --color-text-muted:    #aeb7cc;
+
+  /* ── 排版 ── */
+  --font-family:         -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "黑体", Arial, sans-serif;
+  --font-size-h1:        clamp(40px, 6vw, 72px);
+  --font-size-h2:        clamp(28px, 4vw, 44px);
+  --font-size-h3:        20px;
+  --font-size-body:      16px;
+  --font-size-small:     14px;
+  --font-size-caption:   13px;
+  --line-height-heading: 1.03;
+  --line-height-body:    1.6;
+
+  /* ── 间距 ── */
+  --spacing-xs:          8px;
+  --spacing-sm:          14px;
+  --spacing-md:          24px;
+  --spacing-lg:          32px;
+  --spacing-xl:          56px;
+
+  /* ── 圆角 ── */
+  --radius-sm:           18px;
+  --radius-md:           24px;
+  --radius-full:         999px;
+
+  /* ── 阴影 ── */
+  --shadow-card:         0 24px 80px rgba(0, 0, 0, 0.32);
+
+  /* ── 布局 ── */
+  --content-max-width:   1180px;
+
+  /* ── 效果 ── */
+  --backdrop-blur:       18px;
+}
+
+/* ── 全局背景（渐变网格） ── */
+body.theme-darktech {
+  color: var(--color-text);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(110, 168, 255, 0.28), transparent 32%),
+    radial-gradient(circle at 85% 20%, rgba(158, 232, 200, 0.18), transparent 28%),
+    linear-gradient(180deg, #08101f 0%, #0b1020 46%, #0f172a 100%);
+}
+
+/* ── 暗色滚动条 ── */
+.theme-darktech::-webkit-scrollbar {
+  width: 6px;
+}
+.theme-darktech::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+.theme-darktech::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-full);
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>全屏Slide演示骨架</title>
+  <!-- 1. 主题 -->
+  <link rel="stylesheet" href="../tokens/theme-corporate.css" />
+  <!-- 2. 版式 -->
+  <link rel="stylesheet" href="slides-fullscreen.css" />
+  <!-- 3. 翻页脚本 -->
+  <script src="base-slides.js"></script>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ==================== 封面 ==================== -->
+  <section class="page active cover-page">
+    <div class="cover-sheet">
+      <h1 class="cover-title">演示标题</h1>
+      <div class="cover-brand-line">
+        <span class="brand-blue">团队/品牌名称</span>
+      </div>
+      <div class="cover-date">2026年XX月</div>
+      <div class="cover-footer-logo">
+        <!-- 可放置Logo图片 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 目录 ==================== -->
+  <section class="page toc-page">
+    <div class="toc-sheet">
+      <p class="toc-eyebrow">CONTENTS</p>
+      <h2 class="toc-title">目录</h2>
+      <div class="toc-table">
+        <div class="toc-row toc-head">
+          <span></span>
+          <span>内容</span>
+        </div>
+        <div class="toc-row">
+          <span class="toc-index">01</span>
+          <span class="toc-topic">章节标题一</span>
+        </div>
+        <div class="toc-row">
+          <span class="toc-index">02</span>
+          <span class="toc-topic">章节标题二</span>
+        </div>
+        <div class="toc-row">
+          <span class="toc-index">03</span>
+          <span class="toc-topic">章节标题三</span>
+        </div>
+      </div>
+      <div class="toc-footer">
+        <span>演示主题</span>
+        <span class="toc-brand-blue">团队名称</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 模块分隔页 ==================== -->
+  <section class="page module-page">
+    <div class="module-sheet">
+      <p class="module-kicker">PART 01</p>
+      <div class="module-index-line">
+        <span class="module-number">01</span>
+        <span class="module-label">章节</span>
+      </div>
+      <h1 class="module-title">章节标题</h1>
+      <div class="module-divider"></div>
+      <div class="module-footer">
+        <span>演示主题</span>
+        <span class="module-brand-blue">团队名称</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 内容页（iframe模式） ==================== -->
+  <!-- 复杂内容页可通过iframe嵌入独立的HTML片段 -->
+  <section class="page">
+    <iframe srcdoc="<h2>这是一页内容</h2><p>可嵌入任意HTML内容</p>"></iframe>
+  </section>
+
+</div>
+
+<!-- 导航控件 -->
+<div class="nav">
+  <button onclick="prevSlide()" title="上一页">&#9664;</button>
+  <button onclick="nextSlide()" title="下一页">&#9654;</button>
+</div>
+
+<div class="indicator" id="indicator">1 / 5</div>
+
+</body>
+</html>

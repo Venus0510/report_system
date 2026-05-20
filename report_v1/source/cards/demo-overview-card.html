@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>概览卡 | 资源库</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+
+  /* ═══ 概览卡样式 ═══ */
+  .overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+  .overview-card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 8px 24px rgba(15,23,42,.08);position:relative;overflow:hidden}
+  .overview-card::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:var(--card-accent,#2563eb);border-radius:4px 0 0 4px}
+  .overview-card .card-number{font-size:48px;font-weight:700;color:var(--card-accent,#2563eb);line-height:1;margin-bottom:8px}
+  .overview-card h3{margin:0 0 8px;font-size:18px;color:#1e3a8a}
+  .overview-card p{margin:0;font-size:14px;line-height:1.6;color:#64748b}
+
+  @media(max-width:640px){.overview-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">card</span> 概览卡 — 带编号的服务要点</h2>
+<p class="meta">适用：封面要点展示、服务介绍、流程说明 | 来源：A4.html</p>
+
+<div class="overview-grid">
+  <div class="overview-card" style="--card-accent:#2563eb">
+    <div class="card-number">01</div>
+    <h3>七日年化收益率归因</h3>
+    <p>识别收益提升或回落是由资产配置、杠杆套息、久期管理还是市场利率变化导致。</p>
+  </div>
+  <div class="overview-card" style="--card-accent:#0f766e">
+    <div class="card-number">02</div>
+    <h3>正偏离储备与释放</h3>
+    <p>定期查看产品正偏离储备，回溯当月正偏离释放对收益率的稳定作用和规模刺激。</p>
+  </div>
+  <div class="overview-card" style="--card-accent:#d97706">
+    <div class="card-number">03</div>
+    <h3>申赎与流动性管理</h3>
+    <p>检视申赎造成的流动性压力和净值波动，回顾临时费用调整等应对手段的执行。</p>
+  </div>
+</div>
+
+<div class="code-block">&lt;!-- 概览卡：左侧色条 + 大数字 + 标题 + 描述 --&gt;
+&lt;div class="overview-card" style="--card-accent:#2563eb"&gt;
+  &lt;div class="card-number"&gt;01&lt;/div&gt;
+  &lt;h3&gt;卡片标题&lt;/h3&gt;
+  &lt;p&gt;内容描述文字。&lt;/p&gt;
+&lt;/div&gt;
+</div>
+
+</div>
+</body>
+</html>

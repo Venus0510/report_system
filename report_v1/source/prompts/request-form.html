@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HTML报告需求输入卡</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+.wrap{max-width:860px;margin:0 auto}
+h1{font-size:24px;margin:0 0 4px}
+h2{font-size:17px;margin:32px 0 12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:8px}
+h2 .step{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;background:#0f766e;color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+.subtitle{color:#64748b;font-size:14px;margin-bottom:24px}
+.card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 8px 24px rgba(15,23,42,.08);margin-bottom:20px}
+label{display:block;font-weight:700;font-size:14px;margin-bottom:6px;color:#0f172a}
+input[type=text],select,textarea{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,0.1)}
+textarea{min-height:100px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.col{display:flex;flex-direction:column;gap:6px}
+.radio-group{display:flex;gap:12px;flex-wrap:wrap}
+.radio-card{flex:1;min-width:180px;border:2px solid #e2e8f0;border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;position:relative}
+.radio-card:hover{border-color:#0f766e}
+.radio-card.selected{border-color:#0f766e;background:rgba(15,118,110,0.04)}
+.radio-card input{display:none}
+.radio-card .rc-title{font-weight:800;font-size:14px;margin-bottom:4px}
+.radio-card .rc-desc{font-size:12px;color:#64748b}
+.radio-card .rc-check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:2px solid #e2e8f0}
+.radio-card.selected .rc-check{border-color:#0f766e;background:#0f766e}
+.radio-card.selected .rc-check::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:900}
+.check-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0f766e}
+.check-row label{margin:0;font-weight:500}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border:none;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-primary{background:#0f766e;color:#fff}
+.btn-primary:hover{background:#115e59;transform:translateY(-1px)}
+.btn-secondary{background:#f1f5f9;color:#1e2937;border:1px solid #e2e8f0}
+.btn-secondary:hover{background:#e2e8f0}
+.btns{display:flex;gap:12px;margin-top:24px;justify-content:flex-end}
+.output-area{background:#1e293b;color:#e2e8f0;border-radius:14px;padding:20px;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:500px;overflow:auto;margin-top:16px;display:none}
+.output-area.show{display:block}
+.page-block{border:1px dashed #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;position:relative}
+.page-block .page-label{position:absolute;top:-10px;left:16px;background:#0f766e;color:#fff;padding:2px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.add-btn{border:2px dashed #cbd5e1;border-radius:10px;padding:14px;text-align:center;color:#64748b;cursor:pointer;font-size:14px;transition:all .15s;margin-bottom:12px}
+.add-btn:hover{border-color:#0f766e;color:#0f766e;background:rgba(15,118,110,0.03)}
+@media(max-width:640px){.row,.row3{grid-template-columns:1fr}.radio-group{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>📋 HTML报告需求输入卡</h1>
+<p class="subtitle">填写此表单 → 点击「生成Prompt」→ 复制结果 → 提交给AI → 自动生成HTML报告</p>
+
+<!-- ═══════ 一、基本信息 ═══════ -->
+<h2><span class="step">1</span>基本信息</h2>
+<div class="card">
+  <div class="row">
+    <div class="col"><label>报告标题 *</label><input type="text" id="title" placeholder="例：XX基金月度收益归因分析报告"></div>
+    <div class="col"><label>副标题</label><input type="text" id="subtitle" placeholder="例：2026年4月 | 估值团队"></div>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <div class="col"><label>日期</label><input type="text" id="date" placeholder="2026-05-08"></div>
+    <div class="col"><label>作者/团队</label><input type="text" id="author" placeholder="估值团队"></div>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <div class="col"><label>输出文件名</label><input type="text" id="outputFile" placeholder="report.html"></div>
+  </div>
+</div>
+
+<!-- ═══════ 二、版式与风格 ═══════ -->
+<h2><span class="step">2</span>版式与风格</h2>
+<div class="card">
+  <label style="margin-bottom:12px">版式选择（四选一）</label>
+  <div class="radio-group" id="layoutGroup">
+    <label class="radio-card">
+      <input type="radio" name="layout" value="a4-landscape">
+      <div class="rc-check"></div>
+      <div class="rc-title">📄 A4横版打印</div>
+      <div class="rc-desc">仿PPT正式报告，page-by-page，支持打印PDF</div>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="layout" value="slides-fullscreen">
+      <div class="rc-check"></div>
+      <div class="rc-title">🖥️ 全屏Slide演示</div>
+      <div class="rc-desc">全屏翻页，带封面/目录，适合会议汇报</div>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="layout" value="web-scrolling">
+      <div class="rc-check"></div>
+      <div class="rc-title">🌐 长滚动网页</div>
+      <div class="rc-desc">自由长度，适合对外展示、产品介绍</div>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="layout" value="bi-dashboard">
+      <div class="rc-check"></div>
+      <div class="rc-title">📊 BI仪表盘</div>
+      <div class="rc-desc">交互式看板，CSV数据驱动，支持手搓BI</div>
+    </label>
+  </div>
+
+  <label style="margin-top:20px;margin-bottom:12px">风格选择（四选一）</label>
+  <div class="radio-group" id="themeGroup">
+    <label class="radio-card">
+      <input type="radio" name="theme" value="theme-business">
+      <div class="rc-check"></div>
+      <div class="rc-title">🔵 清爽商务风</div>
+      <div class="rc-desc">蓝白调，简洁专业</div>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="theme" value="theme-corporate">
+      <div class="rc-check"></div>
+      <div class="rc-title">💙 企业蓝白风</div>
+      <div class="rc-desc">深蓝+天蓝，大气正式</div>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="theme" value="theme-darktech">
+      <div class="rc-check"></div>
+      <div class="rc-title">🌙 暗色科技风</div>
+      <div class="rc-desc">深色背景，科技感</div>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="theme" value="theme-finance">
+      <div class="rc-check"></div>
+      <div class="rc-title">🟢 金融专业风</div>
+      <div class="rc-desc">青绿调，适合数据分析</div>
+    </label>
+  </div>
+</div>
+
+<!-- ═══════ 三、页面结构 ═══════ -->
+<h2><span class="step">3</span>页面结构 <span style="font-size:13px;color:#64748b;font-weight:400">（点击添加页面）</span></h2>
+<div id="pagesContainer">
+  <!-- 动态插入页面块 -->
+</div>
+<div class="add-btn" onclick="addPage()">+ 添加新页面</div>
+
+<!-- ═══════ 四、数据来源 ═══════ -->
+<h2><span class="step">4</span>数据来源</h2>
+<div class="card">
+  <div id="dataFilesContainer">
+    <!-- 动态插入数据文件行 -->
+  </div>
+  <div class="add-btn" onclick="addDataFile()">+ 添加数据文件</div>
+
+  <label style="margin-top:16px">数据规范标记</label>
+  <div class="check-row">
+    <input type="checkbox" id="sysAlign">
+    <label for="sysAlign">本报告数据标头已对齐系统表结构</label>
+  </div>
+  <div class="row" id="sysAlignFields" style="display:none">
+    <div class="col"><label>对应系统表</label><input type="text" id="sysTable" placeholder="表名"></div>
+    <div class="col"><label>对齐字段</label><input type="text" id="sysFields" placeholder="field1, field2, ..."></div>
+  </div>
+</div>
+
+<!-- ═══════ 五、特殊要求 ═══════ -->
+<h2><span class="step">5</span>特殊要求</h2>
+<div class="card">
+  <div class="row3">
+    <div class="check-row"><input type="checkbox" id="needPrint"><label for="needPrint">打印优化</label></div>
+    <div class="check-row"><input type="checkbox" id="needDark"><label for="needDark">深色页变体</label></div>
+    <div class="check-row"><input type="checkbox" id="needTOC"><label for="needTOC">目录页</label></div>
+    <div class="check-row"><input type="checkbox" id="needModule"><label for="needModule">模块分隔页</label></div>
+    <div class="check-row"><input type="checkbox" id="needComment"><label for="needComment">可编辑注释区</label></div>
+  </div>
+  <div class="col" style="margin-top:12px">
+    <label>其他要求</label>
+    <textarea id="otherReqs" placeholder="例：每页底部需显示页码；同业对比页使用深色背景..."></textarea>
+  </div>
+</div>
+
+<!-- ═══════ 按钮 ═══════ -->
+<div class="btns">
+  <button class="btn btn-secondary" onclick="resetForm()">重置表单</button>
+  <button class="btn btn-primary" onclick="generatePrompt()">✨ 生成Prompt</button>
+</div>
+
+<!-- ═══════ 输出区 ═══════ -->
+<div class="output-area" id="outputArea"></div>
+<div class="btns" id="copyBtn" style="display:none">
+  <button class="btn btn-primary" onclick="copyPrompt()">📋 复制Prompt</button>
+</div>
+
+</div>
+
+<script>
+// ═══ 单选卡片交互 ═══
+document.querySelectorAll('.radio-group').forEach(group => {
+  group.addEventListener('change', function(e) {
+    const radio = e.target.closest('input[type=radio]');
+    if (!radio) return;
+    group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+    radio.closest('.radio-card').classList.add('selected');
+  });
+});
+
+// ═══ 系统对接显示/隐藏 ═══
+document.getElementById('sysAlign').addEventListener('change', function() {
+  document.getElementById('sysAlignFields').style.display = this.checked ? '' : 'none';
+});
+
+// ═══ 页面管理 ═══
+let pageCounter = 1;
+
+const pageTemplates = [
+  { label:'封面', layout:'cover' },
+  { label:'KPI概览', layout:'grid-4 + full' },
+  { label:'资产配置', layout:'split-left-right' },
+  { label:'收益归因', layout:'full' },
+  { label:'同业对比', layout:'full' }
+];
+
+function addPage(preset) {
+  const i = ++pageCounter;
+  const container = document.getElementById('pagesContainer');
+  const div = document.createElement('div');
+  div.className = 'page-block';
+  div.id = 'page'+i;
+  div.innerHTML = `
+    <div class="page-label">第${i}页</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px">
+      <button onclick="removePage('page${i}')" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;color:#b91c1c">删除</button>
+    </div>
+    <div class="row">
+      <div class="col"><label>页面标题</label><input type="text" class="page-title" value="${preset ? preset.label : ''}" placeholder="例：一、本月核心指标概览"></div>
+      <div class="col"><label>布局</label><select class="page-layout">
+        <option ${preset && preset.layout==='cover'?'selected':''}>cover</option>
+        <option ${preset && preset.layout==='grid-3'?'selected':''}>grid-3</option>
+        <option ${preset && preset.layout==='grid-4 + full'?'selected':''}>grid-4 + full</option>
+        <option ${preset && preset.layout==='split-left-right'?'selected':''}>split-left-right</option>
+        <option ${preset && preset.layout==='full'?'selected':''}>full</option>
+      </select></div>
+    </div>
+    <div class="col" style="margin-top:10px"><label>页面内容（组件列表）</label>
+      <textarea class="page-content" placeholder="描述本页使用的组件和布局：&#10;例：&#10;- KPI指标卡 × 4（七日年化/万份收益/规模/偏离度）&#10;- 折线趋势图 × 1（标题：收益率走势，主轴：seven_day_yield）&#10;- 备注区 × 1"></textarea>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removePage(id) {
+  document.getElementById(id).remove();
+}
+
+// ═══ 数据文件管理 ═══
+let dataFileCounter = 0;
+
+function addDataFile(preset) {
+  const i = ++dataFileCounter;
+  const container = document.getElementById('dataFilesContainer');
+  const div = document.createElement('div');
+  div.className = 'page-block';
+  div.id = 'df'+i;
+  div.innerHTML = `
+    <div class="page-label" style="background:#3b82f6">数据文件${i}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px">
+      <button onclick="removeDataFile('df${i}')" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;color:#b91c1c">删除</button>
+    </div>
+    <div class="row">
+      <div class="col"><label>文件路径</label><input type="text" class="df-path" value="${preset ? preset.path : 'data/__.csv'}" placeholder="data/xxx.csv"></div>
+      <div class="col"><label>用途</label><input type="text" class="df-purpose" value="${preset ? preset.purpose : ''}" placeholder="例：日频时间序列"></div>
+    </div>
+    <div class="col" style="margin-top:8px"><label>关键字段说明</label>
+      <textarea class="df-fields" placeholder="字段名: 中文说明&#10;例：&#10;seven_day_yield: 七日年化收益率&#10;nav_return_per_10k: 万份收益"></textarea>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeDataFile(id) {
+  document.getElementById(id).remove();
+}
+
+// ═══ 生成Prompt ═══
+function generatePrompt() {
+  // 收集基本信息
+  const title = document.getElementById('title').value || '（未填写）';
+  const subtitle = document.getElementById('subtitle').value || '（未填写）';
+  const date = document.getElementById('date').value || '（未填写）';
+  const author = document.getElementById('author').value || '估值团队';
+  const outputFile = document.getElementById('outputFile').value || 'report.html';
+
+  // 版式
+  const layoutRadio = document.querySelector('input[name=layout]:checked');
+  const layout = layoutRadio ? layoutRadio.value : '（未选择）';
+  const layoutLabels = { 'a4-landscape':'A4横版打印', 'slides-fullscreen':'全屏Slide演示', 'web-scrolling':'长滚动网页', 'bi-dashboard':'BI仪表盘' };
+
+  // 风格
+  const themeRadio = document.querySelector('input[name=theme]:checked');
+  const theme = themeRadio ? themeRadio.value : '（未选择）';
+  const themeLabels = { 'theme-business':'清爽商务风', 'theme-corporate':'企业蓝白风', 'theme-darktech':'暗色科技风', 'theme-finance':'金融专业风' };
+
+  // 构建版面内容
+  let pageSection = '';
+  document.querySelectorAll('#pagesContainer .page-block').forEach((block, idx) => {
+    const pTitle = block.querySelector('.page-title').value || '（未命名）';
+    const pLayout = block.querySelector('.page-layout').value;
+    const pContent = block.querySelector('.page-content').value || '（待定）';
+    pageSection += `### 第${idx+1}页：${pTitle}\n\`\`\`\n页面标题: ${pTitle}\n布局: ${pLayout}\n内容:\n${pContent}\n\`\`\`\n\n`;
+  });
+
+  // 数据文件
+  let dataSection = '';
+  document.querySelectorAll('#dataFilesContainer .page-block').forEach((block, idx) => {
+    const path = block.querySelector('.df-path').value || '（未填写）';
+    const purpose = block.querySelector('.df-purpose').value || '（未填写）';
+    const fields = block.querySelector('.df-fields').value || '（未填写）';
+    dataSection += `  - 文件路径: ${path}\n    用途: ${purpose}\n    关键字段:\n${fields.split('\n').map(l => '      - ' + l).join('\n')}\n\n`;
+  });
+
+  // 特殊要求
+  const specials = [];
+  if (document.getElementById('needPrint').checked) specials.push('打印优化');
+  if (document.getElementById('needDark').checked) specials.push('深色页变体');
+  if (document.getElementById('needTOC').checked) specials.push('目录页');
+  if (document.getElementById('needModule').checked) specials.push('模块分隔页');
+  if (document.getElementById('needComment').checked) specials.push('可编辑注释区');
+
+  const sysAlign = document.getElementById('sysAlign').checked;
+
+  const prompt = `# HTML报告生成任务
+
+> **交互说明**：本Prompt已包含所有必要信息。如果你使用的是 **Claude Code**（可读取本地文件），AI会自动读取 source/ 下的资源库文件。如果你使用的是 **通用AI对话**，请将下方「📎 需要附带的文件」中的文件内容一并粘贴提交。
+
+---
+
+## 📎 需要附带的文件（仅通用AI需要，Claude Code会自动读取）
+
+提交本Prompt时，请同时提供以下文件的内容（文件在 source/ 目录下）：
+
+1. \`source/layouts/${layout}.html\` — 版式骨架
+2. \`source/layouts/${layout}.css\` — 版式CSS
+3. \`source/tokens/${theme}.css\` — 主题CSS变量
+${(pageSection || '').includes('环形') ? '4. `source/charts/chart-doughnut.js` — 环形图封装\n' : ''}${(pageSection || '').includes('折线') || (pageSection || '').includes('趋势') ? '5. `source/charts/chart-time-series.js` — 时间序列图封装\n' : ''}6. \`source/data/data-loader.js\` — CSV数据加载器
+
+\`\`\`
+（将上述文件内容粘贴在此处）
+\`\`\`
+
+---
+
+## 一、基本信息
+
+\`\`\`yaml
+报告标题: ${title}
+副标题: ${subtitle}
+日期: ${date}
+作者/团队: ${author}
+输出文件名: ${outputFile}
+\`\`\`
+
+## 二、版式与风格
+
+- 版式选择: **${layoutLabels[layout] || layout}**（${layout}）
+  - 骨架：\`source/layouts/${layout}.html\`
+  - CSS：\`source/layouts/${layout}.css\`
+- 风格选择: **${themeLabels[theme] || theme}**（${theme}）
+  - 文件：\`source/tokens/${theme}.css\`
+
+## 三、页面结构
+
+${pageSection || '（请在表单中添加页面）'}
+
+## 四、数据来源
+
+\`\`\`yaml
+数据文件（路径相对于 source/ 目录）:
+${dataSection || '（请在表单中添加数据文件）'}
+\`\`\`
+
+数据规范标记:
+- [${sysAlign ? 'x' : ' '}] 本报告数据标头已对齐系统表结构
+
+## 五、特殊要求
+
+${specials.length > 0 ? specials.map(s => '- [x] ' + s).join('\n') : '- 无特殊要求'}
+${document.getElementById('otherReqs').value ? '\n其他要求: ' + document.getElementById('otherReqs').value : ''}
+
+---
+
+## 六、资源库索引（AI请参考）
+
+生成HTML时请使用以下资源：
+
+| 类别 | 文件 | 用途 |
+|------|------|------|
+| 版式 | \`source/layouts/${layout}.html\` + \`.css\` | 页面骨架和布局 |
+| 主题 | \`source/tokens/${theme}.css\` | CSS变量（颜色/字体/间距） |
+| 图表 | \`source/charts/chart-wrapper.js\` | Chart.js通用封装 |
+| 数据 | \`source/data/data-loader.js\` | CSV加载器（PapaParse） |
+| 组件 | \`source/components/*.css\` | 按需引用 card/table/tag/metric-chip 等 |
+
+外部CDN依赖：
+- Chart.js: \`https://cdn.jsdelivr.net/npm/chart.js\`
+- PapaParse: \`https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js\`
+
+---
+
+## 七、输出要求
+
+1. 生成的HTML为**单文件自包含**（CDN依赖除外），可直接浏览器打开
+2. 支持 **Ctrl+P** 打印为PDF
+3. CSV数据文件路径使用 **相对路径**：\`data/xxx.csv\`（HTML与source/目录并列放置时）
+4. 中文字体栈完整，图表配色使用金融主题色板（青绿 #0f766e）
+5. 所有图表带有加载状态和错误处理
+6. 页面结构严格按上方「三、页面结构」的顺序生成
+7. 请先生成完整HTML代码，再输出到文件`;
+
+  const output = document.getElementById('outputArea');
+  output.textContent = prompt;
+  output.classList.add('show');
+  document.getElementById('copyBtn').style.display = 'flex';
+  output.scrollIntoView({behavior:'smooth'});
+}
+
+function copyPrompt() {
+  const text = document.getElementById('outputArea').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('已复制到剪贴板！可直接粘贴提交给AI');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('已复制到剪贴板！');
+  });
+}
+
+function resetForm() {
+  if (confirm('确定要重置所有填写内容吗？')) {
+    location.reload();
+  }
+}
+
+// ═══ 初始化：预填5页和数据文件 ═══
+pageTemplates.forEach(p => addPage(p));
+addDataFile({path:'source/data/fund_info.csv', purpose:'基金基本信息（名称、代码、费率）'});
+addDataFile({path:'source/data/target_time_series.csv', purpose:'目标基金日频时间序列'});
+addDataFile({path:'source/data/peers_time_series.csv', purpose:'同业均值日频数据'});
+addDataFile({path:'source/data/df_assets.csv', purpose:'资产配置数据（季度）'});
+</script>
+</body>
+</html>

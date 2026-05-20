@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>箱体图 | 资源库</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .chart-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px}
+  .chart-box{position:relative;height:360px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">chart</span> 箱体图（Box & Whisker）— 偏离度指标分布</h2>
+<p class="meta">适用：分布对比、偏离度分析、min-Q1-median-Q3-max | 来源：mmf_BI</p>
+
+<div class="chart-container">
+  <div class="chart-box"><canvas id="boxChart"></canvas></div>
+</div>
+
+<div class="code-block">&lt;!-- 箱体图：用Chart.js floating bar + 散点模拟 --&gt;
+// 方法1: 使用 chartjs-chart-box-and-violin-plot 插件
+// 方法2: 用 bar (floating) + scatter 手动构造
+// 本例使用手动构造法，数据格式：
+// { label, min, q1, median, q3, max, outliers, target }
+</div>
+
+</div>
+<script>
+// 三个指标的箱体数据：平均偏离度、最小偏离度、最大偏离度
+const boxData = [
+  { label:'平均偏离度', min:-2.1, q1:1.8, median:4.5, q3:8.2, max:15.3, target:5.2 },
+  { label:'最小偏离度', min:-8.5, q1:-3.2, median:-1.1, q3:0.8, max:4.5, target:-0.5 },
+  { label:'最大偏离度', min:2.8, q1:6.5, median:10.2, q3:15.8, max:28.5, target:11.3 }
+];
+
+// 用浮动画法构造箱体
+function buildBoxDatasets(data) {
+  const labels = data.map(d=>d.label);
+  // IQR box: q1 → q3
+  const iqrData     = data.map(d=>d.q3 - d.q1);
+  // lower whisker: min → q1
+  const whiskerLow  = data.map(d=>d.q1 - d.min);
+  // upper whisker: q3 → max
+  const whiskerHigh = data.map(d=>d.max - d.q3);
+
+  return [
+    { label:'上须线', data:whiskerHigh.map((v,i)=>[data[i].q3,data[i].q3+v]),
+      backgroundColor:'rgba(100,116,139,0.5)', borderColor:'transparent', borderWidth:0,barPercentage:0.3 },
+    { label:'IQR箱体', data:iqrData.map((v,i)=>[data[i].q1,data[i].q1+v]),
+      backgroundColor:['rgba(15,118,110,0.6)','rgba(59,130,246,0.6)','rgba(217,119,6,0.6)'],
+      borderColor:['#0f766e','#3b82f6','#d97706'], borderWidth:2, borderRadius:4, barPercentage:0.6 },
+    { label:'下须线', data:whiskerLow.map((v,i)=>[data[i].min,data[i].min+v]),
+      backgroundColor:'rgba(100,116,139,0.5)', borderColor:'transparent', borderWidth:0, barPercentage:0.3 },
+    // Target标记 (scatter)
+    { label:'目标基金', data:data.map((d,i)=>({x:i, y:d.target})),
+      type:'scatter', backgroundColor:'#dc2626', borderColor:'#fff', borderWidth:2,
+      pointRadius:8, pointStyle:'diamond', order:0 }
+  ];
+}
+
+// 用floating bar模拟箱体
+new Chart(document.getElementById('boxChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: boxData.map(d=>d.label),
+    datasets: [
+      // Q1→Median (下半箱)
+      { label:'Q1→Median',
+        data: boxData.map(d=>[d.q1, d.median]),
+        backgroundColor:'rgba(15,118,110,0.3)', borderColor:'#0f766e', borderWidth:2, borderRadius:0, barPercentage:0.5 },
+      // Median→Q3 (上半箱)
+      { label:'Median→Q3',
+        data: boxData.map(d=>[d.median, d.q3]),
+        backgroundColor:'rgba(15,118,110,0.7)', borderColor:'#0f766e', borderWidth:2, borderRadius:4, barPercentage:0.5 },
+      // Min→Q1 (下须)
+      { label:'Min→Q1',
+        data: boxData.map(d=>[d.min, d.q1]),
+        backgroundColor:'transparent', borderColor:'#64748b', borderWidth:{top:1,bottom:1,left:0,right:0}, barPercentage:0.15 },
+      // Q3→Max (上须)
+      { label:'Q3→Max',
+        data: boxData.map(d=>[d.q3, d.max]),
+        backgroundColor:'transparent', borderColor:'#64748b', borderWidth:{top:1,bottom:1,left:0,right:0}, barPercentage:0.15 },
+      // Target scatter overlay
+      { label:'目标基金', type:'scatter',
+        data: boxData.map((d,i)=>({x:i, y:d.target})),
+        backgroundColor:'#dc2626', borderColor:'#fff', borderWidth:2.5,
+        pointRadius:10, pointStyle:'rectRounded', order:0 }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      tooltip:{ backgroundColor:'rgba(15,23,42,0.92)',padding:12,cornerRadius:10 },
+      legend:{ position:'top', labels:{ usePointStyle:true, padding:16, font:{size:11},
+        filter: item => !['Q1→Median','Min→Q1','Q3→Max'].includes(item.text) // 只显示概要图例
+      }},
+      title:{ display:true, text:'基准线: -5bp ··· -10bp | ◆ 红色菱形 = 目标基金', position:'bottom',
+        font:{size:11},color:'#64748b',padding:8 }
+    },
+    scales:{
+      x:{ grid:{display:false}, ticks:{font:{size:11}} },
+      y:{ title:{display:true,text:'偏离度(bp)',color:'#64748b'},
+        grid:{color:'rgba(226,232,240,0.6)'}, ticks:{font:{size:10},callback:v=>v+'bp'} }
+    }
+  }
+});
+</script>
+</body>
+</html>

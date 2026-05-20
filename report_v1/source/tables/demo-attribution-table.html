@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>归因分析表 | 资源库</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+  .table-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px;overflow:auto}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+
+  /* ═══ 归因表样式 ═══ */
+  .attr-table{width:100%;border-collapse:collapse;font-size:13px}
+  .attr-table th{background:#0f766e;color:#fff;font-weight:700;padding:10px 14px;text-align:center}
+  .attr-table th:first-child{text-align:left;border-radius:8px 0 0 0}
+  .attr-table th:last-child{border-radius:0 8px 0 0}
+  .attr-table td{padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center}
+  .attr-table td:first-child{text-align:left;font-weight:700}
+  .attr-table .group-row td{background:#f0fdfa;color:#0f766e;font-weight:900;font-size:14px;text-align:left!important;border-bottom:2px solid #ccfbf1}
+  .attr-table .total-row td{border-top:2px solid #0f766e;font-weight:800;background:#f8fafc}
+  .attr-table .contrib-pos{color:#16a34a}
+  .attr-table .contrib-neg{color:#b91c1c}
+  .attr-table .bar-cell{position:relative}
+  .attr-table .bar-inner{height:6px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:8px}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">table</span> 归因分析表 — 七日年化收益拆解</h2>
+<p class="meta">适用：收益归因、贡献分解、正负贡献标识 | 来源：mmf_BI</p>
+
+<div class="table-container">
+<table class="attr-table">
+<thead>
+  <tr><th style="width:28%">归因因子</th><th style="width:15%">贡献(bp)</th><th style="width:15%">贡献占比</th><th style="width:28%">主要驱动</th><th style="width:14%">上月贡献</th></tr>
+</thead>
+<tbody>
+  <tr class="group-row"><td colspan="5">◉ 正贡献因子</td></tr>
+  <tr>
+    <td>票息收益</td>
+    <td class="contrib-pos">+172.5</td><td>64.8%</td>
+    <td class="bar-cell"><span class="bar-inner" style="width:130px;background:#0f766e"></span>存单+短融加权YTM 2.85%</td>
+    <td>+168.2</td>
+  </tr>
+  <tr>
+    <td>杠杆套息</td>
+    <td class="contrib-pos">+42.3</td><td>15.9%</td>
+    <td class="bar-cell"><span class="bar-inner" style="width:52px;background:#3b82f6"></span>杠杆1.08x, 利差58bp</td>
+    <td>+38.5</td>
+  </tr>
+  <tr>
+    <td>正偏离释放</td>
+    <td class="contrib-pos">+18.8</td><td>7.1%</td>
+    <td class="bar-cell"><span class="bar-inner" style="width:28px;background:#f59e0b"></span>释放2.3bp, 平滑波动</td>
+    <td>+22.1</td>
+  </tr>
+  <tr class="group-row"><td colspan="5">○ 负贡献因子</td></tr>
+  <tr>
+    <td>费用摊薄</td>
+    <td class="contrib-neg">-15.2</td><td>-5.7%</td>
+    <td class="bar-cell"><span class="bar-inner" style="width:18px;background:#94a3b8"></span>总费率0.45%年化</td>
+    <td>-14.8</td>
+  </tr>
+  <tr>
+    <td>申赎冲击</td>
+    <td class="contrib-neg">-3.5</td><td>-1.3%</td>
+    <td class="bar-cell"><span class="bar-inner" style="width:8px;background:#94a3b8"></span>月末净赎回2.4亿</td>
+    <td>-2.8</td>
+  </tr>
+  <tr class="total-row">
+    <td>合计（七日年化）</td>
+    <td style="font-size:16px">214.9bp</td><td>100%</td><td>= 2.15% 年化</td>
+    <td>211.2bp</td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<div class="code-block">&lt;!-- 归因分析表：分组行 + 可视化贡献条 + 正负色标识 --&gt;
+&lt;table class="attr-table"&gt;
+  &lt;tr class="group-row"&gt;  &lt;!-- 分组标题 --&gt;
+    &lt;td colspan="5"&gt;◉ 正贡献因子&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;票息收益&lt;/td&gt;
+    &lt;td class="contrib-pos"&gt;+172.5&lt;/td&gt; &lt;!-- 正=绿 --&gt;
+    &lt;td class="bar-cell"&gt;&lt;span class="bar-inner"&gt;&lt;/span&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr class="total-row"&gt; ... &lt;/tr&gt; &lt;!-- 合计行 --&gt;
+&lt;/table&gt;
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+/* ============================================================
+ * 主题：清爽商务风
+ * 来源：A4.html - 货币基金月度收益归因分析服务方案
+ * 适用：A4打印报告、正式商务文档
+ * ============================================================
+ * 使用方式：<link rel="stylesheet" href="tokens/theme-business.css">
+ * 搭配版式：layouts/a4-landscape.html
+ */
+
+:root {
+  /* ── 基础色板 ── */
+  --color-primary:       #2563eb;
+  --color-primary-dark:  #1e3a8a;
+  --color-primary-light: #dbeafe;
+  --color-primary-soft:  #93c5fd;
+
+  /* ── 中性色 ── */
+  --color-bg:            #f3f6fb;
+  --color-surface:       #ffffff;
+  --color-page:           #f8fafc;
+  --color-text:          #1f2937;
+  --color-text-secondary:#64748b;
+  --color-text-muted:    #94a3b8;
+  --color-border:        #e5e7eb;
+
+  /* ── 深色变体 ── */
+  --color-dark-bg:       #0f172a;
+  --color-dark-surface:  #1e293b;
+  --color-dark-text:     #ffffff;
+  --color-dark-muted:    #cbd5e1;
+
+  /* ── 排版 ── */
+  --font-family:         "Microsoft YaHei", Arial, sans-serif;
+  --font-size-h1:        40px;
+  --font-size-h2:        30px;
+  --font-size-h3:        18px;
+  --font-size-body:      15px;
+  --font-size-small:     13px;
+  --font-size-caption:   12px;
+  --line-height-body:    1.7;
+  --line-height-heading: 1.25;
+
+  /* ── 间距 ── */
+  --spacing-xs:          4px;
+  --spacing-sm:          10px;
+  --spacing-md:          16px;
+  --spacing-lg:          24px;
+  --spacing-xl:          32px;
+
+  /* ── 圆角 ── */
+  --radius-sm:           8px;
+  --radius-md:           12px;
+  --radius-lg:           14px;
+  --radius-full:         999px;
+
+  /* ── 阴影 ── */
+  --shadow-card:         0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-process:      0 6px 18px rgba(15, 23, 42, 0.06);
+
+  /* ── A4页面尺寸 ── */
+  --page-width:          297mm;
+  --page-height:         210mm;
+  --page-padding-v:      18mm;
+  --page-padding-h:      22mm;
+}
+
+/* ── 深色模式覆盖 ── */
+.theme-dark,
+.dark {
+  --color-bg:            var(--color-dark-bg);
+  --color-surface:       var(--color-dark-surface);
+  --color-text:          var(--color-dark-text);
+  --color-text-secondary:var(--color-dark-muted);
+  --color-text-muted:    var(--color-dark-muted);
+}
+
+/* ── 打印样式 ── */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+  html, body {
+    width: var(--page-width);
+    height: var(--page-height);
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

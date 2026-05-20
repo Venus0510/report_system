@@ -1,0 +1,171 @@
+/* ============================================================
+ * 版式：A4横版打印
+ * 来源：A4.html
+ * 适用：A4横向报告、仿PPT打印交付、正式商务文档
+ * ============================================================
+ * 搭配主题：tokens/theme-business.css
+ * 使用方式：<link rel="stylesheet" href="layouts/a4-landscape.css">
+ */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg, #f3f6fb);
+  color: var(--color-text, #1f2937);
+  font-family: var(--font-family, "Microsoft YaHei", Arial, sans-serif);
+}
+
+/* ── 页面容器 ── */
+.page {
+  width: var(--page-width, 297mm);
+  height: var(--page-height, 210mm);
+  padding: var(--page-padding-v, 18mm) var(--page-padding-h, 22mm);
+  page-break-after: always;
+  break-after: page;
+  background: var(--color-page, #f8fafc);
+  position: relative;
+  overflow: hidden;
+}
+
+.page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+}
+
+/* ── 封面页 ── */
+.page.cover {
+  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ── 深色页变体 ── */
+.page.dark {
+  background: var(--color-dark-bg, #0f172a);
+  color: white;
+}
+
+/* ── 标题体系 ── */
+h1 {
+  font-size: 40px;
+  line-height: 1.25;
+  margin: 0 0 20px;
+}
+
+h2 {
+  font-size: 30px;
+  margin: 0 0 14px;
+  color: var(--color-text, #0f172a);
+}
+
+.page.dark h2,
+.page.cover h1 {
+  color: white;
+}
+
+h3 {
+  margin: 0 0 10px;
+  color: var(--color-primary-dark, #1e3a8a);
+  font-size: 18px;
+}
+
+.page.dark h3 {
+  color: var(--color-primary-soft, #93c5fd);
+}
+
+p {
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.subtitle {
+  max-width: 850px;
+  font-size: 18px;
+  color: var(--color-text-secondary, #64748b);
+  margin-bottom: 26px;
+}
+
+.page.cover .subtitle,
+.page.dark .subtitle {
+  color: var(--color-dark-muted, #cbd5e1);
+}
+
+/* ── 网格系统 ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid.four {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ── 大数字 ── */
+.big-number {
+  font-size: 48px;
+  color: var(--color-primary, #2563eb);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page.dark .big-number {
+  color: var(--color-primary-soft, #93c5fd);
+}
+
+/* ── 页脚 ── */
+.page .footer {
+  position: absolute;
+  bottom: 10mm;
+  left: 22mm;
+  right: 22mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.page.cover .footer,
+.page.dark .footer {
+  color: var(--color-dark-muted, #cbd5e1);
+}
+
+/* ── 打印 ── */
+@media print {
+  html, body {
+    width: 297mm;
+    height: 210mm;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    margin: 0;
+    box-shadow: none;
+  }
+}
+
+/* ── 响应式：屏幕预览时居中 ── */
+@media screen {
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+  }
+  .page {
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+}

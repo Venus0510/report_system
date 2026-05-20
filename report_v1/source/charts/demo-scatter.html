@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>散点图 | 资源库</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .chart-container{background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 28px rgba(15,23,42,.08);margin-bottom:24px}
+  .chart-box{position:relative;height:400px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">chart</span> 散点图 — 季度万份收益 vs 平均偏离度</h2>
+<p class="meta">适用：双指标定位、业绩vs风险分析、同类基金分布 | 来源：mmf_BI</p>
+
+<div class="chart-container">
+  <div class="chart-box"><canvas id="scatterChart"></canvas></div>
+</div>
+
+<div class="code-block">&lt;!-- 散点图，highlight目标基金位置 --&gt;
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: [
+      { label:'同类基金', data:[{x:,y:},...], backgroundColor:'#94a3b8' },
+      { label:'目标基金', data:[{x:,y:}], backgroundColor:'#0f766e', pointRadius:10 }
+    ]
+  }
+});
+</div>
+
+</div>
+<script>
+// 生成80个"同类基金"散点
+const peers = [];
+for (let i=0;i<80;i++) {
+  peers.push({
+    x: +(28 + Math.random()*8).toFixed(2),
+    y: +(3 + Math.random()*18 - 3).toFixed(1)
+  });
+}
+// 目标基金在特殊位置
+const target = [{ x: 33.5, y: 5.2 }];
+
+new Chart(document.getElementById('scatterChart').getContext('2d'), {
+  type: 'scatter',
+  data: {
+    datasets: [
+      {
+        label:'同类基金', data:peers,
+        backgroundColor:'rgba(148,163,184,0.55)', borderColor:'transparent',
+        pointRadius:5, pointHoverRadius:7
+      },
+      {
+        label:'目标基金', data:target,
+        backgroundColor:'#0f766e', borderColor:'#fff', borderWidth:2,
+        pointRadius:10, pointHoverRadius:13, pointStyle:'rectRounded'
+      }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      tooltip:{ backgroundColor:'rgba(15,23,42,0.92)',padding:12,cornerRadius:10,
+        callbacks:{ label: ctx => '('+ctx.raw.x.toFixed(1)+'万份, '+ctx.raw.y.toFixed(1)+'bp)' }
+      },
+      legend:{ position:'top', labels:{ usePointStyle:true, padding:20 } }
+    },
+    scales:{
+      x:{ title:{ display:true, text:'季度万份收益总额', color:'#64748b' },
+        grid:{ color:'rgba(226,232,240,0.6)' }, ticks:{ font:{size:11} }
+      },
+      y:{ title:{ display:true, text:'平均偏离度(bp)', color:'#64748b' },
+        grid:{ color:'rgba(226,232,240,0.6)' }, ticks:{ font:{size:11}, callback:v=>v+'bp' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

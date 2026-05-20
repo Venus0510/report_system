@@ -1,0 +1,72 @@
+/* ============================================================
+ * 组件：数据表格 Table
+ * 适用主题：theme-business, theme-finance, 所有主题
+ * ============================================================
+ * 直接使用标准 <table> 标签
+ *
+ * 使用示例：
+ *   <table>
+ *     <thead>
+ *       <tr><th>列A</th><th>列B</th></tr>
+ *     </thead>
+ *     <tbody>
+ *       <tr><td>数据1</td><td>数据2</td></tr>
+ *     </tbody>
+ *   </table>
+ */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 22px;
+  background: var(--color-surface, #ffffff);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: var(--font-size-small, 13px);
+}
+
+th, td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--color-primary-light, #dbeafe);
+  color: var(--color-primary-dark, #1e3a8a);
+  font-weight: 700;
+}
+
+/* ── BI风格表头 ── */
+.table-bi th {
+  background: #f8fafc;
+  color: var(--color-brand, #0f766e);
+  font-weight: 900;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── 分组行 ── */
+tr.row-group td {
+  background: #f8fafc;
+  color: var(--color-brand, #0f766e);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* ── 暗色主题 ── */
+.theme-darktech table {
+  background: rgba(255,255,255,0.04);
+  color: var(--color-text, #f5f7fb);
+}
+
+.theme-darktech th {
+  background: rgba(255,255,255,0.08);
+  color: var(--color-accent, #6ea8ff);
+}
+
+.theme-darktech td {
+  border-bottom-color: rgba(255,255,255,0.08);
+}

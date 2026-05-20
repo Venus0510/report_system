@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>流程步骤卡 | 资源库</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#1f2937}
+  .demo-wrap{max-width:960px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:20px}
+  .meta{color:#64748b;font-size:13px;margin-bottom:20px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:12px;font-weight:600;margin-right:6px}
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:18px;font-size:13px;line-height:1.6;overflow:auto;margin-bottom:24px;white-space:pre}
+
+  /* ═══ 流程步骤卡样式 ═══ */
+  .process-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+  .process-card{border-left:4px solid var(--step-color,#2563eb);background:#fff;padding:16px 20px;border-radius:0 12px 12px 0;box-shadow:0 6px 18px rgba(15,23,42,.06)}
+  .process-card h3{margin:0 0 6px;font-size:16px;color:var(--step-color,#2563eb)}
+  .process-card p{margin:0;font-size:14px;color:#64748b;line-height:1.6}
+
+  /* 时间标签 */
+  .process-with-time{display:flex;flex-direction:column;gap:12px}
+  .process-item{display:grid;grid-template-columns:120px 1fr;gap:0;margin-bottom:8px}
+  .process-item .time-tag{background:#dbeafe;color:#1e40af;padding:12px 14px;border-radius:12px 0 0 12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center}
+  .process-item .process-body{border-left:4px solid #2563eb;background:#fff;padding:14px 18px;border-radius:0 12px 12px 0;box-shadow:0 6px 18px rgba(15,23,42,.06)}
+  .process-item .process-body h4{margin:0 0 4px;font-size:15px;color:#1e3a8a}
+  .process-item .process-body p{margin:0;font-size:13px;color:#64748b;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<h2><span class="badge">card</span> 流程步骤卡 — 左侧色条 + 标题描述</h2>
+<p class="meta">适用：流程展示、步骤说明、方法论介绍 | 来源：A4.html</p>
+
+<div class="process-list">
+  <div class="process-card" style="--step-color:#2563eb">
+    <h3>1. 数据收集与整理</h3>
+    <p>获取组合持仓、收益表现、规模变化、申赎数据及市场利率数据。</p>
+  </div>
+  <div class="process-card" style="--step-color:#0f766e">
+    <h3>2. 归因测算与复核</h3>
+    <p>完成五维度收益归因测算，并对异常波动和关键假设进行复核。</p>
+  </div>
+  <div class="process-card" style="--step-color:#d97706">
+    <h3>3. 报告撰写</h3>
+    <p>形成月度归因报告初稿，提炼核心结论、风险观察和管理建议。</p>
+  </div>
+</div>
+
+<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
+
+<h2 style="font-size:18px;margin-bottom:16px"><span class="badge">card</span> 带时间标签的流程步骤</h2>
+
+<div class="process-with-time">
+  <div class="process-item">
+    <div class="time-tag">T+1 至 T+3</div>
+    <div class="process-body">
+      <h4>数据收集与整理</h4>
+      <p>获取组合持仓、收益表现、规模变化、申赎数据及市场利率数据。</p>
+    </div>
+  </div>
+  <div class="process-item">
+    <div class="time-tag">T+4 至 T+5</div>
+    <div class="process-body">
+      <h4>归因测算与复核</h4>
+      <p>完成五维度收益归因测算，并对异常波动和关键假设进行复核。</p>
+    </div>
+  </div>
+  <div class="process-item">
+    <div class="time-tag">T+6 至 T+7</div>
+    <div class="process-body">
+      <h4>报告撰写</h4>
+      <p>形成月度归因报告初稿，提炼核心结论、风险观察和管理建议。</p>
+    </div>
+  </div>
+  <div class="process-item">
+    <div class="time-tag">T+8 至 T+9</div>
+    <div class="process-body">
+      <h4>沟通与定稿</h4>
+      <p>与客户沟通反馈，完成最终报告交付及管理层汇报材料。</p>
+    </div>
+  </div>
+</div>
+
+<div class="code-block">&lt;!-- 流程步骤卡 --&gt;
+&lt;div class="process-card" style="--step-color:#2563eb"&gt;
+  &lt;h3&gt;步骤标题&lt;/h3&gt;
+  &lt;p&gt;步骤描述&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 带时间标签 --&gt;
+&lt;div class="process-item"&gt;
+  &lt;div class="time-tag"&gt;T+1 至 T+3&lt;/div&gt;
+  &lt;div class="process-body"&gt;
+    &lt;h4&gt;步骤标题&lt;/h4&gt;
+    &lt;p&gt;描述&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</div>
+
+</div>
+</body>
+</html>

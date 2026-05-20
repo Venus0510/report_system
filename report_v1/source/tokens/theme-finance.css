@@ -1,0 +1,89 @@
+/* ============================================================
+ * 主题：金融专业风
+ * 来源：mmf_BI/money_market_fund_bi_template.html
+ * 适用：BI仪表盘、数据分析看板、交互式金融报告
+ * ============================================================
+ * 使用方式：<link rel="stylesheet" href="tokens/theme-finance.css">
+ * 搭配版式：layouts/bi-dashboard.html
+ */
+
+:root {
+  /* ── 基础色板 ── */
+  --color-brand:         #0f766e;
+  --color-brand-soft:    #ccfbf1;
+  --color-brand-hover:   #115e59;
+  --color-danger:        #b91c1c;
+
+  /* ── 中性色 ── */
+  --color-bg:            #e8eef3;
+  --color-surface:       #ffffff;
+  --color-paper:         #ffffff;
+  --color-panel-bg:      rgba(255, 255, 255, 0.76);
+  --color-ink:           #18202a;
+  --color-text:          #18202a;
+  --color-muted:         #64748b;
+  --color-line:          #e2e8f0;
+
+  /* ── 排版 ── */
+  --font-family:         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  --font-size-h1:        clamp(18px, 2.1vw, 26px);
+  --font-size-h2:        20px;
+  --font-size-h3:        15px;
+  --font-size-body:      14px;
+  --font-size-small:     13px;
+  --font-size-caption:   12px;
+  --font-size-metric:    10px;
+  --line-height-heading: 1.05;
+  --line-height-body:    1.35;
+
+  /* ── 间距 ── */
+  --spacing-xs:          4px;
+  --spacing-sm:          8px;
+  --spacing-md:          12px;
+  --spacing-lg:          24px;
+  --spacing-xl:          36px;
+
+  /* ── 圆角 ── */
+  --radius-sm:           10px;
+  --radius-md:           12px;
+  --radius-lg:           16px;
+  --radius-xl:           18px;
+  --radius-full:         999px;
+
+  /* ── 阴影 ── */
+  --shadow-card:         0 18px 40px rgba(15, 23, 42, 0.12);
+  --shadow-toolbar:      none;
+
+  /* ── A4 Slide尺寸 ── */
+  --slide-width:         297mm;
+  --slide-height:        210mm;
+  --slide-padding-v:     18mm;
+  --slide-padding-h:     18mm;
+
+  /* ── 工具栏 ── */
+  --toolbar-bg:          rgba(255, 255, 255, 0.82);
+  --toolbar-blur:        16px;
+}
+
+/* ── 全局背景（渐变 + 点阵） ── */
+body.theme-finance {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(20, 184, 166, 0.18), transparent 28%),
+    radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.14), transparent 30%),
+    linear-gradient(135deg, #e8eef3 0%, #f8fafc 46%, #edf7f5 100%);
+  background-attachment: fixed;
+}
+
+/* ── 微妙的网格点阵背景 ── */
+.bg-dot-grid::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent 78%);
+}

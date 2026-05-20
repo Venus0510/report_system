@@ -1,0 +1,83 @@
+/* ============================================================
+ * 主题：企业蓝白风
+ * 来源：ppt.html - 估值政策培训
+ * 适用：全屏Slide演示、培训材料、会议汇报
+ * ============================================================
+ * 使用方式：<link rel="stylesheet" href="tokens/theme-corporate.css">
+ * 搭配版式：layouts/slides-fullscreen.html
+ */
+
+:root {
+  /* ── 基础色板 ── */
+  --color-navy:          #123a63;
+  --color-blue:          #0f5a96;
+  --color-accent:        #0096d6;
+  --color-accent-light:  #eef8fc;
+  --color-accent-hover:  #007ba8;
+
+  /* ── 中性色 ── */
+  --color-bg:            #eef2f6;
+  --color-surface:       #ffffff;
+  --color-text:          #1f2937;
+  --color-text-heading:  #20242a;
+  --color-text-secondary:#64686f;
+  --color-text-muted:    #7b8088;
+  --color-border:        #d7e4ef;
+  --color-divider:       #d9e3ee;
+
+  /* ── 排版 ── */
+  --font-family:         -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+  --font-family-display: "STKaiti", "Kaiti SC", "KaiTi", "Noto Serif SC", "Microsoft YaHei", serif;
+  --font-size-h1:        clamp(42px, 6.1vw, 78px);
+  --font-size-h2:        clamp(38px, 5vw, 68px);
+  --font-size-h3:        clamp(24px, 2.85vw, 40px);
+  --font-size-body:      16px;
+  --font-size-small:     clamp(13px, 1.2vw, 18px);
+  --font-size-caption:   clamp(14px, 1.25vw, 20px);
+  --line-height-heading: 1.16;
+  --line-height-body:    1.5;
+
+  /* ── 间距 ── */
+  --spacing-xs:          7px;
+  --spacing-sm:          10px;
+  --spacing-md:          24px;
+  --spacing-lg:          3.1vw;
+  --spacing-xl:          7.6vw;
+
+  /* ── 圆角 ── */
+  --radius-sm:           8px;
+  --radius-full:         999px;
+
+  /* ── 阴影 ── */
+  --shadow-nav:          0 8px 22px rgba(18, 58, 99, 0.24);
+  --shadow-module:       0 14px 38px rgba(0, 150, 214, 0.12);
+
+  /* ── 全屏Slide尺寸 ── */
+  --slide-width:         100vw;
+  --slide-height:        100vh;
+}
+
+/* ── 装饰元素 ── */
+.accent-line {
+  position: absolute;
+  left: 0;
+  width: 7px;
+  background: var(--color-accent);
+}
+
+/deep/ .accent-divider {
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-accent), #00a6de, rgba(0, 166, 222, 0));
+}
+
+/* ── 打印样式 ── */
+@media print {
+  .page {
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: 100vh !important;
+    page-break-after: always;
+  }
+}

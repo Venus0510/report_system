@@ -1,0 +1,76 @@
+/* ============================================================
+ * 组件：指标芯片 Metric Chip
+ * 来源：mmf_BI
+ * ============================================================
+ * 类名：.metric-chip
+ *
+ * 使用示例：
+ *   <div class="metric-chip">
+ *     <div class="metric-label">七日年化</div>
+ *     <div class="metric-value">2.35%</div>
+ *   </div>
+ */
+
+.metric-chip {
+  border: 1px solid var(--color-line, #e2e8f0);
+  border-radius: var(--radius-sm, 10px);
+  padding: 6px 7px;
+  background: #f8fafc;
+  min-width: 0;
+}
+
+.metric-chip .metric-label {
+  color: var(--color-muted, #64748b);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-chip .metric-value {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 高亮变体 ── */
+.metric-chip.highlight {
+  border-color: var(--color-brand, #0f766e);
+  background: var(--color-brand-soft, #ccfbf1);
+}
+
+.metric-chip.highlight .metric-value {
+  color: var(--color-brand, #0f766e);
+}
+
+/* ── 带趋势指示 ── */
+.metric-chip .metric-trend {
+  font-size: 10px;
+  margin-left: 2px;
+}
+
+.metric-chip .metric-trend.up {
+  color: #16a34a;
+}
+
+.metric-chip .metric-trend.down {
+  color: var(--color-danger, #b91c1c);
+}
+
+/* ── 暗色主题 ── */
+.theme-darktech .metric-chip {
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+}
+
+.theme-darktech .metric-chip .metric-label {
+  color: var(--color-text-muted, #aeb7cc);
+}
+
+.theme-darktech .metric-chip .metric-value {
+  color: var(--color-text, #f5f7fb);
+}
