@@ -1,11 +1,11 @@
 {
   "sessionId": "1d51a887-0a58-4f45-8af0-4ab5937d9558",
   "startTime": "2026-05-20T01:21:12.535Z",
-  "promptCount": 1,
-  "responseCount": 0,
-  "currentFile": "/Users/lunatang/Documents/report_system/chat_history/2026-05-20/你好.md",
-  "currentTopic": "你好",
+  "promptCount": 9,
+  "responseCount": 17,
+  "currentFile": "/Users/lunatang/Documents/report_system/chat_history/2026-05-20/等组件库搭建完成后，用户在ppt生成工具是一个的实现方法.md",
+  "currentTopic": "等组件库搭建完成后，用户在ppt生成工具是一个的实现方法",
   "currentPart": 1,
   "filePaths": [],
-  "lastActivity": "2026-05-20T01:21:16.865Z"
+  "lastActivity": "2026-05-20T07:49:02.918Z"
 }
