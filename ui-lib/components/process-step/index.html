@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>流程步骤条 — 组件预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../../design-tokens/tokens.css">
+<style>
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); margin: 0; padding: 24px; }
+  .preview-container { max-width: 960px; margin: 0 auto; }
+  .back-link { color: var(--color-accent); text-decoration: none; font-size: var(--text-sm); display: inline-block; margin-bottom: 16px; }
+  .back-link:hover { text-decoration: underline; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { font-size: var(--text-xl); font-weight: 700; margin: 0; }
+  .theme-switcher { display: flex; gap: 8px; }
+  .theme-btn { padding: 6px 16px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); background: var(--color-bg-card); color: var(--color-text); cursor: pointer; font-size: var(--text-sm); transition: all 0.2s; }
+  .theme-btn:hover { border-color: var(--color-accent); }
+  .theme-btn.active { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: var(--text-lg); font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--color-border); }
+  .preview-area { background: var(--color-bg); border-radius: var(--radius-lg); padding: 32px; display: flex; justify-content: center; align-items: flex-start; gap: 16px; flex-wrap: wrap; border: 1px dashed var(--color-border); }
+  .props-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .props-table th { text-align: left; padding: 10px 14px; background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+  .props-table td { padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
+  .code-block { background: #1e293b; border-radius: var(--radius-md); padding: 20px; overflow-x: auto; position: relative; }
+  .code-block pre { margin: 0; color: #e2e8f0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; white-space: pre; }
+  .code-lang { position: absolute; top: 8px; right: 14px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .btn { padding: 8px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: var(--text-sm); font-weight: 500; transition: all 0.2s; }
+  .btn-primary { background: var(--color-primary); color: #fff; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: var(--color-bg-card); color: var(--color-text); border: 1px solid var(--color-border); }
+  .btn-secondary:hover { border-color: var(--color-accent); }
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 10px 22px; border-radius: var(--radius-md); font-size: var(--text-sm); z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="preview-container">
+  <a href="../../gallery.html" class="back-link">&larr; 返回组件库总览</a>
+  <div class="page-header">
+    <h1>流程步骤条</h1>
+    <div class="theme-switcher" id="themeSwitcher">
+      <button class="theme-btn active" data-theme="business-blue">商务蓝白</button>
+      <button class="theme-btn" data-theme="dark-tech">暗黑科技</button>
+      <button class="theme-btn" data-theme="fresh-clean">清新简约</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">实时预览</div>
+    <div class="preview-area" id="previewArea"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">数据接口（Props）</div>
+    <table class="props-table">
+      <thead><tr><th>属性</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>steps</td><td>Array</td><td>—（必填）</td><td>步骤数组：[{ title, description }]</td></tr>
+        <tr><td>steps[].title</td><td>String</td><td>—</td><td>步骤标题</td></tr>
+        <tr><td>steps[].description</td><td>String</td><td>—</td><td>步骤说明</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">HTML 代码</div>
+    <div class="code-block"><span class="code-lang">template.html</span><pre id="htmlCode"></pre></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="copyCode('html')">复制 HTML 片段</button>
+      <button class="btn btn-secondary" onclick="copyCode('vue')">复制 Vue 代码</button>
+      <button class="btn btn-secondary" onclick="window.open(location.href, '_blank')">在新标签页打开</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.documentElement.setAttribute('data-theme', btn.dataset.theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+const fallback = `<div data-cid="process-step" class="flex flex-col gap-0">
+  <div class="flex items-start gap-4 pb-6 relative">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">1</div>
+    <div class="flex-1 pt-1">
+      <h4 class="font-semibold text-sm" style="color:var(--color-text)">数据采集</h4>
+      <p class="text-xs mt-1" style="color:var(--color-text-muted)">从Wind、Choice等终端获取货币基金日度净值、规模数据，完成格式校验与缺失值填补</p>
+    </div>
+  </div>
+  <div class="flex items-start gap-4 pb-6 relative">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">2</div>
+    <div class="flex-1 pt-1">
+      <h4 class="font-semibold text-sm" style="color:var(--color-text)">指标计算</h4>
+      <p class="text-xs mt-1" style="color:var(--color-text-muted)">计算七日年化收益率、万份收益、近一月回报率等核心绩效指标，同步计算夏普比率和最大回撤</p>
+    </div>
+  </div>
+  <div class="flex items-start gap-4">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">3</div>
+    <div class="flex-1 pt-1">
+      <h4 class="font-semibold text-sm" style="color:var(--color-text)">报告生成</h4>
+      <p class="text-xs mt-1" style="color:var(--color-text-muted)">将计算结果与历史分位数对比，生成归因分析图表，自动输出客户端/监管端两种格式报告</p>
+    </div>
+  </div>
+</div>`;
+const vueCode = `const ProcessStep = {
+  name: 'ProcessStep',
+  props: {
+    steps: { type: Array, required: true }
+  },
+  template: \`
+    <div data-cid="process-step" class="flex flex-col gap-0">
+      <div v-for="(step, i) in steps" :key="i"
+           class="flex items-start gap-4 relative" :class="{'pb-6': i < steps.length - 1}">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">{{ i + 1 }}</div>
+        <div class="flex-1 pt-1">
+          <h4 class="font-semibold text-sm" style="color:var(--color-text)">{{ step.title }}</h4>
+          <p class="text-xs mt-1" style="color:var(--color-text-muted)">{{ step.description }}</p>
+        </div>
+      </div>
+    </div>
+  \`
+};`;
+async function init() {
+  let html = '';
+  try { const r = await fetch('./template.html'); if (r.ok) html = await r.text(); } catch(e) {}
+  if (!html) html = fallback;
+  document.getElementById('previewArea').innerHTML = html;
+  document.getElementById('htmlCode').textContent = html.trim();
+}
+function copyCode(type) {
+  const text = type === 'html' ? document.getElementById('htmlCode').textContent : vueCode;
+  navigator.clipboard.writeText(text).then(() => { const t=document.getElementById('toast'); t.textContent='已复制到剪贴板'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); });
+}
+init();
+</script>
+</body>
+</html>

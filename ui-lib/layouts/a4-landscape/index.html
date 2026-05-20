@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A4 横版分页 — 版式预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../../design-tokens/tokens.css">
+<link rel="stylesheet" href="layout.css">
+<style>
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); margin: 0; padding: 24px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .back-link { color: var(--color-accent); text-decoration: none; font-size: var(--text-sm); display: inline-block; margin-bottom: 16px; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { font-size: var(--text-xl); font-weight: 700; margin: 0; }
+  .theme-switcher { display: flex; gap: 8px; }
+  .theme-btn { padding: 6px 16px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); background: var(--color-bg-card); color: var(--color-text); cursor: pointer; font-size: var(--text-sm); }
+  .theme-btn:hover { border-color: var(--color-accent); }
+  .theme-btn.active { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: var(--text-lg); font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--color-border); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .btn { padding: 8px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: var(--text-sm); font-weight: 500; }
+  .btn-primary { background: var(--color-primary); color: #fff; }
+  .btn-secondary { background: var(--color-bg-card); color: var(--color-text); border: 1px solid var(--color-border); }
+  .info-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: var(--text-sm); }
+  .info-list li { padding: 8px 12px; background: var(--color-bg-card); border-radius: var(--radius-sm); }
+  .info-list strong { color: var(--color-primary); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="../../gallery.html" class="back-link">&larr; 返回组件库总览</a>
+  <div class="page-header">
+    <h1>A4 横版分页</h1>
+    <div class="theme-switcher">
+      <button class="theme-btn active" data-theme="business-blue">商务蓝白</button>
+      <button class="theme-btn" data-theme="dark-tech">暗黑科技</button>
+      <button class="theme-btn" data-theme="fresh-clean">清新简约</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">版式参数</div>
+    <ul class="info-list">
+      <li><strong>容器尺寸</strong> 297mm × 210mm</li>
+      <li><strong>翻页方式</strong> CSS page-break-after（打印分页）</li>
+      <li><strong>内容区</strong> padding 18mm × 22mm</li>
+      <li><strong>适用场景</strong> 正式报告、监管报送、印刷输出</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">实时预览</div>
+    <div class="layout-preview">
+      <!-- 第1页示例 -->
+      <section class="page-a4-landscape">
+        <div class="page-header-strip"></div>
+        <div class="content-area">
+          <div class="flex flex-col h-full justify-between">
+            <div>
+              <h1 class="text-4xl font-bold mb-4" style="color:var(--color-primary)">货币基金月度估值分析</h1>
+              <p class="text-lg" style="color:var(--color-text-muted)">2026年5月 · 面向管理人</p>
+              <div class="mt-3 h-1 w-24 rounded-full" style="background:var(--color-accent)"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-6">
+              <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
+                <div class="text-3xl font-bold" style="color:var(--color-primary)">3.28<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">七日年化</p>
+              </div>
+              <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
+                <div class="text-3xl font-bold" style="color:var(--color-primary)">0.5892<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">万份收益</p>
+              </div>
+              <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
+                <div class="text-3xl font-bold" style="color:var(--color-success)">0.18<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">近一月回报</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="page-footer">第 1 页</footer>
+      </section>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="window.print()">打印预览</button>
+      <button class="btn btn-secondary" onclick="window.open(location.href, '_blank')">全屏查看</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.documentElement.setAttribute('data-theme', btn.dataset.theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

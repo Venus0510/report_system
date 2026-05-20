@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商务蓝白 — 风格预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../../design-tokens/tokens.css">
+<style>
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); margin: 0; padding: 24px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  .back-link { color: var(--color-accent); text-decoration: none; font-size: var(--text-sm); display: inline-block; margin-bottom: 16px; }
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-size: var(--text-3xl); font-weight: 700; margin: 0; }
+  .page-header p { color: var(--color-text-muted); margin: 8px 0 0; }
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: var(--text-xl); font-weight: 700; margin-bottom: 16px; }
+  .component-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="../../gallery.html" class="back-link">&larr; 返回组件库总览</a>
+  <div class="page-header">
+    <h1>商务蓝白</h1>
+    <p>专业、稳重、信赖感 — 适合金融报告、企业汇报、监管报送</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">组件渲染效果</div>
+    <div class="component-row">
+
+      <div data-cid="kpi-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 shadow-[var(--shadow-card)]">
+        <span class="text-xs font-semibold px-3 py-1 rounded-full w-fit" style="color:var(--color-primary);background:var(--color-primary-light)">环比 +12.5%</span>
+        <div class="text-5xl font-bold" style="color:var(--color-primary)">3.28<span class="text-lg font-normal" style="color:var(--color-text-muted)">%</span></div>
+        <p class="text-sm" style="color:var(--color-text-muted)">七日年化收益率</p>
+      </div>
+
+      <div data-cid="info-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)]">
+        <h3 class="text-lg font-bold mb-3" style="color:var(--color-primary)">市场表现稳健</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--color-text-muted)">货币基金整体七日年化维持2.10%-2.25%区间，万份收益稳定在0.58元左右，流动性环境宽松。</p>
+      </div>
+
+      <div data-cid="highlight-quote" class="bg-[var(--color-primary-light)] border-l-4 rounded-r-[var(--radius-md)] p-6" style="border-color:var(--color-primary)">
+        <blockquote class="text-lg leading-relaxed italic mb-3" style="color:var(--color-primary)">"流动性管理的核心不是预测，而是保持充足的缓冲。"</blockquote>
+        <cite class="text-sm font-medium not-italic" style="color:var(--color-text-muted)">—— 投资总监 张明</cite>
+      </div>
+
+      <div data-cid="section-header" class="mb-0">
+        <h2 class="text-2xl font-bold" style="color:var(--color-primary)">核心指标概览</h2>
+        <p class="text-sm mt-2" style="color:var(--color-text-muted)">2026年5月</p>
+        <div class="mt-3 h-1 w-16 rounded-full" style="background:var(--color-accent)"></div>
+      </div>
+
+      <div data-cid="divider" class="flex items-center gap-4">
+        <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+        <span class="text-xs font-medium shrink-0" style="color:var(--color-text-muted)">● ● ●</span>
+        <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+      </div>
+
+      <!-- 数据表格缩略 -->
+      <div class="overflow-x-auto rounded-[var(--radius-lg)] border shadow-[var(--shadow-card)]" style="border-color:var(--color-border)">
+        <table class="w-full text-sm border-collapse">
+          <thead><tr style="background:var(--color-primary)"><th class="text-left p-3 font-semibold text-white">基金</th><th class="text-right p-3 font-semibold text-white">七日年化</th><th class="text-right p-3 font-semibold text-white">规模</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--color-bg-card)"><td class="p-3">天弘货币A</td><td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.15%</td><td class="p-3 text-right">156亿</td></tr>
+            <tr style="background:var(--color-primary-light);opacity:0.5"><td class="p-3">南方现金A</td><td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.08%</td><td class="p-3 text-right">98亿</td></tr>
+            <tr style="background:var(--color-bg-card)"><td class="p-3">华夏现金A</td><td class="p-3 text-right font-mono" style="color:var(--color-accent)">2.21%</td><td class="p-3 text-right">203亿</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

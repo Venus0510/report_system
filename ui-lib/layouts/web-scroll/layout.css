@@ -1,0 +1,33 @@
+/* 自由滚动网页布局 */
+
+.web-scroll-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.web-scroll-section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.web-scroll-section:last-child {
+  border-bottom: none;
+}
+
+.web-scroll-section.hero {
+  padding: 120px 0 80px;
+  text-align: center;
+}
+
+.web-scroll-section.cta {
+  text-align: center;
+  padding: 100px 0;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .web-scroll-container { padding: 0 16px; }
+  .web-scroll-section { padding: 48px 0; }
+  .web-scroll-section.hero { padding: 80px 0 48px; }
+}

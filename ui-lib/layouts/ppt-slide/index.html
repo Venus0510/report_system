@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPT Slide 翻页 — 版式预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../../design-tokens/tokens.css">
+<link rel="stylesheet" href="layout.css">
+<style>
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); margin: 0; overflow: hidden; }
+  .back-bar { position: fixed; top: 16px; left: 24px; z-index: 200; }
+  .back-link { color: var(--color-accent); text-decoration: none; font-size: var(--text-sm); background: var(--color-bg-card); padding: 6px 14px; border-radius: var(--radius-sm); box-shadow: var(--shadow-card); }
+  .theme-bar { position: fixed; top: 16px; right: 24px; z-index: 200; display: flex; gap: 6px; }
+  .theme-btn { padding: 5px 12px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); background: var(--color-bg-card); color: var(--color-text); cursor: pointer; font-size: var(--text-xs); box-shadow: var(--shadow-card); }
+  .theme-btn.active { border-color: var(--color-primary); background: var(--color-primary); color: #fff; font-weight: 600; }
+  .keyboard-hint { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); font-size: var(--text-xs); color: var(--color-text-muted); z-index: 200; opacity: 0.5; }
+</style>
+</head>
+<body>
+<div class="back-bar"><a href="../../gallery.html" class="back-link">&larr; 返回总览</a></div>
+<div class="theme-bar">
+  <button class="theme-btn active" data-theme="business-blue">商务蓝白</button>
+  <button class="theme-btn" data-theme="dark-tech">暗黑科技</button>
+  <button class="theme-btn" data-theme="fresh-clean">清新简约</button>
+</div>
+<div class="keyboard-hint">← → 方向键翻页 · 点击底部圆点跳转</div>
+
+<div class="ppt-container" id="pptContainer">
+  <!-- Slide 1: 封面 -->
+  <section class="ppt-slide active" data-slide="1" style="background:var(--color-bg)">
+    <div class="slide-content flex flex-col justify-center items-center text-center">
+      <h1 class="text-6xl font-bold mb-6" style="color:var(--color-primary)">货币基金月度估值分析</h1>
+      <p class="text-xl mb-12" style="color:var(--color-text-muted)">2026年5月 · 面向管理人</p>
+      <div class="h-1 w-32 rounded-full mb-12" style="background:var(--color-accent)"></div>
+      <p class="text-sm" style="color:var(--color-text-muted)">投资管理部 · 固定收益组</p>
+    </div>
+    <footer class="slide-footer">1 / 4</footer>
+  </section>
+
+  <!-- Slide 2: 核心指标 -->
+  <section class="ppt-slide" data-slide="2" style="background:var(--color-bg)">
+    <div class="slide-content">
+      <h2 class="text-3xl font-bold mb-2" style="color:var(--color-primary)">核心指标概览</h2>
+      <p class="text-sm mb-8" style="color:var(--color-text-muted)">三只货币基金绩效对比</p>
+      <div class="grid grid-cols-3 gap-8">
+        <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-card)] text-center">
+          <div class="text-5xl font-bold mb-3" style="color:var(--color-primary)">3.28<span class="text-xl font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
+          <p class="text-sm font-medium" style="color:var(--color-text)">七日年化</p>
+          <span class="text-xs mt-2 inline-block px-3 py-1 rounded-full" style="color:var(--color-success);background:var(--color-primary-light)">↑ 稳定</span>
+        </div>
+        <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-card)] text-center">
+          <div class="text-5xl font-bold mb-3" style="color:var(--color-primary)">0.5892<span class="text-xl font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>
+          <p class="text-sm font-medium" style="color:var(--color-text)">万份收益</p>
+          <span class="text-xs mt-2 inline-block px-3 py-1 rounded-full" style="color:var(--color-success);background:var(--color-primary-light)">↑ 0.8%</span>
+        </div>
+        <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-card)] text-center">
+          <div class="text-5xl font-bold mb-3" style="color:var(--color-success)">156<span class="text-xl font-normal ml-1" style="color:var(--color-text-muted)">亿</span></div>
+          <p class="text-sm font-medium" style="color:var(--color-text)">管理规模</p>
+          <span class="text-xs mt-2 inline-block px-3 py-1 rounded-full" style="color:var(--color-primary);background:var(--color-primary-light)">↑ 12亿</span>
+        </div>
+      </div>
+    </div>
+    <footer class="slide-footer">2 / 4</footer>
+  </section>
+
+  <!-- Slide 3: 数据表格 -->
+  <section class="ppt-slide" data-slide="3" style="background:var(--color-bg)">
+    <div class="slide-content">
+      <h2 class="text-3xl font-bold mb-2" style="color:var(--color-primary)">基金对比分析</h2>
+      <p class="text-sm mb-8" style="color:var(--color-text-muted)">主要绩效指标横向对比</p>
+      <table class="w-full text-sm border-collapse rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-card)]">
+        <thead>
+          <tr style="background:var(--color-primary)">
+            <th class="text-left p-4 font-semibold text-white">基金名称</th>
+            <th class="text-right p-4 font-semibold text-white">七日年化</th>
+            <th class="text-right p-4 font-semibold text-white">万份收益</th>
+            <th class="text-right p-4 font-semibold text-white">规模</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:var(--color-bg-card)"><td class="p-4 font-medium">天弘货币A</td><td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.15%</td><td class="p-4 text-right font-mono">0.5892</td><td class="p-4 text-right font-mono">156亿</td></tr>
+          <tr style="background:var(--color-primary-light);opacity:0.5"><td class="p-4 font-medium">南方现金A</td><td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.08%</td><td class="p-4 text-right font-mono">0.5701</td><td class="p-4 text-right font-mono">98亿</td></tr>
+          <tr style="background:var(--color-bg-card)"><td class="p-4 font-medium">华夏现金A</td><td class="p-4 text-right font-mono" style="color:var(--color-accent)">2.21%</td><td class="p-4 text-right font-mono">0.6013</td><td class="p-4 text-right font-mono">203亿</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <footer class="slide-footer">3 / 4</footer>
+  </section>
+
+  <!-- Slide 4: 总结 -->
+  <section class="ppt-slide" data-slide="4" style="background:var(--color-bg)">
+    <div class="slide-content flex flex-col justify-center items-center text-center">
+      <h2 class="text-4xl font-bold mb-8" style="color:var(--color-primary)">总结与展望</h2>
+      <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-lg)] p-8 max-w-2xl mx-auto text-left">
+        <p class="text-lg leading-relaxed" style="color:var(--color-text)">货币基金整体运行稳健，七日年化收益率维持在2.10%-2.25%区间。华夏现金A在收益表现上略优于同组，建议持续关注其持仓结构变化带来的超额收益持续性。</p>
+      </div>
+      <p class="text-sm mt-10" style="color:var(--color-text-muted)">谢谢 · 投资管理部 · 2026年5月</p>
+    </div>
+    <footer class="slide-footer">4 / 4</footer>
+  </section>
+
+  <div class="ppt-nav-dots" id="navDots">
+    <button class="ppt-nav-dot active" data-target="1"></button>
+    <button class="ppt-nav-dot" data-target="2"></button>
+    <button class="ppt-nav-dot" data-target="3"></button>
+    <button class="ppt-nav-dot" data-target="4"></button>
+  </div>
+</div>
+
+<script>
+let currentSlide = 1;
+const totalSlides = 4;
+
+function goToSlide(n) {
+  const slides = document.querySelectorAll('.ppt-slide');
+  const dots = document.querySelectorAll('.ppt-nav-dot');
+  slides.forEach(s => s.classList.remove('active'));
+  dots.forEach(d => d.classList.remove('active'));
+  slides[n - 1].classList.add('active');
+  dots[n - 1].classList.add('active');
+  currentSlide = n;
+}
+
+document.querySelectorAll('.ppt-nav-dot').forEach(dot => {
+  dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.target)));
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' && currentSlide < totalSlides) goToSlide(currentSlide + 1);
+  if (e.key === 'ArrowLeft' && currentSlide > 1) goToSlide(currentSlide - 1);
+});
+
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.documentElement.setAttribute('data-theme', btn.dataset.theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

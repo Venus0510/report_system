@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Token 可视化预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); margin: 0; padding: 24px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-size: var(--text-3xl); font-weight: 700; margin: 0 0 8px 0; }
+  .page-header p { color: var(--color-text-muted); font-size: var(--text-base); margin: 0; }
+
+  .theme-tabs { display: flex; gap: 0; margin-bottom: 32px; border-radius: var(--radius-md); overflow: hidden; border: 2px solid var(--color-border); width: fit-content; }
+  .theme-tab { padding: 10px 24px; border: none; background: var(--color-bg-card); color: var(--color-text); cursor: pointer; font-size: var(--text-sm); font-weight: 500; transition: all 0.2s; }
+  .theme-tab + .theme-tab { border-left: 1px solid var(--color-border); }
+  .theme-tab:hover { background: var(--color-primary-light); }
+  .theme-tab.active { background: var(--color-primary); color: #fff; font-weight: 600; }
+
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: var(--text-xl); font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--color-border); }
+
+  /* 色块矩阵 */
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  .color-item { border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card); }
+  .color-swatch { height: 80px; }
+  .color-info { padding: 12px; background: var(--color-bg-card); }
+  .color-name { font-size: var(--text-sm); font-weight: 600; margin-bottom: 4px; }
+  .color-value { font-size: var(--text-xs); color: var(--color-text-muted); font-family: 'SF Mono', monospace; }
+
+  /* 字体阶梯 */
+  .font-scale { display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--color-bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+  .font-row { display: flex; align-items: baseline; gap: 24px; padding: 8px 0; border-bottom: 1px solid var(--color-border); }
+  .font-row:last-child { border-bottom: none; }
+  .font-label { font-size: var(--text-xs); color: var(--color-text-muted); min-width: 80px; font-family: 'SF Mono', monospace; }
+  .font-sample-3xl { font-size: var(--text-3xl); font-weight: 700; }
+  .font-sample-xl { font-size: var(--text-xl); font-weight: 700; }
+  .font-sample-lg { font-size: var(--text-lg); font-weight: 600; }
+  .font-sample-base { font-size: var(--text-base); }
+  .font-sample-sm { font-size: var(--text-sm); }
+  .font-sample-xs { font-size: var(--text-xs); }
+
+  /* 间距标尺 */
+  .spacing-demo { display: flex; flex-direction: column; gap: 12px; padding: 24px; background: var(--color-bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+  .spacing-row { display: flex; align-items: center; gap: 16px; }
+  .spacing-label { font-size: var(--text-xs); color: var(--color-text-muted); min-width: 80px; font-family: 'SF Mono', monospace; }
+  .spacing-bar { height: 24px; background: var(--color-primary); border-radius: var(--radius-sm); opacity: 0.7; }
+
+  /* 圆角卡片 */
+  .radius-demo { display: flex; gap: 24px; flex-wrap: wrap; padding: 24px; background: var(--color-bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+  .radius-card { width: 120px; height: 80px; background: var(--color-primary); display: flex; align-items: center; justify-content: center; color: #fff; font-size: var(--text-xs); font-weight: 600; }
+  .radius-sm-card { border-radius: var(--radius-sm); }
+  .radius-md-card { border-radius: var(--radius-md); }
+  .radius-lg-card { border-radius: var(--radius-lg); }
+
+  /* 阴影对比 */
+  .shadow-demo { display: flex; gap: 24px; flex-wrap: wrap; padding: 24px; background: var(--color-bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+  .shadow-sample { width: 160px; height: 100px; background: var(--color-bg-card); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: 600; }
+  .shadow-sample-card { box-shadow: var(--shadow-card); }
+  .shadow-sample-elevated { box-shadow: var(--shadow-elevated); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="page-header">
+    <h1>Design Token 可视化预览</h1>
+    <p>所有 CSS 自定义属性的实际渲染效果。切换主题即可看到所有色块和样式即时变化。</p>
+  </div>
+
+  <div class="theme-tabs" id="themeTabs">
+    <button class="theme-tab active" data-theme="business-blue">商务蓝白</button>
+    <button class="theme-tab" data-theme="dark-tech">暗黑科技</button>
+    <button class="theme-tab" data-theme="fresh-clean">清新简约</button>
+  </div>
+
+  <!-- 色彩系统 -->
+  <div class="section">
+    <div class="section-title">色彩系统</div>
+    <div class="color-grid" id="colorGrid"></div>
+  </div>
+
+  <!-- 字体排版 -->
+  <div class="section">
+    <div class="section-title">字体排版</div>
+    <div class="font-scale">
+      <div class="font-row"><span class="font-label">--text-3xl</span><span class="font-sample-3xl">系统字体展示 40px</span></div>
+      <div class="font-row"><span class="font-label">--text-xl</span><span class="font-sample-xl">系统字体展示 28px</span></div>
+      <div class="font-row"><span class="font-label">--text-lg</span><span class="font-sample-lg">系统字体展示 20px</span></div>
+      <div class="font-row"><span class="font-label">--text-base</span><span class="font-sample-base">系统字体展示 16px — 正文排版示例，货币基金整体收益维持在健康水平。</span></div>
+      <div class="font-row"><span class="font-label">--text-sm</span><span class="font-sample-sm">系统字体展示 14px — 辅助说明文本，用于描述图表标注和补充信息。</span></div>
+      <div class="font-row"><span class="font-label">--text-xs</span><span class="font-sample-xs">系统字体展示 12px — 脚注、标签、数据来源等最小字号场景。</span></div>
+    </div>
+  </div>
+
+  <!-- 间距系统 -->
+  <div class="section">
+    <div class="section-title">间距系统</div>
+    <div class="spacing-demo" id="spacingDemo"></div>
+  </div>
+
+  <!-- 圆角 -->
+  <div class="section">
+    <div class="section-title">圆角</div>
+    <div class="radius-demo">
+      <div class="radius-card radius-sm-card">--radius-sm<br>6px</div>
+      <div class="radius-card radius-md-card">--radius-md<br>12px</div>
+      <div class="radius-card radius-lg-card">--radius-lg<br>20px</div>
+    </div>
+  </div>
+
+  <!-- 阴影 -->
+  <div class="section">
+    <div class="section-title">阴影层级</div>
+    <div class="shadow-demo">
+      <div class="shadow-sample shadow-sample-card">--shadow-card<br>悬浮卡片</div>
+      <div class="shadow-sample shadow-sample-elevated">--shadow-elevated<br>重度提升</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 主题切换
+document.querySelectorAll('.theme-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.documentElement.setAttribute('data-theme', tab.dataset.theme);
+    document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderColors();
+    renderSpacing();
+  });
+});
+
+// 色块矩阵 — 运行时读取 CSS 变量值
+const colorVars = [
+  { name: '--color-primary', label: '主色' },
+  { name: '--color-primary-light', label: '主色浅底' },
+  { name: '--color-bg', label: '页面背景' },
+  { name: '--color-bg-card', label: '卡片背景' },
+  { name: '--color-text', label: '正文文字' },
+  { name: '--color-text-muted', label: '辅助文字' },
+  { name: '--color-accent', label: '强调色' },
+  { name: '--color-border', label: '边框色' },
+  { name: '--color-success', label: '成功绿' },
+  { name: '--color-warning', label: '警示黄' },
+];
+
+function renderColors() {
+  const grid = document.getElementById('colorGrid');
+  const style = getComputedStyle(document.documentElement);
+  grid.innerHTML = colorVars.map(v => {
+    const value = style.getPropertyValue(v.name).trim();
+    return `<div class="color-item">
+      <div class="color-swatch" style="background:${value}"></div>
+      <div class="color-info">
+        <div class="color-name">${v.label}</div>
+        <div class="color-value">${v.name}<br>${value}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 间距标尺
+const spaceVars = [
+  { name: '--space-xs', px: 4 },
+  { name: '--space-sm', px: 8 },
+  { name: '--space-md', px: 16 },
+  { name: '--space-lg', px: 24 },
+  { name: '--space-xl', px: 32 },
+];
+
+function renderSpacing() {
+  const demo = document.getElementById('spacingDemo');
+  const style = getComputedStyle(document.documentElement);
+  demo.innerHTML = spaceVars.map(s => {
+    const px = parseFloat(style.getPropertyValue(s.name).trim()) || s.px;
+    return `<div class="spacing-row">
+      <span class="spacing-label">${s.name}</span>
+      <div class="spacing-bar" style="width:${px * 6}px"></div>
+      <span class="font-label">${px}px</span>
+    </div>`;
+  }).join('');
+}
+
+renderColors();
+renderSpacing();
+</script>
+</body>
+</html>

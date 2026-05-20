@@ -1,0 +1,24 @@
+<div data-cid="pie-chart" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)]">
+  <h3 class="text-base font-semibold mb-4" style="color:var(--color-text)">资产配置占比</h3>
+  <div id="pieChart" style="width:100%;height:400px;"></div>
+</div>
+<script>
+  var chart = echarts.init(document.getElementById('pieChart'));
+  chart.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}: {c}亿 ({d}%)' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { color: 'var(--color-text-muted)' } },
+    series: [{
+      type: 'pie',
+      radius: ['45%', '75%'],
+      center: ['40%', '50%'],
+      label: { color: 'var(--color-text-muted)' },
+      data: [
+        { value: 42.5, name: '国债' },
+        { value: 38.2, name: '同业存单' },
+        { value: 25.8, name: '金融债' },
+        { value: 18.6, name: '企业短融' },
+        { value: 12.3, name: '逆回购' }
+      ]
+    }]
+  });
+</script>

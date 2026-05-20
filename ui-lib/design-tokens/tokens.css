@@ -1,0 +1,115 @@
+/* ===== Design Token 体系 =====
+ * 所有组件通过 var(--xxx) 引用，不写死色值。
+ * 切换风格：document.documentElement.setAttribute('data-theme', 'xxx')
+ */
+
+/* ===== 商务蓝白（默认主题） ===== */
+:root, [data-theme="business-blue"] {
+  --color-primary: #1e3a8a;
+  --color-primary-light: #dbeafe;
+  --color-bg: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-text: #1f2937;
+  --color-text-muted: #64748b;
+  --color-accent: #2563eb;
+  --color-border: #e5e7eb;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+
+  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-3xl: 40px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-elevated: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* ===== 暗黑科技 ===== */
+[data-theme="dark-tech"] {
+  --color-primary: #6ea8ff;
+  --color-primary-light: #1e3050;
+  --color-bg: #0f172a;
+  --color-bg-card: #1e293b;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-accent: #38bdf8;
+  --color-border: #334155;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+
+  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-3xl: 40px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-elevated: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* ===== 清新简约 ===== */
+[data-theme="fresh-clean"] {
+  --color-primary: #059669;
+  --color-primary-light: #d1fae5;
+  --color-bg: #f0fdf4;
+  --color-bg-card: #ffffff;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-accent: #34d399;
+  --color-border: #d1d5db;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+
+  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-3xl: 40px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-elevated: 0 8px 20px rgba(0,0,0,0.06);
+}

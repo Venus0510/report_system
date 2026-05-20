@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据表格 — 组件预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../../design-tokens/tokens.css">
+<style>
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); margin: 0; padding: 24px; }
+  .preview-container { max-width: 960px; margin: 0 auto; }
+  .back-link { color: var(--color-accent); text-decoration: none; font-size: var(--text-sm); display: inline-block; margin-bottom: 16px; }
+  .back-link:hover { text-decoration: underline; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { font-size: var(--text-xl); font-weight: 700; margin: 0; }
+  .theme-switcher { display: flex; gap: 8px; }
+  .theme-btn { padding: 6px 16px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); background: var(--color-bg-card); color: var(--color-text); cursor: pointer; font-size: var(--text-sm); transition: all 0.2s; }
+  .theme-btn:hover { border-color: var(--color-accent); }
+  .theme-btn.active { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: var(--text-lg); font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--color-border); }
+  .preview-area { background: var(--color-bg); border-radius: var(--radius-lg); padding: 32px; border: 1px dashed var(--color-border); }
+  .props-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .props-table th { text-align: left; padding: 10px 14px; background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+  .props-table td { padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
+  .code-block { background: #1e293b; border-radius: var(--radius-md); padding: 20px; overflow-x: auto; position: relative; }
+  .code-block pre { margin: 0; color: #e2e8f0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; white-space: pre; }
+  .code-lang { position: absolute; top: 8px; right: 14px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .btn { padding: 8px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: var(--text-sm); font-weight: 500; transition: all 0.2s; }
+  .btn-primary { background: var(--color-primary); color: #fff; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: var(--color-bg-card); color: var(--color-text); border: 1px solid var(--color-border); }
+  .btn-secondary:hover { border-color: var(--color-accent); }
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 10px 22px; border-radius: var(--radius-md); font-size: var(--text-sm); z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="preview-container">
+  <a href="../../gallery.html" class="back-link">&larr; 返回组件库总览</a>
+  <div class="page-header">
+    <h1>数据表格</h1>
+    <div class="theme-switcher" id="themeSwitcher">
+      <button class="theme-btn active" data-theme="business-blue">商务蓝白</button>
+      <button class="theme-btn" data-theme="dark-tech">暗黑科技</button>
+      <button class="theme-btn" data-theme="fresh-clean">清新简约</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">实时预览</div>
+    <div class="preview-area" id="previewArea"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">数据接口（Props）</div>
+    <table class="props-table">
+      <thead><tr><th>属性</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>headers</td><td>Array</td><td>—（必填）</td><td>列定义：[{ key, label, align? }]</td></tr>
+        <tr><td>rows</td><td>Array</td><td>—（必填）</td><td>数据行：[{ col_key: value }]</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">HTML 代码</div>
+    <div class="code-block"><span class="code-lang">template.html</span><pre id="htmlCode"></pre></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="copyCode('html')">复制 HTML 片段</button>
+      <button class="btn btn-secondary" onclick="copyCode('vue')">复制 Vue 代码</button>
+      <button class="btn btn-secondary" onclick="window.open(location.href, '_blank')">在新标签页打开</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.documentElement.setAttribute('data-theme', btn.dataset.theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+const fallback = `<div data-cid="data-table" class="overflow-x-auto rounded-[var(--radius-lg)] border shadow-[var(--shadow-card)]" style="border-color:var(--color-border)">
+  <table class="w-full text-sm border-collapse">
+    <thead>
+      <tr style="background:var(--color-primary)">
+        <th class="text-left p-4 font-semibold text-white">基金名称</th>
+        <th class="text-right p-4 font-semibold text-white">七日年化</th>
+        <th class="text-right p-4 font-semibold text-white">万份收益</th>
+        <th class="text-right p-4 font-semibold text-white">近一月回报</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:var(--color-bg-card)">
+        <td class="p-4 font-medium" style="color:var(--color-text)">天弘货币A</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.15%</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-text)">0.5892</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-success)">0.18%</td>
+      </tr>
+      <tr style="background:var(--color-primary-light);opacity:0.5">
+        <td class="p-4 font-medium" style="color:var(--color-text)">南方现金A</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.08%</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-text)">0.5701</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-success)">0.16%</td>
+      </tr>
+      <tr style="background:var(--color-bg-card)">
+        <td class="p-4 font-medium" style="color:var(--color-text)">华夏现金A</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.21%</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-text)">0.6013</td>
+        <td class="p-4 text-right font-mono" style="color:var(--color-success)">0.19%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>`;
+const vueCode = `const DataTable = {
+  name: 'DataTable',
+  props: {
+    headers: { type: Array, required: true },
+    rows: { type: Array, required: true }
+  },
+  template: \`
+    <div data-cid="data-table" class="overflow-x-auto rounded-[var(--radius-lg)] border shadow-[var(--shadow-card)]" style="border-color:var(--color-border)">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr style="background:var(--color-primary)">
+            <th v-for="h in headers" :key="h.key"
+                :class="[h.align === 'right' ? 'text-right' : 'text-left', 'p-4 font-semibold text-white']">{{ h.label }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, ri) in rows" :key="ri"
+              :style="{background: ri % 2 === 0 ? 'var(--color-bg-card)' : 'var(--color-primary-light)', opacity: ri % 2 === 0 ? 1 : 0.5}">
+            <td v-for="h in headers" :key="h.key" :class="[h.align === 'right' ? 'text-right font-mono' : 'font-medium', 'p-4']"
+                style="color:var(--color-text)">{{ row[h.key] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  \`
+};`;
+async function init() {
+  let html = '';
+  try { const r = await fetch('./template.html'); if (r.ok) html = await r.text(); } catch(e) {}
+  if (!html) html = fallback;
+  document.getElementById('previewArea').innerHTML = html;
+  document.getElementById('htmlCode').textContent = html.trim();
+}
+function copyCode(type) {
+  const text = type === 'html' ? document.getElementById('htmlCode').textContent : vueCode;
+  navigator.clipboard.writeText(text).then(() => { const t=document.getElementById('toast'); t.textContent='已复制到剪贴板'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); });
+}
+init();
+</script>
+</body>
+</html>
