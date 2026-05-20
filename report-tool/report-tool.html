@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>报告生成工具 v3</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../ui-lib/design-tokens/tokens.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); }
+  #app { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  .app-header h1 { font-size: var(--text-3xl); font-weight: 700; color: var(--color-primary); }
+  .app-header p { font-size: var(--text-sm); color: var(--color-text-muted); }
+  .header-btns { display: flex; gap: 8px; }
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--color-border); margin-bottom: 28px; }
+  .tab { padding: 10px 24px; cursor: pointer; font-size: var(--text-sm); font-weight: 500; color: var(--color-text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+  .tab:hover { color: var(--color-primary); }
+  .tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: 600; }
+  .section { background: var(--color-bg-card); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-card); }
+  .section-title { font-size: var(--text-lg); font-weight: 600; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--color-border); display: flex; align-items: center; gap: 8px; }
+  .section-title .step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 12px; font-weight: 700; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  label { display: block; font-size: var(--text-sm); font-weight: 500; margin-bottom: 4px; color: var(--color-text); }
+  input[type="text"], textarea, select { width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-sm); font-family: inherit; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--color-accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn { padding: 9px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: var(--text-sm); font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--color-primary); color: #fff; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-accent { background: var(--color-accent); color: #fff; }
+  .btn-outline { background: var(--color-bg-card); color: var(--color-text); border: 1px solid var(--color-border); }
+  .btn-outline:hover { border-color: var(--color-accent); }
+  .btn-sm { padding: 4px 10px; font-size: var(--text-xs); }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .card { border: 2px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: all 0.2s; background: var(--color-bg); }
+  .card:hover { border-color: var(--color-accent); }
+  .card.selected { border-color: var(--color-primary); background: var(--color-primary-light); }
+  .card h4 { font-size: var(--text-sm); font-weight: 600; margin-bottom: 4px; }
+  .card p { font-size: var(--text-xs); color: var(--color-text-muted); }
+  .card iframe { width: 100%; height: 160px; border: none; border-radius: var(--radius-sm); margin-bottom: 8px; pointer-events: none; }
+  .style-card { padding: 16px; border-radius: var(--radius-md); border: 2px solid var(--color-border); cursor: pointer; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .style-card:hover { border-color: var(--color-accent); }
+  .style-card.selected { border-color: var(--color-primary); }
+  .style-swatch { width: 40px; height: 40px; border-radius: 50%; }
+  .component-select-card { border: 2px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px; cursor: pointer; transition: all 0.2s; background: var(--color-bg); }
+  .component-select-card:hover { border-color: var(--color-accent); }
+  .component-select-card.selected { border-color: var(--color-primary); background: var(--color-primary-light); }
+  .component-select-card .preview-mini { max-height: 100px; overflow: hidden; pointer-events: none; transform: scale(0.65); transform-origin: top left; margin-bottom: 4px; }
+  .component-select-card .comp-name { font-size: var(--text-xs); font-weight: 600; text-align: center; }
+  .count-badge { background: var(--color-primary); color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+  .prompt-output { background: #1e293b; border-radius: var(--radius-md); padding: 20px; color: #e2e8f0; font-family: 'SF Mono', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; min-height: 120px; max-height: 500px; overflow-y: auto; }
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 10px 22px; border-radius: var(--radius-md); font-size: var(--text-sm); z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .inline-flex-row { display: flex; align-items: center; gap: 8px; }
+  .page-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--color-bg); border-radius: var(--radius-md); margin-bottom: 8px; flex-wrap: wrap; }
+  .page-item .num { font-weight: 700; color: var(--color-primary); min-width: 24px; }
+  .page-item input { flex: 1; min-width: 200px; }
+  .page-item select { width: auto; }
+  .section-hint { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 4px; }
+  .file-input-wrap { position: relative; overflow: hidden; display: inline-block; }
+  .file-input-wrap input[type="file"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+  .csv-preview { font-size: var(--text-xs); overflow-x: auto; margin-top: 8px; }
+  .csv-preview table { border-collapse: collapse; }
+  .csv-preview td, .csv-preview th { padding: 4px 10px; border: 1px solid var(--color-border); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="app-header">
+    <div>
+      <h1>报告生成工具</h1>
+      <p>多轮渐进式提示词编排 · 组件库驱动 · 风格即时预览</p>
+    </div>
+    <div class="header-btns">
+      <button class="btn btn-outline btn-sm" @click="saveConfig">保存配置</button>
+      <label class="btn btn-outline btn-sm file-input-wrap">
+        加载配置
+        <input type="file" accept=".json" @change="loadConfig">
+      </label>
+      <button class="btn btn-outline btn-sm" @click="openGallery">浏览组件库</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab" :class="{ active: activeTab === 'skeleton' }" @click="activeTab = 'skeleton'">1. 生成报告骨架</div>
+    <div class="tab" :class="{ active: activeTab === 'fill' }" @click="activeTab = 'fill'">2. 内容填充</div>
+    <div class="tab" :class="{ active: activeTab === 'fine' }" @click="activeTab = 'fine'">3. 精细修改</div>
+  </div>
+
+  <!-- Tab 1: 骨架生成 -->
+  <div v-show="activeTab === 'skeleton'">
+
+    <!-- Step 1: 基本信息 -->
+    <div class="section">
+      <div class="section-title"><span class="step-num">1</span> 报告基本信息</div>
+      <div class="grid-2">
+        <div>
+          <label>报告文件名</label>
+          <input type="text" v-model="state.reportFileName" placeholder="例：货币基金月度估值分析">
+        </div>
+        <div>
+          <label>报告主题</label>
+          <input type="text" v-model="state.reportTopic" placeholder="面向管理人的货币基金月度收益归因分析">
+        </div>
+        <div>
+          <label>受众</label>
+          <select v-model="state.audience">
+            <option value="client">客户展示</option>
+            <option value="internal">内部汇报</option>
+            <option value="regulator">监管报送</option>
+            <option value="public">公开发布</option>
+          </select>
+        </div>
+        <div>
+          <label>用途</label>
+          <select v-model="state.purpose">
+            <option value="deliverable">交付文档</option>
+            <option value="presentation">演示文稿</option>
+            <option value="meeting">会议材料</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 版式选择 -->
+    <div class="section">
+      <div class="section-title"><span class="step-num">2</span> 选择版式</div>
+      <div class="grid-3">
+        <div v-for="l in layouts" :key="l.id" class="card" :class="{ selected: state.selectedLayoutId === l.id }" @click="selectLayout(l.id)">
+          <iframe :src="'../ui-lib/layouts/' + l.id + '/index.html'" style="width:100%;height:160px;border:none;border-radius:8px;pointer-events:none;margin-bottom:8px;"></iframe>
+          <h4>{{ l.name }}</h4>
+          <p>{{ l.desc }}</p>
+        </div>
+      </div>
+      <div class="section-hint">点击版式卡片选中 · <a :href="'../ui-lib/layouts/' + state.selectedLayoutId + '/index.html'" target="_blank">去版式库看完整效果 →</a></div>
+    </div>
+
+    <!-- Step 3: 风格选择 + 组件预览 -->
+    <div class="section">
+      <div class="section-title"><span class="step-num">3</span> 选择风格</div>
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div v-for="s in styles" :key="s.id" class="style-card" :class="{ selected: state.selectedStyleId === s.id }" @click="selectStyle(s.id)">
+          <div class="style-swatch" :style="{background: s.swatch}"></div>
+          <div class="font-semibold text-sm">{{ s.name }}</div>
+          <div class="text-xs" style="color:var(--color-text-muted)">{{ s.desc }}</div>
+        </div>
+      </div>
+      <p class="text-sm font-medium mb-3" style="color:var(--color-text)">该风格下组件渲染效果（即时预览）：</p>
+      <div class="grid-4">
+        <div v-for="comp in previewComponents" :key="comp.id" class="bg-[var(--color-bg)] rounded-lg p-3 border" style="border-color:var(--color-border)">
+          <div v-html="comp.fallbackHTML" style="transform:scale(0.7);transform-origin:top left;pointer-events:none;height:80px;overflow:hidden;"></div>
+          <p class="text-xs text-center mt-1" style="color:var(--color-text-muted)">{{ comp.name }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: 内容大纲 -->
+    <div class="section">
+      <div class="section-title"><span class="step-num">4</span> 内容大纲（口语化描述即可）</div>
+      <div v-for="(page, i) in state.pages" :key="i" class="page-item">
+        <span class="num">第{{ i+1 }}节</span>
+        <input type="text" v-model="page.name" placeholder="节名称（封面/核心指标/走势分析...）" style="max-width:200px;">
+        <input type="text" v-model="page.outline" placeholder="本节内容概要（口语化）" style="flex:2;">
+        <span v-if="state.selectedLayoutId === 'ppt-slide'" class="inline-flex-row">
+          <span class="text-xs" style="color:var(--color-text-muted)">页数预估：</span>
+          <input type="text" v-model="page.slideHint" placeholder="2-3页" style="width:60px;text-align:center;">
+        </span>
+        <button class="btn btn-outline btn-sm" @click="removePage(i)" v-if="state.pages.length > 1">×</button>
+      </div>
+      <button class="btn btn-outline btn-sm" @click="addPage" style="margin-top:8px;">+ 添加一节</button>
+    </div>
+
+    <!-- 生成骨架提示词 -->
+    <div class="section">
+      <div class="section-title">生成骨架提示词</div>
+      <button class="btn btn-primary" @click="generateSkeletonPrompt" style="margin-bottom:12px;">生成提示词</button>
+      <div class="prompt-output" v-text="skeletonPrompt || '点击上方按钮生成提示词...'"></div>
+      <button class="btn btn-accent btn-sm" @click="copyPrompt('skeleton')" v-if="skeletonPrompt" style="margin-top:8px;">复制到剪贴板</button>
+      <div class="section-hint">生成后复制提示词 → Claude Desktop → AI 生成 {{ state.reportFileName || '报告' }}_v001.html</div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 内容填充 -->
+  <div v-show="activeTab === 'fill'">
+    <div class="section">
+      <div class="section-title">内容填充设置</div>
+      <div class="grid-2">
+        <div>
+          <label>当前报告</label>
+          <input type="text" v-model="state.reportFileName" placeholder="报告文件名">
+        </div>
+        <div>
+          <label>当前版本</label>
+          <select v-model="fillState.currentVersion">
+            <option v-for="v in versionOptions" :key="v" :value="v">v{{ String(v).padStart(3,'0') }}</option>
+          </select>
+        </div>
+        <div>
+          <label>选择要填充的节</label>
+          <select v-model="fillState.selectedPageIndex">
+            <option v-for="(p, i) in state.pages" :key="i" :value="i">第{{ i+1 }}节：{{ p.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>本页内容概要（自然语言）</label>
+        <textarea v-model="fillState.pageOutline" placeholder="例：展示三只基金的七日年化、万份收益、近一月回报率三个核心指标，每只基金一个卡片"></textarea>
+      </div>
+    </div>
+
+    <!-- 组件选择 -->
+    <div class="section">
+      <div class="section-title">选择本页使用的组件</div>
+      <div class="grid-4">
+        <div v-for="comp in COMPONENT_CATALOG" :key="comp.id"
+             class="component-select-card"
+             :class="{ selected: fillState.selectedComponents.includes(comp.id) }"
+             @click="toggleFillComponent(comp.id)">
+          <div class="preview-mini" v-html="comp.fallbackHTML"></div>
+          <div class="comp-name">{{ comp.name }}
+            <span v-if="getFillCompCount(comp.id) > 1" class="count-badge">×{{ getFillCompCount(comp.id) }}</span>
+          </div>
+          <div class="text-center" v-if="fillState.selectedComponents.includes(comp.id)" style="margin-top:4px;">
+            <button class="btn btn-outline btn-sm" @click.stop="adjustCompCount(comp.id, -1)">−</button>
+            <span style="margin:0 6px;font-size:12px;">{{ getFillCompCount(comp.id) }}</span>
+            <button class="btn btn-outline btn-sm" @click.stop="adjustCompCount(comp.id, 1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 生成填充提示词 -->
+    <div class="section">
+      <div class="section-title">生成内容填充提示词</div>
+      <button class="btn btn-primary" @click="generateFillPrompt" style="margin-bottom:12px;">生成填充提示词</button>
+      <div class="prompt-output" v-text="fillPrompt || '点击上方按钮生成提示词...'"></div>
+      <button class="btn btn-accent btn-sm" @click="copyPrompt('fill')" v-if="fillPrompt" style="margin-top:8px;">复制到剪贴板</button>
+    </div>
+  </div>
+
+  <!-- Tab 3: 精细修改 -->
+  <div v-show="activeTab === 'fine'">
+    <div class="section">
+      <div class="section-title">精细修改</div>
+      <div class="grid-2">
+        <div>
+          <label>当前报告</label>
+          <input type="text" v-model="state.reportFileName">
+        </div>
+        <div>
+          <label>当前版本</label>
+          <select v-model="fineState.currentVersion">
+            <option v-for="v in versionOptions" :key="v" :value="v">v{{ String(v).padStart(3,'0') }}</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>修改意见（自然语言）</label>
+        <textarea v-model="fineState.feedback" placeholder="例：第3节饼图配色改成蓝色系、封面加slogan、第2节KPI卡片数字调大..." style="min-height:100px;"></textarea>
+      </div>
+      <button class="btn btn-primary" @click="generateFinePrompt" style="margin-top:12px;">生成修改提示词</button>
+      <div class="prompt-output" v-text="finePrompt" v-if="finePrompt" style="margin-top:12px;"></div>
+      <button class="btn btn-accent btn-sm" @click="copyPrompt('fine')" v-if="finePrompt" style="margin-top:8px;">复制到剪贴板</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== 组件注册表（硬编码 fallbackHTML + fetch 增强） =====
+const COMPONENT_CATALOG = [
+  {
+    id: 'kpi-card', name: 'KPI 数字卡片', category: '数据展示',
+    description: '展示核心指标数值，带趋势标签',
+    refPath: '../ui-lib/components/kpi-card/template.html',
+    dataHint: '需要：数值、单位、变化百分比',
+    fallbackHTML: `<div data-cid="kpi-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-4 flex flex-col gap-2 shadow-[var(--shadow-card)]" style="width:200px;">
+  <span class="text-xs font-semibold px-2 py-0.5 rounded-full w-fit" style="color:var(--color-primary);background:var(--color-primary-light)">环比 +12.5%</span>
+  <div class="text-3xl font-bold" style="color:var(--color-primary)">3.28<span class="text-sm font-normal" style="color:var(--color-text-muted)">%</span></div>
+  <p class="text-xs" style="color:var(--color-text-muted)">七日年化收益率</p>
+</div>`
+  },
+  {
+    id: 'big-number-row', name: '大数字行', category: '数据展示',
+    description: '一行多个并列指标',
+    refPath: '../ui-lib/components/big-number-row/template.html',
+    dataHint: '需要：多个指标的数值、单位、标签',
+    fallbackHTML: `<div data-cid="big-number-row" class="flex gap-3" style="width:300px;">
+  <div class="bg-[var(--color-bg-card)] rounded-lg p-3 text-center flex-1 shadow-[var(--shadow-card)]">
+    <div class="text-2xl font-bold" style="color:var(--color-primary)">3.28<span class="text-xs font-normal" style="color:var(--color-text-muted)">%</span></div>
+    <p class="text-xs mt-1" style="color:var(--color-text-muted)">七日年化</p>
+  </div>
+  <div class="bg-[var(--color-bg-card)] rounded-lg p-3 text-center flex-1 shadow-[var(--shadow-card)]">
+    <div class="text-2xl font-bold" style="color:var(--color-primary)">0.58<span class="text-xs font-normal" style="color:var(--color-text-muted)">元</span></div>
+    <p class="text-xs mt-1" style="color:var(--color-text-muted)">万份收益</p>
+  </div>
+</div>`
+  },
+  {
+    id: 'data-table', name: '数据表格', category: '数据展示',
+    description: '蓝色表头 + 斑马纹行',
+    refPath: '../ui-lib/components/data-table/template.html',
+    dataHint: '需要：表头列定义、数据行',
+    fallbackHTML: `<div data-cid="data-table" class="overflow-x-auto rounded-lg border" style="border-color:var(--color-border);width:300px;">
+  <table class="w-full text-xs border-collapse">
+    <thead><tr style="background:var(--color-primary)"><th class="text-left p-2 font-semibold text-white">基金</th><th class="text-right p-2 font-semibold text-white">年化</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--color-bg-card)"><td class="p-2">天弘货币A</td><td class="p-2 text-right" style="color:var(--color-primary)">2.15%</td></tr>
+      <tr style="background:var(--color-primary-light);opacity:0.5"><td class="p-2">华夏现金A</td><td class="p-2 text-right" style="color:var(--color-accent)">2.21%</td></tr>
+    </tbody>
+  </table>
+</div>`
+  },
+  {
+    id: 'info-card', name: '信息卡片', category: '内容展示',
+    description: '标题 + 正文描述',
+    refPath: '../ui-lib/components/info-card/template.html',
+    dataHint: '需要：标题、正文段落',
+    fallbackHTML: `<div data-cid="info-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-4 shadow-[var(--shadow-card)]" style="width:240px;">
+  <h3 class="text-base font-bold mb-2" style="color:var(--color-primary)">市场表现稳健</h3>
+  <p class="text-xs leading-relaxed" style="color:var(--color-text-muted)">货基七日年化维持2.10%-2.25%区间。</p>
+</div>`
+  },
+  {
+    id: 'highlight-quote', name: '亮点引用', category: '内容展示',
+    description: '引用金句/关键结论',
+    refPath: '../ui-lib/components/highlight-quote/template.html',
+    dataHint: '需要：引用文本、署名',
+    fallbackHTML: `<div data-cid="highlight-quote" class="bg-[var(--color-primary-light)] border-l-4 rounded-r-md p-3" style="border-color:var(--color-primary);width:240px;">
+  <blockquote class="text-sm italic mb-1" style="color:var(--color-primary)">"流动性管理的核心是保持充足的缓冲。"</blockquote>
+  <cite class="text-xs" style="color:var(--color-text-muted)">—— 投资总监 张明</cite>
+</div>`
+  },
+  {
+    id: 'team-grid', name: '团队介绍网格', category: '内容展示',
+    description: '头像 + 角色卡片',
+    refPath: '../ui-lib/components/team-grid/template.html',
+    dataHint: '需要：成员姓名、角色、头像',
+    fallbackHTML: `<div data-cid="team-grid" class="flex gap-2" style="width:280px;">
+  <div class="bg-[var(--color-bg-card)] rounded-lg p-2 text-center flex-1 shadow-[var(--shadow-card)]">
+    <div class="w-8 h-8 rounded-full mx-auto mb-1 flex items-center justify-center text-white text-xs font-bold" style="background:var(--color-primary)">张</div>
+    <p class="text-xs font-semibold">张明</p><p class="text-xs" style="color:var(--color-text-muted)">投资总监</p>
+  </div>
+</div>`
+  },
+  {
+    id: 'process-step', name: '流程步骤条', category: '流程展示',
+    description: '带编号的步骤列表',
+    refPath: '../ui-lib/components/process-step/template.html',
+    dataHint: '需要：步骤标题和描述',
+    fallbackHTML: `<div data-cid="process-step" class="flex flex-col gap-2" style="width:260px;">
+  <div class="flex items-start gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style="background:var(--color-primary)">1</div><div><p class="text-xs font-semibold">数据采集</p><p class="text-xs" style="color:var(--color-text-muted)">获取日度净值数据</p></div></div>
+  <div class="flex items-start gap-2"><div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style="background:var(--color-primary)">2</div><div><p class="text-xs font-semibold">指标计算</p><p class="text-xs" style="color:var(--color-text-muted)">计算核心绩效指标</p></div></div>
+</div>`
+  },
+  {
+    id: 'timeline', name: '时间轴', category: '流程展示',
+    description: '纵向时间线',
+    refPath: '../ui-lib/components/timeline/template.html',
+    dataHint: '需要：日期、事件标题、描述',
+    fallbackHTML: `<div data-cid="timeline" class="flex flex-col pl-3" style="border-left:2px solid var(--color-primary-light);width:200px;">
+  <div class="relative -left-[calc(0.5rem+2px)] mb-2"><div class="w-2 h-2 rounded-full absolute top-1" style="background:var(--color-primary)"></div><div class="ml-4"><span class="text-xs font-bold px-1 py-0.5 rounded-full" style="color:var(--color-primary);background:var(--color-primary-light)">05月</span><p class="text-xs font-semibold">正式上线</p></div></div>
+  <div class="relative -left-[calc(0.5rem+2px)]"><div class="w-2 h-2 rounded-full absolute top-1" style="background:var(--color-accent)"></div><div class="ml-4"><span class="text-xs font-bold px-1 py-0.5 rounded-full" style="color:var(--color-accent);background:var(--color-primary-light)">04月</span><p class="text-xs font-semibold">内测迭代</p></div></div>
+</div>`
+  },
+  {
+    id: 'compare-card', name: '对比卡片', category: '对比分析',
+    description: '左右双栏数据对比',
+    refPath: '../ui-lib/components/compare-card/template.html',
+    dataHint: '需要：左右两侧各一组指标',
+    fallbackHTML: `<div data-cid="compare-card" class="grid grid-cols-2 gap-0 rounded-lg overflow-hidden border" style="border-color:var(--color-border);width:260px;">
+  <div class="p-3" style="background:var(--color-bg-card)"><p class="text-xs font-bold mb-2" style="color:var(--color-primary)">天弘货币A</p><p class="text-xs">七日年化</p><p class="text-xs font-mono font-bold" style="color:var(--color-primary)">2.15%</p></div>
+  <div class="p-3" style="background:var(--color-primary-light);opacity:0.6"><p class="text-xs font-bold mb-2" style="color:var(--color-accent)">华夏现金A</p><p class="text-xs">七日年化</p><p class="text-xs font-mono font-bold" style="color:var(--color-accent)">2.21%</p></div>
+</div>`
+  },
+  {
+    id: 'section-header', name: '章节标题', category: '装饰布局',
+    description: '页面分节标题 + 装饰线',
+    refPath: '../ui-lib/components/section-header/template.html',
+    dataHint: '需要：章节标题文字',
+    fallbackHTML: `<div data-cid="section-header" style="width:200px;">
+  <h2 class="text-xl font-bold" style="color:var(--color-primary)">核心指标概览</h2>
+  <p class="text-xs mt-1" style="color:var(--color-text-muted)">2026年5月</p>
+  <div class="mt-2 h-1 w-12 rounded-full" style="background:var(--color-accent)"></div>
+</div>`
+  },
+  {
+    id: 'divider', name: '分割线', category: '装饰布局',
+    description: '内容分隔线',
+    refPath: '../ui-lib/components/divider/template.html',
+    dataHint: '无需数据',
+    fallbackHTML: `<div data-cid="divider" class="flex items-center gap-4 my-2" style="width:200px;">
+  <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+  <span class="text-xs font-medium" style="color:var(--color-text-muted)">● ● ●</span>
+  <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+</div>`
+  }
+];
+
+const { createApp } = Vue;
+createApp({
+  data() {
+    return {
+      activeTab: 'skeleton',
+      state: {
+        reportFileName: '货币基金月度估值分析',
+        reportTopic: '面向管理人的货币基金月度收益归因分析',
+        audience: 'client',
+        purpose: 'deliverable',
+        selectedLayoutId: 'ppt-slide',
+        selectedStyleId: 'business-blue',
+        pages: [
+          { name: '封面', outline: '报告标题、团队信息和日期', slideHint: '', componentIds: [] },
+          { name: '核心指标', outline: '展示三只基金的七日年化、万份收益、近一月回报', slideHint: '2-3页', componentIds: [] },
+          { name: '收益走势分析', outline: '近三年收益率走势对比及归因分析', slideHint: '3-5页', componentIds: [] },
+          { name: '总结与展望', outline: '核心结论和风险提示', slideHint: '1-2页', componentIds: [] }
+        ]
+      },
+      fillState: {
+        currentVersion: 2,
+        selectedPageIndex: 0,
+        pageOutline: '',
+        selectedComponents: [],
+        componentCounts: {}
+      },
+      fineState: {
+        currentVersion: 5,
+        feedback: ''
+      },
+      skeletonPrompt: '',
+      fillPrompt: '',
+      finePrompt: '',
+      layouts: [
+        { id: 'a4-landscape', name: 'A4 横版分页', desc: '297×210mm，CSS分页，适合打印' },
+        { id: 'ppt-slide', name: 'PPT Slide', desc: '全屏翻页，键盘/点击切换，适合演示' },
+        { id: 'web-scroll', name: '自由滚动网页', desc: '1180px响应式，自然滚动，适合网页' }
+      ],
+      styles: [
+        { id: 'business-blue', name: '商务蓝白', desc: '专业稳重', swatch: '#1e3a8a' },
+        { id: 'dark-tech', name: '暗黑科技', desc: '科技感', swatch: '#0f172a' },
+        { id: 'fresh-clean', name: '清新简约', desc: '轻盈干净', swatch: '#059669' }
+      ],
+      COMPONENT_CATALOG
+    };
+  },
+  computed: {
+    previewComponents() {
+      return this.COMPONENT_CATALOG.slice(0, 6);
+    },
+    versionOptions() {
+      return [1,2,3,4,5,6,7,8,9,10];
+    }
+  },
+  async mounted() {
+    await this.initCatalog();
+  },
+  methods: {
+    async initCatalog() {
+      for (const comp of this.COMPONENT_CATALOG) {
+        try {
+          const resp = await fetch(comp.refPath);
+          if (resp.ok) comp.fallbackHTML = await resp.text();
+        } catch(e) {}
+      }
+    },
+    selectLayout(id) { this.state.selectedLayoutId = id; },
+    selectStyle(id) {
+      this.state.selectedStyleId = id;
+      document.documentElement.setAttribute('data-theme', id);
+    },
+    addPage() {
+      this.state.pages.push({ name: '', outline: '', slideHint: '', componentIds: [] });
+    },
+    removePage(i) {
+      if (this.state.pages.length > 1) this.state.pages.splice(i, 1);
+    },
+    toggleFillComponent(id) {
+      const idx = this.fillState.selectedComponents.indexOf(id);
+      if (idx >= 0) {
+        this.fillState.selectedComponents.splice(idx, 1);
+        delete this.fillState.componentCounts[id];
+      } else {
+        this.fillState.selectedComponents.push(id);
+        this.fillState.componentCounts[id] = 1;
+      }
+    },
+    getFillCompCount(id) {
+      return this.fillState.componentCounts[id] || 0;
+    },
+    adjustCompCount(id, delta) {
+      if (!this.fillState.componentCounts[id]) this.fillState.componentCounts[id] = 1;
+      this.fillState.componentCounts[id] = Math.max(0, this.fillState.componentCounts[id] + delta);
+      if (this.fillState.componentCounts[id] === 0) {
+        const idx = this.fillState.selectedComponents.indexOf(id);
+        if (idx >= 0) this.fillState.selectedComponents.splice(idx, 1);
+        delete this.fillState.componentCounts[id];
+      }
+    },
+    generateSkeletonPrompt() {
+      const outlineText = this.state.pages.map((p, i) => `第${i+1}节：${p.name} — ${p.outline}` + (p.slideHint ? `（预估${p.slideHint}）` : '')).join('\n');
+      this.skeletonPrompt = `你是一个金融报告HTML生成专家。请基于以下要求生成报告骨架。
+
+【版式约束】
+请参照 ../ui-lib/layouts/${this.state.selectedLayoutId}/skeleton.html 的页面结构，严格使用其容器尺寸、分页逻辑和打印样式。
+
+【风格约束】
+请使用 ../ui-lib/design-tokens/tokens.css 中 ${this.getStyleName()} 的 CSS 变量值。所有颜色使用 var(--color-xxx) 引用。
+
+【报告信息】
+- 主题：${this.state.reportTopic}
+- 受众：${this.getAudienceLabel()}
+- 用途：${this.getPurposeLabel()}
+- 内容结构：
+${outlineText}
+
+【生成要求】
+1. 用占位数据生成报告骨架，每页/每区块标记 [待填充]
+2. 保持所有 CSS 变量引用（var(--color-xxx)），不要替换为具体色值
+3. 给每个页面容器添加 data-page="{n}" 属性
+4. 将HTML保存到 reports/${this.state.reportFileName}_v001.html
+5. 只输出HTML代码，不要解释`;
+    },
+    generateFillPrompt() {
+      const page = this.state.pages[this.fillState.selectedPageIndex];
+      const compRefs = this.fillState.selectedComponents.map(id => {
+        const c = this.COMPONENT_CATALOG.find(x => x.id === id);
+        return c ? `  - ${c.name}：参照 ${c.refPath}（${c.dataHint}）` : '';
+      }).filter(Boolean).join('\n');
+      this.fillPrompt = `请基于 reports/${this.state.reportFileName}_v${String(this.fillState.currentVersion).padStart(3,'0')}.html 继续修改。
+
+【当前任务】
+填充第 ${this.fillState.selectedPageIndex + 1} 页（data-page="${this.fillState.selectedPageIndex + 1}"），内容概要：${this.fillState.pageOutline || page.outline}
+
+【组件参考】
+请严格参照以下组件的 HTML 结构和 CSS 变量风格：
+${compRefs || '无特定组件要求，根据内容自由设计'}
+
+【要求】
+1. 保持原有其他页面内容不变，只修改/填充当前页
+2. 严格参照组件模板的 data-cid、Tailwind 类名布局、CSS 变量风格
+3. 不确定的数据用占位符 [XX] 标记
+4. 保存为 reports/${this.state.reportFileName}_v${String(this.fillState.currentVersion + 1).padStart(3,'0')}.html
+5. 只输出完整HTML，不要解释`;
+    },
+    generateFinePrompt() {
+      this.finePrompt = `请基于 reports/${this.state.reportFileName}_v${String(this.fineState.currentVersion).padStart(3,'0')}.html 做以下修改：
+
+【修改要求】
+${this.fineState.feedback}
+
+【要求】
+1. 只修改指定内容，保持其他部分不变
+2. 保持所有 CSS 变量引用和 data-cid 属性
+3. 保存为 reports/${this.state.reportFileName}_v${String(this.fineState.currentVersion + 1).padStart(3,'0')}.html
+4. 只输出完整HTML，不要解释`;
+    },
+    copyPrompt(type) {
+      const text = type === 'skeleton' ? this.skeletonPrompt : type === 'fill' ? this.fillPrompt : this.finePrompt;
+      navigator.clipboard.writeText(text).then(() => showToast('提示词已复制到剪贴板'));
+    },
+    getStyleName() {
+      const m = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
+      return m[this.state.selectedStyleId] || this.state.selectedStyleId;
+    },
+    getAudienceLabel() {
+      const m = { client: '客户展示', internal: '内部汇报', regulator: '监管报送', public: '公开发布' };
+      return m[this.state.audience] || this.state.audience;
+    },
+    getPurposeLabel() {
+      const m = { deliverable: '交付文档', presentation: '演示文稿', meeting: '会议材料' };
+      return m[this.state.purpose] || this.state.purpose;
+    },
+    openGallery() {
+      window.open('../ui-lib/gallery.html', '_blank');
+    },
+    saveConfig() {
+      const config = {
+        name: this.state.reportFileName || '未命名模板',
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        report: {
+          fileName: this.state.reportFileName,
+          topic: this.state.reportTopic,
+          audience: this.state.audience,
+          purpose: this.state.purpose
+        },
+        layout: { id: this.state.selectedLayoutId, name: this.layouts.find(l => l.id === this.state.selectedLayoutId)?.name },
+        style: { id: this.state.selectedStyleId, name: this.getStyleName() },
+        pages: this.state.pages.map(p => ({ name: p.name, outline: p.outline, slideHint: p.slideHint }))
+      };
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${this.state.reportFileName}_配置_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('配置已下载');
+    },
+    loadConfig(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const config = JSON.parse(ev.target.result);
+          this.state.reportFileName = config.report?.fileName || '';
+          this.state.reportTopic = config.report?.topic || '';
+          this.state.audience = config.report?.audience || 'client';
+          this.state.purpose = config.report?.purpose || 'deliverable';
+          if (config.layout?.id) this.state.selectedLayoutId = config.layout.id;
+          if (config.style?.id) { this.state.selectedStyleId = config.style.id; document.documentElement.setAttribute('data-theme', config.style.id); }
+          if (config.pages?.length) this.state.pages = config.pages.map(p => ({ ...p, componentIds: [] }));
+          showToast(`配置已加载：${config.name}`);
+        } catch(err) { showToast('配置解析失败: ' + err.message); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

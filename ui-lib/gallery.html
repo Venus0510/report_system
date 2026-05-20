@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="business-blue">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Library — 组件库总览</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="design-tokens/tokens.css">
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-markup.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); height: 100vh; overflow: hidden; }
+  #app { display: flex; height: 100vh; }
+  .sidebar { width: 260px; min-width: 260px; background: var(--color-bg-card); border-right: 1px solid var(--color-border); overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--color-border); }
+  .sidebar-header h2 { font-size: 18px; font-weight: 700; color: var(--color-primary); }
+  .sidebar-header p { font-size: 11px; color: var(--color-text-muted); margin-top: 4px; }
+  .nav-list { list-style: none; padding: 8px 0; flex: 1; }
+  .nav-category { padding: 8px 20px 4px; font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 20px 7px 28px; cursor: pointer; font-size: var(--text-sm); color: var(--color-text); border-left: 3px solid transparent; transition: all 0.15s; }
+  .nav-item:hover { background: var(--color-primary-light); color: var(--color-primary); }
+  .nav-item.active { background: var(--color-primary-light); color: var(--color-primary); border-left-color: var(--color-primary); font-weight: 600; }
+  .nav-item .icon { font-size: 14px; width: 20px; text-align: center; opacity: 0.7; }
+  .nav-item.active .icon { opacity: 1; }
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--color-border); background: var(--color-bg-card); }
+  .top-bar h1 { font-size: var(--text-xl); font-weight: 700; }
+  .top-bar-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .style-select { padding: 6px 12px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); background: var(--color-bg-card); color: var(--color-text); font-size: var(--text-sm); cursor: pointer; }
+  .style-select:focus { outline: none; border-color: var(--color-accent); }
+  .btn { padding: 7px 16px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: var(--text-sm); font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .btn-outline { background: var(--color-bg-card); color: var(--color-text); border: 1px solid var(--color-border); }
+  .btn-outline:hover { border-color: var(--color-accent); }
+  .content { flex: 1; padding: 32px; overflow-y: auto; }
+  .preview-section { margin-bottom: 28px; }
+  .preview-section h3 { font-size: var(--text-base); font-weight: 600; margin-bottom: 12px; color: var(--color-text); }
+  /* 组件预览区：v-html 内联渲染，与父页面共享 data-theme */
+  .preview-box { background: var(--color-bg); border-radius: var(--radius-lg); padding: 32px; display: flex; justify-content: center; align-items: flex-start; gap: 16px; flex-wrap: wrap; border: 1px dashed var(--color-border); min-height: 100px; }
+  /* iframe 预览（图表、版式、风格、token） */
+  .iframe-preview-chart { width: 100%; height: 480px; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .iframe-preview-layout { width: 100%; height: 420px; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .iframe-preview-style { width: 100%; height: 520px; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .code-section { margin-bottom: 28px; }
+  .code-section h3 { font-size: var(--text-base); font-weight: 600; margin-bottom: 12px; color: var(--color-text); }
+  .code-box { background: #1e293b; border-radius: var(--radius-md); padding: 20px; overflow-x: auto; position: relative; }
+  .code-box pre { margin: 0; font-size: 13px; line-height: 1.6; }
+  .code-lang-tag { position: absolute; top: 8px; right: 14px; font-size: 10px; color: #94a3b8; text-transform: uppercase; font-family: 'SF Mono', monospace; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .props-section { margin-bottom: 28px; }
+  .props-section h3 { font-size: var(--text-base); font-weight: 600; margin-bottom: 12px; color: var(--color-text); }
+  .props-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .props-table th { text-align: left; padding: 8px 14px; background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; }
+  .props-table td { padding: 8px 14px; border-bottom: 1px solid var(--color-border); }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--color-text-muted); }
+  .empty-state .icon-big { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+  .desc-text { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.6; max-width: 640px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: var(--text-sm); margin-top: 16px; }
+  .meta-grid span { padding: 8px 12px; background: var(--color-bg-card); border-radius: var(--radius-sm); }
+  .meta-grid strong { color: var(--color-primary); }
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 10px 22px; border-radius: var(--radius-md); font-size: var(--text-sm); z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .theme-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>UI Library</h2>
+      <p>组件库 v3 · 总览</p>
+    </div>
+    <ul class="nav-list">
+      <template v-for="cat in categories" :key="cat.id">
+        <li class="nav-category">{{ cat.label }}</li>
+        <li v-for="item in cat.items" :key="item.id"
+            class="nav-item"
+            :class="{ active: currentItem?.id === item.id }"
+            @click="selectItem(item)">
+          <span class="icon">{{ item.icon }}</span>
+          <span>{{ item.name }}</span>
+        </li>
+      </template>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="top-bar">
+      <h1>{{ currentItem ? currentItem.name : '组件库总览' }}</h1>
+      <div class="top-bar-right">
+        <select class="style-select" v-model="currentTheme" @change="onThemeChange">
+          <option value="business-blue">商务蓝白</option>
+          <option value="dark-tech">暗黑科技</option>
+          <option value="fresh-clean">清新简约</option>
+        </select>
+        <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button>
+        <button class="btn btn-outline" @click="copyCurrentCode" v-if="currentCode">复制代码</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== 组件预览（v-html 内联，CSS变量即时响应） ===== -->
+      <div v-if="currentItem && currentItem.type === 'component'" class="preview-section">
+        <h3>实时预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 切换风格即时变色</span></h3>
+        <div class="preview-box" v-html="currentCode"></div>
+      </div>
+
+      <!-- ===== 图表预览（iframe 加载完整 index.html，ECharts可执行） ===== -->
+      <div v-if="currentItem && currentItem.type === 'chart'" class="preview-section">
+        <h3>图表预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 内嵌完整交互 Demo</span></h3>
+        <iframe :src="currentItem.previewPath" class="iframe-preview-chart"></iframe>
+        <div class="btn-row">
+          <button class="btn btn-outline btn-sm" @click="openFullPreview">在新标签页中编辑数据</button>
+        </div>
+      </div>
+
+      <!-- ===== 版式预览（iframe） ===== -->
+      <div v-if="currentItem && currentItem.type === 'layout'" class="preview-section">
+        <h3>版式预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 缩略效果，点击全屏查看完整交互</span></h3>
+        <iframe :src="currentItem.previewPath" class="iframe-preview-layout" style="pointer-events:none;"></iframe>
+      </div>
+
+      <!-- ===== 风格预览（iframe） ===== -->
+      <div v-if="currentItem && currentItem.type === 'style'" class="preview-section">
+        <h3>风格预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 组件在该风格下的实际渲染</span></h3>
+        <iframe :src="currentItem.previewPath" class="iframe-preview-style" style="pointer-events:none;"></iframe>
+      </div>
+
+      <!-- ===== Token 预览（iframe） ===== -->
+      <div v-if="currentItem && currentItem.type === 'token'" class="preview-section">
+        <h3>Design Token 可视化 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 色块·字体·间距·圆角·阴影</span></h3>
+        <iframe :src="currentItem.previewPath" class="iframe-preview-style" style="pointer-events:none;"></iframe>
+      </div>
+
+      <!-- 描述 -->
+      <div v-if="currentItem && currentItem.description" class="preview-section">
+        <h3>说明</h3>
+        <p class="desc-text">{{ currentItem.description }}</p>
+        <div v-if="currentItem.meta" class="meta-grid">
+          <span v-for="(v, k) in currentItem.meta" :key="k"><strong>{{ k }}:</strong> {{ v }}</span>
+        </div>
+      </div>
+
+      <!-- Props 表（仅组件和图表） -->
+      <div v-if="currentItem && currentItem.props && currentItem.props.length" class="props-section">
+        <h3>数据接口（Props）</h3>
+        <table class="props-table">
+          <thead><tr><th>属性</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr v-for="p in currentItem.props" :key="p.name">
+              <td>{{ p.name }}</td><td>{{ p.type }}</td><td>{{ p.default }}</td><td>{{ p.desc }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 代码展示（组件和版式skeleton） -->
+      <div v-if="currentItem && (currentItem.type === 'component' || currentItem.type === 'layout')" class="code-section">
+        <h3>{{ currentItem.type === 'layout' ? 'skeleton.html' : 'template.html' }} 代码</h3>
+        <div class="code-box">
+          <span class="code-lang-tag">HTML</span>
+          <pre><code class="language-html" v-text="currentCode"></code></pre>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" @click="copyCurrentCode">复制代码</button>
+          <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button>
+        </div>
+      </div>
+
+      <!-- 图表代码展示 -->
+      <div v-if="currentItem && currentItem.type === 'chart'" class="code-section">
+        <h3>template.html 参考代码</h3>
+        <div class="code-box">
+          <span class="code-lang-tag">HTML</span>
+          <pre><code class="language-html" v-text="currentCode"></code></pre>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" @click="copyCurrentCode">复制代码</button>
+        </div>
+      </div>
+
+      <!-- 空状态 -->
+      <div v-if="!currentItem" class="empty-state">
+        <div class="icon-big">&#128218;</div>
+        <p>从左侧菜单选择组件、图表或版式查看详情</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+// ===== 全量 Fallback HTML（11个组件） =====
+var FALLBACKS = {
+  'kpi-card': '<div data-cid="kpi-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 shadow-[var(--shadow-card)]">\n  <span class="text-xs font-semibold px-3 py-1 rounded-full w-fit" style="color:var(--color-primary);background:var(--color-primary-light)">环比 +12.5%</span>\n  <div class="text-5xl font-bold" style="color:var(--color-primary)">3.28<span class="text-lg font-normal" style="color:var(--color-text-muted)">%</span></div>\n  <p class="text-sm" style="color:var(--color-text-muted)">七日年化收益率</p>\n</div>',
+  'big-number-row': '<div data-cid="big-number-row" class="flex gap-6 flex-wrap">\n  <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] flex flex-col items-center min-w-[140px] flex-1">\n    <div class="text-4xl font-bold" style="color:var(--color-primary)">3.28<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>\n    <p class="text-xs mt-2 font-medium" style="color:var(--color-text-muted)">七日年化</p>\n  </div>\n  <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] flex flex-col items-center min-w-[140px] flex-1">\n    <div class="text-4xl font-bold" style="color:var(--color-primary)">0.5892<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>\n    <p class="text-xs mt-2 font-medium" style="color:var(--color-text-muted)">万份收益</p>\n  </div>\n  <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] flex flex-col items-center min-w-[140px] flex-1">\n    <div class="text-4xl font-bold" style="color:var(--color-success)">0.18<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>\n    <p class="text-xs mt-2 font-medium" style="color:var(--color-text-muted)">近一月回报</p>\n  </div>\n</div>',
+  'data-table': '<div data-cid="data-table" class="overflow-x-auto rounded-[var(--radius-lg)] border shadow-[var(--shadow-card)]" style="border-color:var(--color-border)">\n  <table class="w-full text-sm border-collapse">\n    <thead>\n      <tr style="background:var(--color-primary)">\n        <th class="text-left p-4 font-semibold text-white">基金名称</th>\n        <th class="text-right p-4 font-semibold text-white">七日年化</th>\n        <th class="text-right p-4 font-semibold text-white">万份收益</th>\n        <th class="text-right p-4 font-semibold text-white">近一月回报</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr style="background:var(--color-bg-card)">\n        <td class="p-4 font-medium" style="color:var(--color-text)">天弘货币A</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.15%</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-text)">0.5892</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-success)">0.18%</td>\n      </tr>\n      <tr style="background:var(--color-primary-light);opacity:0.5">\n        <td class="p-4 font-medium" style="color:var(--color-text)">南方现金A</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.08%</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-text)">0.5701</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-success)">0.16%</td>\n      </tr>\n      <tr style="background:var(--color-bg-card)">\n        <td class="p-4 font-medium" style="color:var(--color-text)">华夏现金A</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-primary)">2.21%</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-text)">0.6013</td>\n        <td class="p-4 text-right font-mono" style="color:var(--color-success)">0.19%</td>\n      </tr>\n    </tbody>\n  </table>\n</div>',
+  'info-card': '<div data-cid="info-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)]">\n  <h3 class="text-lg font-bold mb-3" style="color:var(--color-primary)">市场整体表现稳健</h3>\n  <p class="text-sm leading-relaxed" style="color:var(--color-text-muted)">2026年5月，货币基金整体七日年化收益率维持在2.10%-2.25%区间，万份收益稳定在0.58元左右。受央行公开市场操作影响，短端利率小幅上行，但整体流动性环境依然宽松。</p>\n</div>',
+  'highlight-quote': '<div data-cid="highlight-quote" class="bg-[var(--color-primary-light)] border-l-4 rounded-r-[var(--radius-md)] p-6" style="border-color:var(--color-primary)">\n  <blockquote class="text-lg leading-relaxed italic mb-3" style="color:var(--color-primary)">"流动性管理的核心不是预测，而是在任何市场环境下都能保持充足的缓冲。"</blockquote>\n  <cite class="text-sm font-medium not-italic" style="color:var(--color-text-muted)">—— 投资总监 张明，2026年Q1投资回顾</cite>\n</div>',
+  'team-grid': '<div data-cid="team-grid" class="grid grid-cols-3 gap-5">\n  <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)] text-center">\n    <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-xl font-bold" style="background:var(--color-primary)">张</div>\n    <h4 class="font-semibold text-sm" style="color:var(--color-text)">张明</h4>\n    <p class="text-xs mt-1" style="color:var(--color-text-muted)">投资总监 · 12年经验</p>\n  </div>\n  <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)] text-center">\n    <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-xl font-bold" style="background:var(--color-accent)">李</div>\n    <h4 class="font-semibold text-sm" style="color:var(--color-text)">李芳</h4>\n    <p class="text-xs mt-1" style="color:var(--color-text-muted)">风控总监 · 10年经验</p>\n  </div>\n  <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)] text-center">\n    <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-xl font-bold" style="background:var(--color-success)">王</div>\n    <h4 class="font-semibold text-sm" style="color:var(--color-text)">王磊</h4>\n    <p class="text-xs mt-1" style="color:var(--color-text-muted)">研究员 · 6年经验</p>\n  </div>\n</div>',
+  'process-step': '<div data-cid="process-step" class="flex flex-col gap-0">\n  <div class="flex items-start gap-4 pb-6 relative">\n    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">1</div>\n    <div class="flex-1 pt-1">\n      <h4 class="font-semibold text-sm" style="color:var(--color-text)">数据采集</h4>\n      <p class="text-xs mt-1" style="color:var(--color-text-muted)">从Wind、Choice等终端获取货币基金日度净值、规模数据，完成格式校验与缺失值填补</p>\n    </div>\n  </div>\n  <div class="flex items-start gap-4 pb-6 relative">\n    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">2</div>\n    <div class="flex-1 pt-1">\n      <h4 class="font-semibold text-sm" style="color:var(--color-text)">指标计算</h4>\n      <p class="text-xs mt-1" style="color:var(--color-text-muted)">计算七日年化收益率、万份收益、近一月回报率等核心绩效指标</p>\n    </div>\n  </div>\n  <div class="flex items-start gap-4">\n    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">3</div>\n    <div class="flex-1 pt-1">\n      <h4 class="font-semibold text-sm" style="color:var(--color-text)">报告生成</h4>\n      <p class="text-xs mt-1" style="color:var(--color-text-muted)">将计算结果与历史分位数对比，生成归因分析图表，自动输出报告</p>\n    </div>\n  </div>\n</div>',
+  'timeline': '<div data-cid="timeline" class="flex flex-col gap-0 pl-4" style="border-left: 2px solid var(--color-primary-light)">\n  <div class="relative pb-8 -left-[calc(1rem+5px)]">\n    <div class="w-3 h-3 rounded-full absolute top-1.5" style="background:var(--color-primary)"></div>\n    <div class="ml-8">\n      <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-2" style="color:var(--color-primary);background:var(--color-primary-light)">2026-05</span>\n      <h4 class="font-semibold text-sm" style="color:var(--color-text)">产品正式上线</h4>\n      <p class="text-xs mt-1" style="color:var(--color-text-muted)">完成监管备案，系统正式面向管理人开放</p>\n    </div>\n  </div>\n  <div class="relative pb-8 -left-[calc(1rem+5px)]">\n    <div class="w-3 h-3 rounded-full absolute top-1.5" style="background:var(--color-accent)"></div>\n    <div class="ml-8">\n      <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-2" style="color:var(--color-accent);background:var(--color-primary-light)">2026-04</span>\n      <h4 class="font-semibold text-sm" style="color:var(--color-text)">内测与迭代</h4>\n      <p class="text-xs mt-1" style="color:var(--color-text-muted)">邀请5家管理人参与内测，根据反馈优化算法</p>\n    </div>\n  </div>\n  <div class="relative -left-[calc(1rem+5px)]">\n    <div class="w-3 h-3 rounded-full absolute top-1.5" style="background:var(--color-text-muted)"></div>\n    <div class="ml-8">\n      <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-2" style="color:var(--color-text-muted);background:var(--color-bg)">2026-03</span>\n      <h4 class="font-semibold text-sm" style="color:var(--color-text)">项目立项</h4>\n      <p class="text-xs mt-1" style="color:var(--color-text-muted)">完成需求调研与技术选型</p>\n    </div>\n  </div>\n</div>',
+  'compare-card': '<div data-cid="compare-card" class="grid grid-cols-2 gap-0 rounded-[var(--radius-lg)] overflow-hidden border shadow-[var(--shadow-card)]" style="border-color:var(--color-border)">\n  <div class="p-6" style="background:var(--color-bg-card)">\n    <h4 class="font-bold text-sm mb-4 pb-2 border-b-2" style="color:var(--color-primary);border-color:var(--color-primary)">天弘货币A</h4>\n    <div class="flex justify-between py-2 text-sm border-b" style="border-color:var(--color-border)"><span style="color:var(--color-text-muted)">七日年化</span><span class="font-mono font-semibold" style="color:var(--color-primary)">2.15%</span></div>\n    <div class="flex justify-between py-2 text-sm border-b" style="border-color:var(--color-border)"><span style="color:var(--color-text-muted)">万份收益</span><span class="font-mono font-semibold" style="color:var(--color-text)">0.5892</span></div>\n    <div class="flex justify-between py-2 text-sm"><span style="color:var(--color-text-muted)">基金规模</span><span class="font-mono font-semibold" style="color:var(--color-text)">156亿</span></div>\n  </div>\n  <div class="p-6" style="background:var(--color-primary-light);opacity:0.6">\n    <h4 class="font-bold text-sm mb-4 pb-2 border-b-2" style="color:var(--color-accent);border-color:var(--color-accent)">华夏现金A</h4>\n    <div class="flex justify-between py-2 text-sm border-b" style="border-color:var(--color-border)"><span style="color:var(--color-text-muted)">七日年化</span><span class="font-mono font-semibold" style="color:var(--color-accent)">2.21%</span></div>\n    <div class="flex justify-between py-2 text-sm border-b" style="border-color:var(--color-border)"><span style="color:var(--color-text-muted)">万份收益</span><span class="font-mono font-semibold" style="color:var(--color-text)">0.6013</span></div>\n    <div class="flex justify-between py-2 text-sm"><span style="color:var(--color-text-muted)">基金规模</span><span class="font-mono font-semibold" style="color:var(--color-text)">203亿</span></div>\n  </div>\n</div>',
+  'section-header': '<div data-cid="section-header" class="mb-6">\n  <h2 class="text-2xl font-bold" style="color:var(--color-primary)">核心指标概览</h2>\n  <p class="text-sm mt-2" style="color:var(--color-text-muted)">2026年5月 · 三只货币基金绩效对比</p>\n  <div class="mt-3 h-1 w-16 rounded-full" style="background:var(--color-accent)"></div>\n</div>',
+  'divider': '<div data-cid="divider" class="flex items-center gap-4 my-6">\n  <div class="flex-1 h-px" style="background:var(--color-border)"></div>\n  <span class="text-xs font-medium shrink-0" style="color:var(--color-text-muted)">● ● ●</span>\n  <div class="flex-1 h-px" style="background:var(--color-border)"></div>\n</div>',
+  // 版式 skeleton fallback
+  'a4-landscape': '<section class="page-a4-landscape">\n  <div class="page-header-strip"></div>\n  <div class="content-area">\n    <!-- 第 1 页内容区 -->\n    <!-- AI 在此填充组件 -->\n  </div>\n  <footer class="page-footer">第 1 页</footer>\n</section>',
+  'ppt-slide': '<div class="ppt-container">\n  <section class="ppt-slide active" data-slide="1">\n    <div class="slide-content">\n      <!-- AI 在此填充封面内容 -->\n    </div>\n    <footer class="slide-footer">1 / {{total}}</footer>\n  </section>\n</div>',
+  'web-scroll': '<div class="web-scroll-container">\n  <section class="web-scroll-section hero" data-block="hero">\n    <!-- AI 在此填充：标题、副标题 -->\n  </section>\n  <section class="web-scroll-section" data-block="features">\n    <!-- AI 在此填充：特色卡片 -->\n  </section>\n</div>'
+};
+
+var componentProps = {
+  'kpi-card': [
+    { name:'label', type:'String', default:"''", desc:'标签文本' },
+    { name:'value', type:'Number', default:'—', desc:'指标数值' },
+    { name:'unit', type:'String', default:"'%'", desc:'数值单位' },
+    { name:'trend', type:'String', default:"''", desc:'趋势标签' }
+  ],
+  'big-number-row': [
+    { name:'items', type:'Array', default:'—', desc:'[{ value, unit, label, color? }]' }
+  ],
+  'data-table': [
+    { name:'headers', type:'Array', default:'—', desc:'[{ key, label, align? }]' },
+    { name:'rows', type:'Array', default:'—', desc:'数据行' }
+  ],
+  'info-card': [
+    { name:'title', type:'String', default:"''", desc:'卡片标题' },
+    { name:'content', type:'String', default:"''", desc:'正文内容' }
+  ],
+  'highlight-quote': [
+    { name:'quote', type:'String', default:"''", desc:'引用文本' },
+    { name:'author', type:'String', default:"''", desc:'署名' }
+  ],
+  'team-grid': [
+    { name:'members', type:'Array', default:'—', desc:'[{ name, role, avatar?, color? }]' }
+  ],
+  'process-step': [
+    { name:'steps', type:'Array', default:'—', desc:'[{ title, description }]' }
+  ],
+  'timeline': [
+    { name:'items', type:'Array', default:'—', desc:'[{ date, title, description }]' }
+  ],
+  'compare-card': [
+    { name:'left', type:'Object', default:'—', desc:'{ title, items }' },
+    { name:'right', type:'Object', default:'—', desc:'{ title, items }' },
+    { name:'leftColor', type:'String', default:'var(...)', desc:'左侧主题色' },
+    { name:'rightColor', type:'String', default:'var(...)', desc:'右侧主题色' }
+  ],
+  'section-header': [
+    { name:'title', type:'String', default:'—', desc:'章节标题' },
+    { name:'subtitle', type:'String', default:"''", desc:'副标题' },
+    { name:'accentWidth', type:'String', default:"'w-16'", desc:'装饰线宽度' }
+  ],
+  'divider': [
+    { name:'text', type:'String', default:"'● ● ●'", desc:'中间装饰文字' }
+  ],
+  'bar-chart': [
+    { name:'data', type:'Array', default:'—', desc:'[{ name, value }]' },
+    { name:'title', type:'String', default:"''", desc:'图表标题' },
+    { name:'height', type:'Number', default:'400', desc:'高度(px)' }
+  ],
+  'line-chart': [
+    { name:'data', type:'Array', default:'—', desc:'多系列或单系列数据' },
+    { name:'title', type:'String', default:"''", desc:'图表标题' },
+    { name:'height', type:'Number', default:'400', desc:'高度(px)' },
+    { name:'colors', type:'Array', default:'[3色]', desc:'系列颜色' }
+  ],
+  'pie-chart': [
+    { name:'data', type:'Array', default:'—', desc:'[{ name, value }]' },
+    { name:'title', type:'String', default:"''", desc:'图表标题' },
+    { name:'height', type:'Number', default:'400', desc:'高度(px)' }
+  ]
+};
+
+var { createApp } = Vue;
+createApp({
+  data: function() {
+    return {
+      currentTheme: 'business-blue',
+      currentItem: null,
+      currentCode: '',
+      categories: [
+        {
+          id: 'tokens', label: '设计规范',
+          items: [
+            { id:'design-tokens', name:'Design Token 预览', icon:'🎨', type:'token', description:'CSS 自定义属性可视化：色块矩阵、字体阶梯、间距标尺、圆角、阴影。切换风格即时更新。', previewPath:'design-tokens/preview.html' }
+          ]
+        },
+        {
+          id: 'components', label: '基础组件',
+          items: [
+            { id:'kpi-card', name:'KPI 数字卡片', icon:'📊', type:'component', description:'大数字 + 趋势标签 + 说明文字', previewPath:'components/kpi-card/index.html', props:componentProps['kpi-card'] },
+            { id:'big-number-row', name:'大数字行', icon:'🔢', type:'component', description:'一行多个并列指标横向排列', previewPath:'components/big-number-row/index.html', props:componentProps['big-number-row'] },
+            { id:'data-table', name:'数据表格', icon:'📋', type:'component', description:'蓝色表头 + 斑马纹行', previewPath:'components/data-table/index.html', props:componentProps['data-table'] },
+            { id:'info-card', name:'信息卡片', icon:'📝', type:'component', description:'标题 + 正文描述', previewPath:'components/info-card/index.html', props:componentProps['info-card'] },
+            { id:'highlight-quote', name:'亮点引用', icon:'💬', type:'component', description:'引用金句/关键结论', previewPath:'components/highlight-quote/index.html', props:componentProps['highlight-quote'] },
+            { id:'team-grid', name:'团队介绍网格', icon:'👥', type:'component', description:'头像 + 角色卡片网格', previewPath:'components/team-grid/index.html', props:componentProps['team-grid'] },
+            { id:'process-step', name:'流程步骤条', icon:'🔗', type:'component', description:'带编号的步骤列表', previewPath:'components/process-step/index.html', props:componentProps['process-step'] },
+            { id:'timeline', name:'时间轴', icon:'📅', type:'component', description:'纵向时间线（v3新增）', previewPath:'components/timeline/index.html', props:componentProps['timeline'] },
+            { id:'compare-card', name:'对比卡片', icon:'⚖️', type:'component', description:'左右双栏数据对比', previewPath:'components/compare-card/index.html', props:componentProps['compare-card'] },
+            { id:'section-header', name:'章节标题', icon:'📌', type:'component', description:'页面分节标题 + 装饰线（v3新增）', previewPath:'components/section-header/index.html', props:componentProps['section-header'] },
+            { id:'divider', name:'分割线', icon:'➖', type:'component', description:'内容分隔线（v3新增）', previewPath:'components/divider/index.html', props:componentProps['divider'] }
+          ]
+        },
+        {
+          id: 'charts', label: '图表',
+          items: [
+            { id:'bar-chart', name:'柱状图', icon:'📊', type:'chart', description:'分类对比、排名。ECharts封装，支持交互式JSON数据编辑', previewPath:'charts/bar-chart/index.html', props:componentProps['bar-chart'] },
+            { id:'line-chart', name:'折线图', icon:'📈', type:'chart', description:'趋势变化、时间序列。支持多系列对比', previewPath:'charts/line-chart/index.html', props:componentProps['line-chart'] },
+            { id:'pie-chart', name:'饼图', icon:'🥧', type:'chart', description:'占比分布、构成分析。环形饼图+图例', previewPath:'charts/pie-chart/index.html', props:componentProps['pie-chart'] }
+          ]
+        },
+        {
+          id: 'layouts', label: '版式',
+          items: [
+            { id:'a4-landscape', name:'A4 横版分页', icon:'📄', type:'layout', description:'297mm×210mm固定页，CSS分页，适合正式报告和打印输出', previewPath:'layouts/a4-landscape/index.html', meta:{'容器':'297×210mm','翻页':'CSS page-break-after','场景':'正式报告/监管报送'} },
+            { id:'ppt-slide', name:'PPT Slide 翻页', icon:'🖥️', type:'layout', description:'100vw×100vh固定屏，键盘/点击翻页，适合演示汇报', previewPath:'layouts/ppt-slide/index.html', meta:{'容器':'100vw×100vh','翻页':'JS显隐切换','场景':'演示/汇报'} },
+            { id:'web-scroll', name:'自由滚动网页', icon:'🌐', type:'layout', description:'max-w-1180px响应式，自然滚动，适合网页浏览', previewPath:'layouts/web-scroll/index.html', meta:{'容器':'max-w-[1180px]','翻页':'自然滚动','场景':'网页/对外展示'} }
+          ]
+        },
+        {
+          id: 'styles', label: '风格',
+          items: [
+            { id:'business-blue', name:'商务蓝白', icon:'💼', type:'style', description:'专业稳重 — 金融报告、企业汇报、监管报送', previewPath:'styles/business-blue/preview.html' },
+            { id:'dark-tech', name:'暗黑科技', icon:'🌙', type:'style', description:'科技感 — 数据产品、技术分享、科技金融', previewPath:'styles/dark-tech/preview.html' },
+            { id:'fresh-clean', name:'清新简约', icon:'🌿', type:'style', description:'轻盈干净 — 对外展示、产品介绍、ESG报告', previewPath:'styles/fresh-clean/preview.html' }
+          ]
+        }
+      ]
+    };
+  },
+  mounted: function() {
+    var self = this;
+    var first = this.categories[1].items[0];
+    this.selectItem(first);
+    // 页面加载后尝试 fetch 各组件模板以提升后续切换速度
+    setTimeout(function() {
+      self.categories[1].items.forEach(function(item) {
+        self.prefetch(item.id, 'components');
+      });
+      self.categories[3].items.forEach(function(item) {
+        self.prefetch(item.id, 'layouts');
+      });
+    }, 500);
+  },
+  methods: {
+    selectItem: function(item) {
+      this.currentItem = item;
+      var self = this;
+      if (item.type === 'component') {
+        this.loadCode('components/' + item.id + '/template.html', item.id);
+      } else if (item.type === 'chart') {
+        // 图表：iframe 已渲染完整交互，额外加载 template.html 源码用于代码展示
+        this.loadCode('charts/' + item.id + '/template.html', item.id);
+      } else if (item.type === 'layout') {
+        this.loadCode('layouts/' + item.id + '/skeleton.html', item.id);
+      } else if (item.type === 'token' || item.type === 'style') {
+        // token/style 用 iframe 预览，无需加载代码
+        this.currentCode = '';
+      } else {
+        this.currentCode = '';
+      }
+      var self2 = this;
+      this.$nextTick(function() {
+        if (self2.currentCode) {
+          Prism.highlightAll();
+        }
+      });
+    },
+
+    loadCode: function(path, id) {
+      var self = this;
+      // 尝试 fetch，失败则用 fallback
+      fetch(path).then(function(resp) {
+        if (resp.ok) return resp.text();
+        throw new Error('fetch failed');
+      }).then(function(text) {
+        self.currentCode = text;
+      }).catch(function() {
+        self.currentCode = FALLBACKS[id] || '<!-- ' + id + ' — 请打开独立预览页查看完整效果 -->';
+      });
+    },
+
+    prefetch: function(id, folder) {
+      var path = folder + '/' + id + '/template.html';
+      if (folder === 'layouts') path = 'layouts/' + id + '/skeleton.html';
+      fetch(path).then(function(resp) {
+        if (resp.ok) return resp.text();
+      }).catch(function(){});
+    },
+
+    onThemeChange: function() {
+      document.documentElement.setAttribute('data-theme', this.currentTheme);
+    },
+
+    openFullPreview: function() {
+      if (this.currentItem && this.currentItem.previewPath) {
+        window.open(this.currentItem.previewPath, '_blank');
+      }
+    },
+
+    copyCurrentCode: function() {
+      if (this.currentCode) {
+        var self = this;
+        navigator.clipboard.writeText(this.currentCode).then(function() {
+          showToast('代码已复制');
+        });
+      }
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
