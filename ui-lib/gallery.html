@@ -157,10 +157,9 @@
         <select class="style-select" v-model="currentTheme" @change="onThemeChange">
           <option value="business-blue">商务蓝白</option>
           <option value="dark-tech">暗黑科技</option>
-          <option value="fresh-clean">清新简约</option>
         </select>
         <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button>
-        <button class="btn btn-outline" @click="copyComponentInfo" v-if="currentItem">复制组件信息</button>
+        <button class="btn btn-outline" @click="copyPrompt" v-if="currentItem" style="font-weight:600">📋 复制提示词</button>
       </div>
     </div>
 
@@ -243,10 +242,6 @@
           <span class="code-lang-tag">HTML</span>
           <pre><code class="language-html" v-text="currentCode"></code></pre>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-outline" @click="copyCurrentCode">复制代码</button>
-          <!-- <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button> -->
-        </div>
       </div>
 
       <!-- 图表代码展示 -->
@@ -255,9 +250,6 @@
         <div class="code-box">
           <span class="code-lang-tag">HTML</span>
           <pre><code class="language-html" v-text="currentCode"></code></pre>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-outline" @click="copyCurrentCode">复制代码</button>
         </div>
       </div>
 
@@ -419,8 +411,7 @@ createApp({
           id: 'styles', label: '风格',
           items: [
             { id:'business-blue', name:'商务蓝白', icon:'💼', type:'style', description:'专业稳重 — 金融报告、企业汇报、监管报送', previewPath:'styles/business-blue/preview.html' },
-            { id:'dark-tech', name:'暗黑科技', icon:'🌙', type:'style', description:'科技感 — 数据产品、技术分享、科技金融', previewPath:'styles/dark-tech/preview.html' },
-            { id:'fresh-clean', name:'清新简约', icon:'🌿', type:'style', description:'轻盈干净 — 对外展示、产品介绍、ESG报告', previewPath:'styles/fresh-clean/preview.html' }
+            { id:'dark-tech', name:'暗黑科技', icon:'🌙', type:'style', description:'科技感 — 数据产品、技术分享、科技金融', previewPath:'styles/dark-tech/preview.html' }
           ]
         },
         {
@@ -495,8 +486,7 @@ createApp({
         this.loadCaseCode(item);
       } else if (item.type === 'style') {
         this.currentCode = '';
-        var themeMap = { 'business-blue': 'business-blue', 'dark-tech': 'dark-tech', 'fresh-clean': 'fresh-clean' };
-        var theme = themeMap[item.id] || item.id;
+        var theme = item.id;
         this.currentTheme = theme;
         document.documentElement.setAttribute('data-theme', theme);
         var self3 = this;
@@ -694,7 +684,7 @@ createApp({
 
     buildCaseFallbackHTML: function(item) {
       var meta = item.caseMeta;
-      var themeNames = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
+      var themeNames = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技' };
       var themeName = themeNames[meta.theme] || meta.theme;
       var layoutMap = {};
       var layoutCat = this.categories.find(function(c) { return c.id === 'layouts'; });
@@ -731,147 +721,201 @@ createApp({
       return html;
     },
 
-    copyComponentInfo: function() {
+    copyPrompt: function() {
       var item = this.currentItem;
       if (!item) return;
-      var info = '';
-      var self = this;
+      var prompt = '';
 
+      // ===== 共通：设计规范头部 =====
+      prompt += '【UI Library 组件库 · 设计规范 v3】\n';
+      prompt += '你正在基于 UI Library 组件库生成报告HTML代码。请严格遵循以下规范，确保产出的HTML与组件库风格完全一致，可以直接嵌入已有报告中使用。\n\n';
+
+      prompt += '## 颜色规则（最重要）\n';
+      prompt += '禁止硬编码色值（如 #1e3a8a）或使用Tailwind颜色类名（如 bg-blue-50, text-gray-700）。所有颜色必须通过 style="color:var(--color-xxx)" 引用CSS变量：\n';
+      prompt += '  var(--color-primary)        主色\n';
+      prompt += '  var(--color-primary-light)  主色浅底\n';
+      prompt += '  var(--color-bg)             页面背景\n';
+      prompt += '  var(--color-bg-card)        卡片背景\n';
+      prompt += '  var(--color-text)           正文文字\n';
+      prompt += '  var(--color-text-muted)     辅助文字\n';
+      prompt += '  var(--color-accent)         强调色\n';
+      prompt += '  var(--color-border)         边框色\n';
+      prompt += '  var(--color-success)        成功绿\n';
+      prompt += '  var(--color-warning)        警示黄\n\n';
+
+      prompt += '## 布局规则\n';
+      prompt += '使用Tailwind CSS类名处理布局、间距、圆角、阴影（flex, grid, gap-*, p-*, m-*, rounded-[var(--radius-*)], shadow-[var(--shadow-*)] 等），禁止用Tailwind颜色类名。\n';
+      prompt += '圆角统一用 var(--radius-sm:6px) / var(--radius-md:12px) / var(--radius-lg:20px)。\n';
+      prompt += '阴影统一用 var(--shadow-card) / var(--shadow-elevated)。\n\n';
+
+      prompt += '## 组件标识\n';
+      prompt += '每个组件根元素必须标记 data-cid="组件id"，保留此属性便于后续识别和增量修改。\n\n';
+
+      prompt += '## 主题系统\n';
+      prompt += '通过 <html data-theme="..."> 切换主题，可选值：business-blue（商务蓝白）/ dark-tech（暗黑科技）。所有 var(--color-xxx) 自动响应主题切换。\n';
+      prompt += '设计Token（通过CSS变量引用，不要写死像素值）：\n';
+      prompt += '  字号：var(--text-xs:12px) / var(--text-sm:14px) / var(--text-base:16px) / var(--text-lg:20px) / var(--text-xl:28px) / var(--text-3xl:40px)\n';
+      prompt += '  间距：var(--space-xs:4px) / var(--space-sm:8px) / var(--space-md:16px) / var(--space-lg:24px) / var(--space-xl:32px)\n';
+      prompt += '  字体：var(--font-body) / var(--font-heading)，回退 PingFang SC, Microsoft YaHei, sans-serif\n\n';
+
+      prompt += '## 技术栈\n';
+      prompt += '纯静态HTML，通过CDN引入：Tailwind CSS（布局）+ Vue 3 / ECharts 5（按需）。代码可直接在浏览器中打开。\n\n';
+
+      prompt += '---\n\n';
+
+      // ===== 类型特定内容 =====
       if (item.type === 'component') {
-        info += '📦 组件: ' + item.name + '\n';
-        info += '🆔 ID: ' + item.id + '\n';
-        info += '📂 路径: ui-lib/components/' + item.id + '/\n';
-        info += '📄 文件: template.html, component.js, component.css\n';
+        prompt += '【选中组件】' + item.name + '\n';
+        prompt += 'ID: ' + item.id + '\n';
+        prompt += '路径: ui-lib/components/' + item.id + '/\n';
+        prompt += '文件: template.html, component.js, index.html\n';
+        prompt += '描述: ' + (item.description || '') + '\n';
         if (item.props && item.props.length) {
-          info += '🔧 Props:\n';
+          prompt += '数据接口:\n';
           item.props.forEach(function(p) {
-            info += '  - ' + p.name + ' (' + p.type + ', 默认 "' + (p.default || '') + '") — ' + p.desc + '\n';
+            prompt += '  - ' + p.name + ' (' + p.type + ', 默认 ' + (p.default || '无') + ') — ' + p.desc + '\n';
           });
         }
-        info += '📝 描述: ' + (item.description || '') + '\n';
-        info += '🔗 预览: components/' + item.id + '/index.html';
+        prompt += '\n【参考模板 — template.html 完整代码】\n';
+        prompt += '以下是该组件的标准模板代码，请保持相同的 data-cid、CSS变量引用模式和Tailwind布局结构，替换数据即可：\n\n';
+        prompt += (this.currentCode || FALLBACKS[item.id] || '') + '\n';
       } else if (item.type === 'chart') {
-        info += '📊 图表: ' + item.name + '\n';
-        info += '🆔 ID: ' + item.id + '\n';
-        info += '📂 路径: ui-lib/charts/' + item.id + '/\n';
-        info += '📄 文件: template.html, component.js, component.css\n';
-        info += '📈 渲染引擎: ECharts 5\n';
+        prompt += '【选中图表】' + item.name + '\n';
+        prompt += 'ID: ' + item.id + '\n';
+        prompt += '路径: ui-lib/charts/' + item.id + '/\n';
+        prompt += '渲染引擎: ECharts 5（CDN引入）\n';
+        prompt += '描述: ' + (item.description || '') + '\n';
         if (item.props && item.props.length) {
-          info += '🔧 Props:\n';
+          prompt += '数据接口:\n';
           item.props.forEach(function(p) {
-            info += '  - ' + p.name + ' (' + p.type + ', 默认 ' + (p.default || '') + ') — ' + p.desc + '\n';
+            prompt += '  - ' + p.name + ' (' + p.type + ', 默认 ' + (p.default || '无') + ') — ' + p.desc + '\n';
           });
         }
-        info += '📝 描述: ' + (item.description || '') + '\n';
-        info += '🔗 预览: charts/' + item.id + '/index.html';
+        prompt += '\n【图表容器HTML】\n';
+        prompt += (this.currentCode || FALLBACKS[item.id] || '') + '\n\n';
+        prompt += '【ECharts 初始化规范 — 必须遵守】\n';
+        prompt += '图表颜色必须通过 getComputedStyle() 读取当前主题CSS变量，禁止硬编码颜色。初始化模式如下：\n';
+        prompt += '```javascript\n';
+        prompt += 'var chart = echarts.init(document.getElementById(\'chartContainer\'));\n';
+        prompt += 'var style = getComputedStyle(document.documentElement);\n';
+        prompt += 'var primary = style.getPropertyValue(\'--color-primary\').trim();\n';
+        prompt += 'var accent = style.getPropertyValue(\'--color-accent\').trim();\n';
+        prompt += 'var textMuted = style.getPropertyValue(\'--color-text-muted\').trim();\n';
+        prompt += 'chart.setOption({\n';
+        prompt += '  tooltip: { trigger: "axis" },\n';
+        prompt += '  xAxis: { axisLabel: { color: textMuted } },\n';
+        prompt += '  yAxis: { axisLabel: { color: textMuted } },\n';
+        prompt += '  series: [{ itemStyle: { color: primary } }]\n';
+        prompt += '});\n';
+        prompt += '```\n';
+        prompt += '如果页面包含多个图表，切换主题时需先 chart.dispose() 再重新 echarts.init() 并读取新的CSS变量值。\n';
       } else if (item.type === 'layout') {
-        info += '📐 版式: ' + item.name + '\n';
-        info += '🆔 ID: ' + item.id + '\n';
-        info += '📂 路径: ui-lib/layouts/' + item.id + '/\n';
-        info += '📄 文件: skeleton.html, template.html\n';
+        prompt += '【选中版式】' + item.name + '\n';
+        prompt += 'ID: ' + item.id + '\n';
+        prompt += '路径: ui-lib/layouts/' + item.id + '/\n';
+        prompt += '文件: skeleton.html, layout.css, index.html\n';
+        prompt += '描述: ' + (item.description || '') + '\n';
         if (item.meta) {
-          if (item.meta['容器']) info += '📏 容器尺寸: ' + item.meta['容器'] + '\n';
-          if (item.meta['翻页']) info += '🔄 翻页方式: ' + item.meta['翻页'] + '\n';
-          if (item.meta['场景']) info += '🎯 适用场景: ' + item.meta['场景'] + '\n';
+          if (item.meta['容器']) prompt += '容器尺寸: ' + item.meta['容器'] + '\n';
+          if (item.meta['翻页']) prompt += '翻页方式: ' + item.meta['翻页'] + '\n';
+          if (item.meta['场景']) prompt += '适用场景: ' + item.meta['场景'] + '\n';
         }
-        info += '📝 描述: ' + (item.description || '') + '\n';
-        info += '🔗 预览: layouts/' + item.id + '/index.html';
+        prompt += '\n【版式骨架 — skeleton.html 完整代码】\n';
+        prompt += '以下是该版式的骨架模板。请在此HTML结构内填充具体内容，严格保持容器尺寸、分页/翻页逻辑和CSS类名不变：\n\n';
+        prompt += (this.currentCode || FALLBACKS[item.id] || '') + '\n';
       } else if (item.type === 'style') {
-        info += '🎨 风格主题: ' + item.name + '\n';
-        info += '🆔 ID: ' + item.id + '\n';
-        info += '📂 路径: ui-lib/styles/' + item.id + '/\n';
-        info += '📝 描述: ' + (item.description || '') + '\n';
         var style = getComputedStyle(document.documentElement);
-        var colorKeys = [
-          '--color-primary', '--color-primary-light', '--color-bg', '--color-bg-card',
-          '--color-text', '--color-text-muted', '--color-accent', '--color-border',
-          '--color-success', '--color-warning'
-        ];
-        info += '🎨 CSS 变量值:\n';
+        var colorKeys = ['--color-primary','--color-primary-light','--color-bg','--color-bg-card','--color-text','--color-text-muted','--color-accent','--color-border','--color-success','--color-warning'];
+        prompt += '【选中风格】' + item.name + '\n';
+        prompt += 'ID: ' + item.id + '\n';
+        prompt += '描述: ' + (item.description || '') + '\n\n';
+        prompt += '该主题当前CSS变量值（基于 ' + this.currentTheme + '）：\n';
         for (var i = 0; i < colorKeys.length; i++) {
-          var key = colorKeys[i];
-          var val = style.getPropertyValue(key).trim();
-          info += '  ' + key + ': ' + val + '\n';
+          prompt += '  ' + colorKeys[i] + ': ' + style.getPropertyValue(colorKeys[i]).trim() + '\n';
         }
-        info += '🔗 预览: styles/' + item.id + '/preview.html';
+        prompt += '\n使用方式：在 <html data-theme="' + item.id + '"> 下，所有组件自动应用此配色。切换主题只需修改 data-theme 属性值。\n';
       } else if (item.type === 'token') {
-        info += '🎨 Design Token 预览\n';
-        var themeMap = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
-        info += '📐 当前主题: ' + (themeMap[this.currentTheme] || this.currentTheme) + ' (' + this.currentTheme + ')\n';
+        var themeMap = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技' };
+        prompt += '【Design Token 完整参考】\n';
+        prompt += '当前主题: ' + (themeMap[this.currentTheme] || this.currentTheme) + ' (' + this.currentTheme + ')\n\n';
         var computed = getComputedStyle(document.documentElement);
-        var allVars = [
-          '--font-body', '--font-heading',
-          '--color-primary', '--color-primary-light', '--color-bg', '--color-bg-card',
-          '--color-text', '--color-text-muted', '--color-accent', '--color-border',
-          '--color-success', '--color-warning',
-          '--text-xs', '--text-sm', '--text-base', '--text-lg', '--text-xl', '--text-3xl',
-          '--space-xs', '--space-sm', '--space-md', '--space-lg', '--space-xl',
-          '--radius-sm', '--radius-md', '--radius-lg',
-          '--shadow-card', '--shadow-elevated'
-        ];
-        info += '🎨 CSS 变量值:\n';
-        for (var j = 0; j < allVars.length; j++) {
-          var vk = allVars[j];
-          var vv = computed.getPropertyValue(vk).trim();
-          info += '  ' + vk + ': ' + vv + '\n';
+        prompt += '## 颜色变量\n';
+        var tokenColors = ['--color-primary','--color-primary-light','--color-bg','--color-bg-card','--color-text','--color-text-muted','--color-accent','--color-border','--color-success','--color-warning'];
+        for (var j = 0; j < tokenColors.length; j++) {
+          prompt += '  ' + tokenColors[j] + ': ' + computed.getPropertyValue(tokenColors[j]).trim() + '\n';
         }
+        prompt += '\n## 字体变量\n';
+        prompt += '  --font-body: ' + computed.getPropertyValue('--font-body').trim() + '\n';
+        prompt += '  --font-heading: ' + computed.getPropertyValue('--font-heading').trim() + '\n';
+        prompt += '\n## 字号阶梯\n';
+        prompt += '  --text-xs: ' + computed.getPropertyValue('--text-xs').trim() + '\n';
+        prompt += '  --text-sm: ' + computed.getPropertyValue('--text-sm').trim() + '\n';
+        prompt += '  --text-base: ' + computed.getPropertyValue('--text-base').trim() + '\n';
+        prompt += '  --text-lg: ' + computed.getPropertyValue('--text-lg').trim() + '\n';
+        prompt += '  --text-xl: ' + computed.getPropertyValue('--text-xl').trim() + '\n';
+        prompt += '  --text-3xl: ' + computed.getPropertyValue('--text-3xl').trim() + '\n';
+        prompt += '\n## 间距标尺\n';
+        prompt += '  --space-xs: ' + computed.getPropertyValue('--space-xs').trim() + '\n';
+        prompt += '  --space-sm: ' + computed.getPropertyValue('--space-sm').trim() + '\n';
+        prompt += '  --space-md: ' + computed.getPropertyValue('--space-md').trim() + '\n';
+        prompt += '  --space-lg: ' + computed.getPropertyValue('--space-lg').trim() + '\n';
+        prompt += '  --space-xl: ' + computed.getPropertyValue('--space-xl').trim() + '\n';
+        prompt += '\n## 圆角 & 阴影\n';
+        prompt += '  --radius-sm: ' + computed.getPropertyValue('--radius-sm').trim() + '\n';
+        prompt += '  --radius-md: ' + computed.getPropertyValue('--radius-md').trim() + '\n';
+        prompt += '  --radius-lg: ' + computed.getPropertyValue('--radius-lg').trim() + '\n';
+        prompt += '  --shadow-card: ' + computed.getPropertyValue('--shadow-card').trim() + '\n';
+        prompt += '  --shadow-elevated: ' + computed.getPropertyValue('--shadow-elevated').trim() + '\n';
       } else if (item.type === 'case') {
         var meta = item.caseMeta;
-        var themeNames2 = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
+        var themeNames2 = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技' };
         var layoutCat2 = this.categories.find(function(c) { return c.id === 'layouts'; });
         var layoutMeta = {};
         if (layoutCat2) {
           var found = layoutCat2.items.find(function(it) { return it.id === meta.layout; });
-          if (found) { layoutMeta = found.meta || {}; layoutMeta.name = found.name; }
+          if (found) layoutMeta = found.meta || {};
         }
-        var layoutName = layoutMeta.name || meta.layout;
-        var layoutExtra = '';
-        if (layoutMeta['容器']) layoutExtra += layoutMeta['容器'];
-        if (layoutMeta['翻页']) layoutExtra += (layoutExtra ? ' · ' : '') + layoutMeta['翻页'];
-
         var compCat2 = this.categories.find(function(c) { return c.id === 'components'; });
         var compMap2 = {};
-        var compDescMap2 = {};
         if (compCat2) {
-          compCat2.items.forEach(function(it) {
-            compMap2[it.id] = it.name;
-            compDescMap2[it.id] = it.description || '';
-          });
+          compCat2.items.forEach(function(it) { compMap2[it.id] = it.name; });
         }
 
-        info += '📋 案例: ' + item.name + '\n';
-        info += '🎨 推荐主题: ' + meta.theme + ' (' + (themeNames2[meta.theme] || meta.theme) + ')\n';
-        info += '📐 使用版式: ' + meta.layout + ' (' + layoutName;
-        if (layoutExtra) info += ' · ' + layoutExtra;
-        info += ')\n';
-        if (item.description) info += '📝 描述: ' + item.description + '\n';
-        info += '🧩 使用组件:\n';
+        prompt += '【完整案例】' + item.name + '\n';
+        prompt += '推荐主题: ' + meta.theme + ' (' + (themeNames2[meta.theme] || meta.theme) + ')\n';
+        prompt += '使用版式: ' + meta.layout;
+        if (layoutMeta['容器']) prompt += ' · ' + layoutMeta['容器'];
+        if (layoutMeta['翻页']) prompt += ' · ' + layoutMeta['翻页'];
+        prompt += '\n';
+        if (item.description) prompt += '描述: ' + item.description + '\n';
+        prompt += '使用组件 (' + meta.components.length + '个): ';
+        var compNames = [];
         for (var k = 0; k < meta.components.length; k++) {
-          var cid = meta.components[k];
-          var cname = compMap2[cid] || cid;
-          var cdesc = compDescMap2[cid] || '';
-          info += '  - ' + cid + ' — ' + cname;
-          if (cdesc) info += ' (' + cdesc + ')';
-          info += '\n';
+          compNames.push(meta.components[k] + '(' + (compMap2[meta.components[k]] || meta.components[k]) + ')');
         }
-        info += '📂 完整文件: ui-lib/' + item.previewPath + '\n';
-        info += '🔗 在线预览: ' + item.previewPath;
+        prompt += compNames.join(', ') + '\n';
+        prompt += '案例文件: ui-lib/' + item.previewPath + '\n\n';
+
+        prompt += '【案例完整HTML — 作为风格和结构参考】\n';
+        prompt += '以下是该案例的完整HTML代码。请将此作为"用组件库能生成什么"的参考范例。\n';
+        prompt += '生成新报告时，保持相同的：①CSS变量引用模式 ②data-cid标记 ③Tailwind布局结构 ④版式容器约束 ⑤组件组合方式。\n';
+        prompt += '替换其中的示例数据为你需要的内容即可。\n\n';
+        prompt += (this.currentCode || '') + '\n';
       }
 
-      navigator.clipboard.writeText(info).then(function() {
-        showToast('组件信息已复制');
+      prompt += '---\n\n';
+      prompt += '【任务】\n';
+      prompt += '请严格遵循以上设计规范和参考模板/案例的风格，完成以下需求。\n';
+      prompt += '务必：保持 data-cid 属性、CSS变量引用（var(--color-xxx)）、Tailwind布局类名、版式容器约束。\n';
+      prompt += '不确定的数据用 [占位符] 标记。只输出完整HTML代码，不要解释。\n\n';
+      prompt += '[ 请在此处描述你的具体需求，例如：生成一份货币基金月度报告的封面页，包含3个kpi-card展示七日年化、万份收益、近一月回报... ]\n';
+
+      var self = this;
+      navigator.clipboard.writeText(prompt).then(function() {
+        showToast('提示词已复制，可粘贴到Claude后追加你的需求');
       }).catch(function() {
         showToast('复制失败，请重试');
       });
-    },
-
-    copyCurrentCode: function() {
-      if (this.currentCode) {
-        var self = this;
-        navigator.clipboard.writeText(this.currentCode).then(function() {
-          showToast('代码已复制');
-        });
-      }
     }
   }
 }).mount('#app');
