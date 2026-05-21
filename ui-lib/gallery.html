@@ -6,6 +6,7 @@
 <title>UI Library — 组件库总览</title>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <link rel="stylesheet" href="design-tokens/tokens.css">
 <link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
@@ -63,6 +64,68 @@
   .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #1f2937; color: #fff; padding: 10px 22px; border-radius: var(--radius-md); font-size: var(--text-sm); z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
   .toast.show { opacity: 1; }
   .theme-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-left: 8px; }
+
+  /* ===== 版式内联预览 CSS ===== */
+  @media print {
+    @page { size: A4 landscape; margin: 0; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  .page-a4-landscape { width: 297mm; height: 210mm; margin: 0 auto; position: relative; overflow: hidden; background: var(--color-bg-card); box-shadow: var(--shadow-elevated); page-break-after: always; }
+  .page-a4-landscape:last-child { page-break-after: auto; }
+  .page-a4-landscape .content-area { padding: 18mm 22mm; height: 100%; box-sizing: border-box; }
+  .page-a4-landscape .page-footer { position: absolute; bottom: 8mm; right: 22mm; font-size: var(--text-sm); color: var(--color-text-muted); }
+  .page-a4-landscape .page-header-strip { position: absolute; top: 0; left: 0; right: 0; height: 4mm; background: var(--color-primary); }
+  .layout-preview-box .page-a4-landscape { width: 210mm; height: 148mm; font-size: 77%; }
+  .layout-preview-box .page-a4-landscape .content-area { padding: 12mm 15mm; }
+  .layout-preview-box .page-a4-landscape .page-footer { bottom: 5mm; right: 15mm; }
+  .layout-preview-box .page-a4-landscape .page-header-strip { height: 3mm; }
+
+  .ppt-container { position: relative; overflow: hidden; }
+  .ppt-slide { width: 100%; display: flex; flex-direction: column; justify-content: center; }
+  .ppt-slide + .ppt-slide { display: none; }
+  .ppt-slide .slide-content { max-width: 1100px; margin: 0 auto; padding: 60px 80px; width: 100%; box-sizing: border-box; }
+  .ppt-slide .slide-footer { position: absolute; bottom: 28px; right: 60px; font-size: var(--text-sm); color: var(--color-text-muted); }
+  .ppt-nav-dots { display: flex; gap: 10px; justify-content: center; padding: 12px 0; }
+  .ppt-nav-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border); cursor: pointer; border: none; }
+  .ppt-nav-dot.active { background: var(--color-primary); }
+  .layout-preview-box .ppt-container { width: 100%; min-height: 360px; background: var(--color-bg-card); border-radius: var(--radius-md); box-shadow: var(--shadow-card); }
+  .layout-preview-box .ppt-slide { min-height: 280px; position: relative; padding: 30px 0; display: flex !important; border-bottom: 2px dashed var(--color-border); }
+  .layout-preview-box .ppt-slide .slide-content { padding: 20px 40px; }
+  .layout-preview-box .ppt-slide .slide-footer { bottom: 12px; right: 24px; }
+
+  .web-scroll-container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  .web-scroll-section { padding: 80px 0; border-bottom: 1px solid var(--color-border); }
+  .web-scroll-section:last-child { border-bottom: none; }
+  .web-scroll-section.hero { padding: 120px 0 80px; text-align: center; }
+  .web-scroll-section.cta { text-align: center; padding: 100px 0; }
+  @media (max-width: 768px) { .web-scroll-container { padding: 0 16px; } .web-scroll-section { padding: 48px 0; } .web-scroll-section.hero { padding: 80px 0 48px; } }
+  .layout-preview-box .web-scroll-section { padding: 16px 0; }
+  .layout-preview-box .web-scroll-section.hero { padding: 24px 0 16px; }
+  .layout-preview-box .web-scroll-section.cta { padding: 24px 0; }
+
+  /* 风格/Token 内联 CSS */
+  .style-color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .style-color-chip { flex: 1; min-width: 70px; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card); }
+  .style-color-swatch { height: 52px; }
+  .style-color-label { padding: 6px 8px; background: var(--color-bg-card); font-size: 10px; text-align: center; }
+  .style-color-name { font-weight: 600; color: var(--color-text); }
+  .style-color-hex { color: var(--color-text-muted); font-family: 'SF Mono', monospace; font-size: 9px; margin-top: 1px; }
+  .style-comp-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .color-item { border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card); }
+  .color-swatch { height: 60px; }
+  .color-info { padding: 10px; background: var(--color-bg-card); }
+  .color-name { font-size: var(--text-sm); font-weight: 600; margin-bottom: 2px; }
+  .color-value { font-size: 10px; color: var(--color-text-muted); font-family: 'SF Mono', monospace; }
+  .token-font-scale { padding: 20px; background: var(--color-bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+  .font-row { display: flex; align-items: baseline; gap: 20px; padding: 8px 0; border-bottom: 1px solid var(--color-border); }
+  .font-row:last-child { border-bottom: none; }
+  .font-label { font-size: var(--text-xs); color: var(--color-text-muted); min-width: 85px; font-family: 'SF Mono', monospace; }
+  .token-spacing-demo { padding: 20px; background: var(--color-bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+  .spacing-row { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .spacing-label { font-size: var(--text-xs); color: var(--color-text-muted); min-width: 85px; font-family: 'SF Mono', monospace; }
+  .spacing-bar { height: 22px; background: var(--color-primary); border-radius: var(--radius-sm); opacity: 0.7; }
 </style>
 </head>
 <body>
@@ -108,31 +171,39 @@
         <div class="preview-box" v-html="currentCode"></div>
       </div>
 
-      <!-- ===== 图表预览（iframe 加载完整 index.html，ECharts可执行） ===== -->
+      <!-- ===== 图表预览（v-html 容器 + ECharts JS 初始化） ===== -->
       <div v-if="currentItem && currentItem.type === 'chart'" class="preview-section">
-        <h3>图表预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 内嵌完整交互 Demo</span></h3>
-        <iframe :src="currentItem.previewPath" class="iframe-preview-chart"></iframe>
-        <div class="btn-row">
-          <button class="btn btn-outline btn-sm" @click="openFullPreview">在新标签页中编辑数据</button>
-        </div>
+        <h3>图表预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— ECharts 内联渲染，切换风格即时变色</span></h3>
+        <div class="preview-box" v-html="currentCode"></div>
       </div>
 
-      <!-- ===== 版式预览（iframe） ===== -->
+      <!-- ===== 版式预览（v-html 内联） ===== -->
       <div v-if="currentItem && currentItem.type === 'layout'" class="preview-section">
-        <h3>版式预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 缩略效果，点击全屏查看完整交互</span></h3>
-        <iframe :src="currentItem.previewPath" class="iframe-preview-layout" style="pointer-events:none;"></iframe>
+        <h3>版式预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 内联渲染，全屏预览可查看完整交互</span></h3>
+        <div class="layout-preview-box" v-html="currentCode"></div>
       </div>
 
-      <!-- ===== 风格预览（iframe） ===== -->
+      <!-- ===== 风格预览（内联：色块 + 组件示例） ===== -->
       <div v-if="currentItem && currentItem.type === 'style'" class="preview-section">
-        <h3>风格预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 组件在该风格下的实际渲染</span></h3>
-        <iframe :src="currentItem.previewPath" class="iframe-preview-style" style="pointer-events:none;"></iframe>
+        <h3>色彩系统 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 已切换至该主题</span></h3>
+        <div class="style-color-row" v-html="styleColorSwatches"></div>
+        <h3 style="margin-top:24px;">组件示例</h3>
+        <div class="style-comp-row" v-html="styleCompPreview"></div>
       </div>
 
-      <!-- ===== Token 预览（iframe） ===== -->
+      <!-- ===== Token 预览（内联渲染） ===== -->
       <div v-if="currentItem && currentItem.type === 'token'" class="preview-section">
-        <h3>Design Token 可视化 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 色块·字体·间距·圆角·阴影</span></h3>
-        <iframe :src="currentItem.previewPath" class="iframe-preview-style" style="pointer-events:none;"></iframe>
+        <h3>色彩系统</h3>
+        <div class="color-grid" v-html="tokenColorGrid"></div>
+        <h3 style="margin-top:28px;">字体排版</h3>
+        <div class="token-font-scale" v-html="tokenFontScale"></div>
+        <h3 style="margin-top:28px;">间距系统</h3>
+        <div class="token-spacing-demo" v-html="tokenSpacingDemo"></div>
+        <h3 style="margin-top:28px;">圆角 & 阴影</h3>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:8px;">
+          <div style="flex:1;min-width:200px;padding:20px;background:var(--color-bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);" v-html="tokenRadiusDemo"></div>
+          <div style="flex:1;min-width:200px;padding:20px;background:var(--color-bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);" v-html="tokenShadowDemo"></div>
+        </div>
       </div>
 
       <!-- 描述 -->
@@ -216,7 +287,12 @@ var FALLBACKS = {
   // 版式 skeleton fallback
   'a4-landscape': '<section class="page-a4-landscape">\n  <div class="page-header-strip"></div>\n  <div class="content-area">\n    <!-- 第 1 页内容区 -->\n    <!-- AI 在此填充组件 -->\n  </div>\n  <footer class="page-footer">第 1 页</footer>\n</section>',
   'ppt-slide': '<div class="ppt-container">\n  <section class="ppt-slide active" data-slide="1">\n    <div class="slide-content">\n      <!-- AI 在此填充封面内容 -->\n    </div>\n    <footer class="slide-footer">1 / {{total}}</footer>\n  </section>\n</div>',
-  'web-scroll': '<div class="web-scroll-container">\n  <section class="web-scroll-section hero" data-block="hero">\n    <!-- AI 在此填充：标题、副标题 -->\n  </section>\n  <section class="web-scroll-section" data-block="features">\n    <!-- AI 在此填充：特色卡片 -->\n  </section>\n</div>'
+  'web-scroll': '<div class="web-scroll-container">\n  <section class="web-scroll-section hero" data-block="hero">\n    <h1 class="text-4xl font-bold mb-3" style="color:var(--color-primary)">货币基金月度估值分析</h1>\n    <p class="text-lg mb-5" style="color:var(--color-text-muted)">专业、透明、及时的基金绩效评估</p>\n    <div class="h-1 w-20 rounded-full mx-auto mb-5" style="background:var(--color-accent)"></div>\n    <p class="text-sm max-w-xl mx-auto" style="color:var(--color-text-muted)">覆盖全市场货币基金 · 日均净值追踪 · 多维度归因分析</p>\n  </section>\n  <section class="web-scroll-section" data-block="features">\n    <h2 class="text-2xl font-bold mb-5 text-center" style="color:var(--color-primary)">核心指标</h2>\n    <div class="grid grid-cols-3 gap-4">\n      <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] text-center">\n        <div class="text-4xl font-bold mb-2" style="color:var(--color-primary)">3.28<span class="text-lg font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>\n        <p class="text-sm font-medium">七日年化收益率</p>\n      </div>\n      <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] text-center">\n        <div class="text-4xl font-bold mb-2" style="color:var(--color-accent)">0.5892<span class="text-lg font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>\n        <p class="text-sm font-medium">万份收益</p>\n      </div>\n      <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] text-center">\n        <div class="text-4xl font-bold mb-2" style="color:var(--color-success)">156<span class="text-lg font-normal ml-1" style="color:var(--color-text-muted)">亿</span></div>\n        <p class="text-sm font-medium">管理规模</p>\n      </div>\n    </div>\n  </section>\n  <section class="web-scroll-section" data-block="case">\n    <h2 class="text-2xl font-bold mb-5" style="color:var(--color-primary)">基金对比</h2>\n    <div class="overflow-x-auto rounded-[var(--radius-lg)] border shadow-[var(--shadow-card)]" style="border-color:var(--color-border)">\n      <table class="w-full text-sm border-collapse">\n        <thead><tr style="background:var(--color-primary)"><th class="text-left p-3 font-semibold text-white">基金</th><th class="text-right p-3 font-semibold text-white">七日年化</th><th class="text-right p-3 font-semibold text-white">万份收益</th><th class="text-right p-3 font-semibold text-white">近一月回报</th></tr></thead>\n        <tbody>\n          <tr style="background:var(--color-bg-card)"><td class="p-3 font-medium">天弘货币A</td><td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.15%</td><td class="p-3 text-right font-mono">0.5892</td><td class="p-3 text-right font-mono" style="color:var(--color-success)">0.18%</td></tr>\n          <tr style="background:var(--color-primary-light);opacity:0.5"><td class="p-3 font-medium">南方现金A</td><td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.08%</td><td class="p-3 text-right font-mono">0.5701</td><td class="p-3 text-right font-mono" style="color:var(--color-success)">0.16%</td></tr>\n          <tr style="background:var(--color-bg-card)"><td class="p-3 font-medium">华夏现金A</td><td class="p-3 text-right font-mono" style="color:var(--color-accent)">2.21%</td><td class="p-3 text-right font-mono">0.6013</td><td class="p-3 text-right font-mono" style="color:var(--color-success)">0.19%</td></tr>\n        </tbody>\n      </table>\n    </div>\n  </section>\n  <section class="web-scroll-section cta" data-block="cta">\n    <h2 class="text-2xl font-bold mb-3" style="color:var(--color-primary)">了解更多</h2>\n    <p class="text-base mb-5" style="color:var(--color-text-muted)">获取完整报告或预约产品演示</p>\n    <button class="px-6 py-2 rounded-[var(--radius-md)] text-white font-semibold text-sm border-none cursor-pointer" style="background:var(--color-primary)">联系我们</button>\n  </section>\n</div>',
+  'a4-landscape': '<section class="page-a4-landscape">\n  <div class="page-header-strip"></div>\n  <div class="content-area">\n    <div class="flex flex-col h-full justify-between">\n      <div>\n        <h1 class="text-4xl font-bold mb-4" style="color:var(--color-primary)">货币基金月度估值分析</h1>\n        <p class="text-lg" style="color:var(--color-text-muted)">2026年5月 · 面向管理人</p>\n        <div class="mt-3 h-1 w-24 rounded-full" style="background:var(--color-accent)"></div>\n      </div>\n      <div class="grid grid-cols-3 gap-6">\n        <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">\n          <div class="text-3xl font-bold" style="color:var(--color-primary)">3.28<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>\n          <p class="text-xs mt-1" style="color:var(--color-text-muted)">七日年化</p>\n        </div>\n        <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">\n          <div class="text-3xl font-bold" style="color:var(--color-primary)">0.5892<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>\n          <p class="text-xs mt-1" style="color:var(--color-text-muted)">万份收益</p>\n        </div>\n        <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">\n          <div class="text-3xl font-bold" style="color:var(--color-success)">0.18<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>\n          <p class="text-xs mt-1" style="color:var(--color-text-muted)">近一月回报</p>\n        </div>\n      </div>\n    </div>\n  </div>\n  <footer class="page-footer">第 1 页</footer>\n</section>\n<section class="page-a4-landscape">\n  <div class="page-header-strip"></div>\n  <div class="content-area">\n    <div class="flex flex-col h-full">\n      <h2 class="text-3xl font-bold mb-6" style="color:var(--color-primary)">基金对比分析</h2>\n      <div class="overflow-x-auto flex-1">\n        <table class="w-full text-xs border-collapse">\n          <thead><tr style="background:var(--color-primary)"><th class="text-left p-3 font-semibold text-white">基金名称</th><th class="text-right p-3 font-semibold text-white">七日年化</th><th class="text-right p-3 font-semibold text-white">万份收益</th><th class="text-right p-3 font-semibold text-white">规模</th></tr></thead>\n          <tbody>\n            <tr style="background:var(--color-bg-card)"><td class="p-3 font-medium">天弘货币A</td><td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.15%</td><td class="p-3 text-right font-mono">0.5892</td><td class="p-3 text-right font-mono">156亿</td></tr>\n            <tr style="background:var(--color-primary-light);opacity:0.5"><td class="p-3 font-medium">南方现金A</td><td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.08%</td><td class="p-3 text-right font-mono">0.5701</td><td class="p-3 text-right font-mono">98亿</td></tr>\n            <tr style="background:var(--color-bg-card)"><td class="p-3 font-medium">华夏现金A</td><td class="p-3 text-right font-mono" style="color:var(--color-accent)">2.21%</td><td class="p-3 text-right font-mono">0.6013</td><td class="p-3 text-right font-mono">203亿</td></tr>\n          </tbody>\n        </table>\n      </div>\n    </div>\n  </div>\n  <footer class="page-footer">第 2 页</footer>\n</section>\n<section class="page-a4-landscape">\n  <div class="page-header-strip"></div>\n  <div class="content-area">\n    <div class="flex flex-col h-full justify-center items-center text-center">\n      <h2 class="text-3xl font-bold mb-6" style="color:var(--color-primary)">总结与展望</h2>\n      <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-lg)] p-6 max-w-2xl text-left">\n        <p class="text-base leading-relaxed" style="color:var(--color-text)">货币基金整体运行稳健，七日年化收益率维持在2.10%-2.25%区间。华夏现金A在收益表现上略优于同组，建议持续关注其持仓结构变化带来的超额收益持续性。</p>\n      </div>\n      <p class="text-sm mt-6" style="color:var(--color-text-muted)">投资管理部 · 固定收益组 · 2026年5月</p>\n    </div>\n  </div>\n  <footer class="page-footer">第 3 页</footer>\n</section>\n<p class="text-xs text-center mt-4" style="color:var(--color-text-muted)">← 横向滚动查看更多 →</p>',
+  'ppt-slide': '<div class="ppt-container">\n  <section class="ppt-slide" style="display:flex;background:var(--color-bg);min-height:280px;position:relative;padding:40px 0;border-bottom:2px dashed var(--color-border)">\n    <div class="slide-content flex flex-col justify-center items-center text-center" style="padding:30px 50px">\n      <h1 class="text-4xl font-bold mb-4" style="color:var(--color-primary)">货币基金月度估值分析</h1>\n      <p class="text-lg mb-8" style="color:var(--color-text-muted)">2026年5月 · 面向管理人</p>\n      <div class="h-1 w-24 rounded-full mb-8" style="background:var(--color-accent)"></div>\n      <p class="text-sm" style="color:var(--color-text-muted)">投资管理部 · 固定收益组</p>\n    </div>\n    <div style="position:absolute;bottom:16px;right:30px;font-size:var(--text-sm);color:var(--color-text-muted)">1 / 3</div>\n  </section>\n  <section class="ppt-slide" style="display:flex;background:var(--color-bg);min-height:280px;position:relative;padding:40px 0;border-bottom:2px dashed var(--color-border)">\n    <div class="slide-content" style="padding:30px 50px">\n      <h2 class="text-2xl font-bold mb-2" style="color:var(--color-primary)">核心指标概览</h2>\n      <p class="text-sm mb-6" style="color:var(--color-text-muted)">三只货币基金绩效对比</p>\n      <div class="grid grid-cols-3 gap-6">\n        <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] text-center">\n          <div class="text-4xl font-bold mb-2" style="color:var(--color-primary)">3.28<span class="text-lg font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>\n          <p class="text-sm font-medium">七日年化</p>\n        </div>\n        <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] text-center">\n          <div class="text-4xl font-bold mb-2" style="color:var(--color-primary)">0.5892<span class="text-lg font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>\n          <p class="text-sm font-medium">万份收益</p>\n        </div>\n        <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)] text-center">\n          <div class="text-4xl font-bold mb-2" style="color:var(--color-success)">156<span class="text-lg font-normal ml-1" style="color:var(--color-text-muted)">亿</span></div>\n          <p class="text-sm font-medium">管理规模</p>\n        </div>\n      </div>\n    </div>\n    <div style="position:absolute;bottom:16px;right:30px;font-size:var(--text-sm);color:var(--color-text-muted)">2 / 3</div>\n  </section>\n  <section class="ppt-slide" style="display:flex;background:var(--color-bg);min-height:280px;position:relative;padding:40px 0;">\n    <div class="slide-content flex flex-col justify-center items-center text-center" style="padding:30px 50px">\n      <h2 class="text-2xl font-bold mb-4" style="color:var(--color-primary)">总结与展望</h2>\n      <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-lg)] p-6">\n        <p class="text-base leading-relaxed" style="color:var(--color-text)">货币基金整体运行稳健。华夏现金A在收益表现上略优于同组，建议持续关注其持仓结构变化。</p>\n      </div>\n      <p class="text-sm mt-6" style="color:var(--color-text-muted)">谢谢 · 投资管理部 · 2026年5月</p>\n    </div>\n    <div style="position:absolute;bottom:16px;right:30px;font-size:var(--text-sm);color:var(--color-text-muted)">3 / 3</div>\n  </section>\n  <div class="ppt-nav-dots"><button class="ppt-nav-dot active"></button><button class="ppt-nav-dot"></button><button class="ppt-nav-dot"></button></div>\n  <p class="text-xs text-center mt-3" style="color:var(--color-text-muted)">全屏预览可体验完整翻页交互</p>\n</div>',
+  'bar-chart': '<div data-cid="bar-chart" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)]" style="width:100%;"><h3 class="text-base font-semibold mb-4" style="color:var(--color-text)">各类资产规模对比</h3><div id="barChart" style="width:100%;height:400px;"></div></div>',
+  'line-chart': '<div data-cid="line-chart" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)]" style="width:100%;"><h3 class="text-base font-semibold mb-4" style="color:var(--color-text)">七日年化收益率走势</h3><div id="lineChart" style="width:100%;height:400px;"></div></div>',
+  'pie-chart': '<div data-cid="pie-chart" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-card)]" style="width:100%;"><h3 class="text-base font-semibold mb-4" style="color:var(--color-text)">资产配置占比</h3><div id="pieChart" style="width:100%;height:400px;"></div></div>'
 };
 
 var componentProps = {
@@ -289,6 +365,14 @@ createApp({
       currentTheme: 'business-blue',
       currentItem: null,
       currentCode: '',
+      styleColorSwatches: '',
+      styleCompPreview: '',
+      tokenColorGrid: '',
+      tokenFontScale: '',
+      tokenSpacingDemo: '',
+      tokenRadiusDemo: '',
+      tokenShadowDemo: '',
+      chartInstance: null,
       categories: [
         {
           id: 'tokens', label: '设计规范',
@@ -355,27 +439,160 @@ createApp({
   },
   methods: {
     selectItem: function(item) {
+      // 清理上一个 ECharts 实例
+      if (this.chartInstance) {
+        this.chartInstance.dispose();
+        this.chartInstance = null;
+      }
       this.currentItem = item;
       var self = this;
       if (item.type === 'component') {
         this.loadCode('components/' + item.id + '/template.html', item.id);
       } else if (item.type === 'chart') {
-        // 图表：iframe 已渲染完整交互，额外加载 template.html 源码用于代码展示
-        this.loadCode('charts/' + item.id + '/template.html', item.id);
+        // 图表：同步取 fallback HTML，$nextTick 中初始化 ECharts
+        this.currentCode = FALLBACKS[item.id] || '';
+        var self2 = this;
+        this.$nextTick(function() {
+          self2.initChart(item.id);
+        });
       } else if (item.type === 'layout') {
         this.loadCode('layouts/' + item.id + '/skeleton.html', item.id);
-      } else if (item.type === 'token' || item.type === 'style') {
-        // token/style 用 iframe 预览，无需加载代码
+      } else if (item.type === 'style') {
         this.currentCode = '';
+        var themeMap = { 'business-blue': 'business-blue', 'dark-tech': 'dark-tech', 'fresh-clean': 'fresh-clean' };
+        var theme = themeMap[item.id] || item.id;
+        this.currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        var self3 = this;
+        this.$nextTick(function() {
+          self3.buildStylePreview(item.id);
+        });
+      } else if (item.type === 'token') {
+        this.currentCode = '';
+        var self4 = this;
+        this.$nextTick(function() {
+          self4.buildTokenPreview();
+        });
       } else {
         this.currentCode = '';
       }
-      var self2 = this;
+      var self5 = this;
       this.$nextTick(function() {
-        if (self2.currentCode) {
+        if (self5.currentCode) {
           Prism.highlightAll();
         }
       });
+    },
+    buildStylePreview: function(styleId) {
+      var style = getComputedStyle(document.documentElement);
+      var colorKeys = [
+        { key: '--color-primary', label: '主色' },
+        { key: '--color-primary-light', label: '主色浅底' },
+        { key: '--color-bg', label: '页面背景' },
+        { key: '--color-bg-card', label: '卡片背景' },
+        { key: '--color-text', label: '正文文字' },
+        { key: '--color-text-muted', label: '辅助文字' },
+        { key: '--color-accent', label: '强调色' },
+        { key: '--color-border', label: '边框色' },
+        { key: '--color-success', label: '成功绿' },
+        { key: '--color-warning', label: '警示黄' }
+      ];
+      var swatches = '';
+      for (var i = 0; i < colorKeys.length; i++) {
+        var ck = colorKeys[i];
+        var value = style.getPropertyValue(ck.key).trim();
+        swatches += '<div class="style-color-chip"><div class="style-color-swatch" style="background:' + value + '"></div><div class="style-color-label"><div class="style-color-name">' + ck.label + '</div><div class="style-color-hex">' + value + '</div></div></div>';
+      }
+      this.styleColorSwatches = swatches;
+      var defaultComps = FALLBACKS['kpi-card'] + FALLBACKS['info-card'] + FALLBACKS['highlight-quote'] + FALLBACKS['section-header'] + FALLBACKS['divider'];
+      this.styleCompPreview = '<div class="style-comp-row">' + defaultComps + '</div>';
+    },
+
+    initChart: function(chartId) {
+      var chartEl = document.getElementById(chartId === 'bar-chart' ? 'barChart' : chartId === 'line-chart' ? 'lineChart' : 'pieChart');
+      if (!chartEl) return;
+      try {
+        this.chartInstance = echarts.init(chartEl);
+        var style = getComputedStyle(document.documentElement);
+        var primary = style.getPropertyValue('--color-primary').trim() || '#1e3a8a';
+        var accent = style.getPropertyValue('--color-accent').trim() || '#2563eb';
+        var textMuted = style.getPropertyValue('--color-text-muted').trim() || '#64748b';
+        var option = {};
+        if (chartId === 'bar-chart') {
+          option = {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: ['国债','同业存单','金融债','企业短融','逆回购'], axisLabel: { color: textMuted } },
+            yAxis: { type: 'value', name: '亿元', axisLabel: { color: textMuted } },
+            series: [{ type: 'bar', data: [42.5,38.2,25.8,18.6,12.3], itemStyle: { color: primary, borderRadius: [6,6,0,0] }, barWidth: '50%' }]
+          };
+        } else if (chartId === 'line-chart') {
+          option = {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['天弘货币A','华夏现金A'], textStyle: { color: textMuted }, top: 0 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: ['5-01','5-05','5-09','5-13','5-17','5-20'], axisLabel: { color: textMuted } },
+            yAxis: { type: 'value', name: '%', axisLabel: { color: textMuted } },
+            series: [
+              { name: '天弘货币A', type: 'line', data: [2.12,2.14,2.15,2.13,2.16,2.15], smooth: true, lineStyle: { color: primary }, itemStyle: { color: primary } },
+              { name: '华夏现金A', type: 'line', data: [2.18,2.19,2.20,2.18,2.22,2.21], smooth: true, lineStyle: { color: accent }, itemStyle: { color: accent } }
+            ]
+          };
+        } else if (chartId === 'pie-chart') {
+          option = {
+            tooltip: { trigger: 'item', formatter: '{b}: {c}亿 ({d}%)' },
+            legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { color: textMuted } },
+            series: [{ type: 'pie', radius: ['45%','75%'], center: ['40%','50%'], label: { color: textMuted },
+              data: [{ value:42.5, name:'国债' },{ value:38.2, name:'同业存单' },{ value:25.8, name:'金融债' },{ value:18.6, name:'企业短融' },{ value:12.3, name:'逆回购' }]
+            }]
+          };
+        }
+        this.chartInstance.setOption(option);
+      } catch(e) {
+        console.warn('ECharts init error:', e);
+      }
+    },
+
+    buildTokenPreview: function() {
+      var style = getComputedStyle(document.documentElement);
+      var colorVars = [
+        { name: '--color-primary', label: '主色' },
+        { name: '--color-primary-light', label: '主色浅底' },
+        { name: '--color-bg', label: '页面背景' },
+        { name: '--color-bg-card', label: '卡片背景' },
+        { name: '--color-text', label: '正文文字' },
+        { name: '--color-text-muted', label: '辅助文字' },
+        { name: '--color-accent', label: '强调色' },
+        { name: '--color-border', label: '边框色' },
+        { name: '--color-success', label: '成功绿' },
+        { name: '--color-warning', label: '警示黄' }
+      ];
+      var grid = '';
+      for (var i = 0; i < colorVars.length; i++) {
+        var cv = colorVars[i];
+        var value = style.getPropertyValue(cv.name).trim();
+        grid += '<div class="color-item"><div class="color-swatch" style="background:' + value + '"></div><div class="color-info"><div class="color-name">' + cv.label + '</div><div class="color-value">' + cv.name + '<br>' + value + '</div></div></div>';
+      }
+      this.tokenColorGrid = grid;
+      this.tokenFontScale = '<div class="font-row"><span class="font-label">--text-3xl 40px</span><span style="font-size:var(--text-3xl);font-weight:700">系统字体展示 40px</span></div>' +
+        '<div class="font-row"><span class="font-label">--text-xl 28px</span><span style="font-size:var(--text-xl);font-weight:700">系统字体展示 28px</span></div>' +
+        '<div class="font-row"><span class="font-label">--text-lg 20px</span><span style="font-size:var(--text-lg);font-weight:600">系统字体展示 20px</span></div>' +
+        '<div class="font-row"><span class="font-label">--text-base 16px</span><span style="font-size:var(--text-base)">系统字体展示 16px — 正文排版示例</span></div>' +
+        '<div class="font-row"><span class="font-label">--text-sm 14px</span><span style="font-size:var(--text-sm)">系统字体展示 14px — 辅助说明文本</span></div>' +
+        '<div class="font-row"><span class="font-label">--text-xs 12px</span><span style="font-size:var(--text-xs)">系统字体展示 12px — 脚注标签</span></div>';
+      var spaceVars = [
+        { name: '--space-xs', px: 4 }, { name: '--space-sm', px: 8 },
+        { name: '--space-md', px: 16 }, { name: '--space-lg', px: 24 }, { name: '--space-xl', px: 32 }
+      ];
+      var spacing = '';
+      for (var j = 0; j < spaceVars.length; j++) {
+        var sv = spaceVars[j];
+        var px = parseFloat(style.getPropertyValue(sv.name).trim()) || sv.px;
+        spacing += '<div class="spacing-row"><span class="spacing-label">' + sv.name + '</span><div class="spacing-bar" style="width:' + (px * 6) + 'px"></div><span class="font-label">' + px + 'px</span></div>';
+      }
+      this.tokenSpacingDemo = spacing;
+      this.tokenRadiusDemo = '<div style="display:flex;gap:16px;flex-wrap:wrap;"><div style="width:100px;height:70px;background:var(--color-primary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600">sm 6px</div><div style="width:100px;height:70px;background:var(--color-primary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600">md 12px</div><div style="width:100px;height:70px;background:var(--color-primary);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600">lg 20px</div></div>';
+      this.tokenShadowDemo = '<div style="display:flex;gap:16px;flex-wrap:wrap;"><div style="width:140px;height:80px;background:var(--color-bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-card);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">shadow-card<br>悬浮卡片</div><div style="width:140px;height:80px;background:var(--color-bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-elevated);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">shadow-elevated<br>重度提升</div></div>';
     },
 
     loadCode: function(path, id) {
@@ -401,6 +618,17 @@ createApp({
 
     onThemeChange: function() {
       document.documentElement.setAttribute('data-theme', this.currentTheme);
+      if (!this.currentItem) return;
+      var self = this;
+      if (this.currentItem.type === 'style') {
+        this.$nextTick(function() { self.buildStylePreview(self.currentItem.id); });
+      } else if (this.currentItem.type === 'token') {
+        this.$nextTick(function() { self.buildTokenPreview(); });
+      } else if (this.currentItem.type === 'chart' && this.chartInstance) {
+        this.chartInstance.dispose();
+        this.chartInstance = null;
+        this.$nextTick(function() { self.initChart(self.currentItem.id); });
+      }
     },
 
     openFullPreview: function() {
