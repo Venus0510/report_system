@@ -26,6 +26,7 @@
   .info-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: var(--text-sm); }
   .info-list li { padding: 8px 12px; background: var(--color-bg-card); border-radius: var(--radius-sm); }
   .info-list strong { color: var(--color-primary); }
+  .placeholder { background: var(--color-primary-light); border: 2px dashed var(--color-primary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-size: var(--text-sm); font-weight: 500; opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -43,7 +44,7 @@
   <div class="section">
     <div class="section-title">版式参数</div>
     <ul class="info-list">
-      <li><strong>容器尺寸</strong> 297mm × 210mm</li>
+      <li><strong>容器尺寸</strong> 297mm × 210mm（固定，内容不可溢出）</li>
       <li><strong>翻页方式</strong> CSS page-break-after（打印分页）</li>
       <li><strong>内容区</strong> padding 18mm × 22mm</li>
       <li><strong>适用场景</strong> 正式报告、监管报送、印刷输出</li>
@@ -51,42 +52,99 @@
   </div>
 
   <div class="section">
-    <div class="section-title">实时预览</div>
-    <div class="layout-preview">
-      <!-- 第1页示例 -->
-      <section class="page-a4-landscape">
-        <div class="page-header-strip"></div>
-        <div class="content-area">
-          <div class="flex flex-col h-full justify-between">
-            <div>
-              <h1 class="text-4xl font-bold mb-4" style="color:var(--color-primary)">货币基金月度估值分析</h1>
-              <p class="text-lg" style="color:var(--color-text-muted)">2026年5月 · 面向管理人</p>
-              <div class="mt-3 h-1 w-24 rounded-full" style="background:var(--color-accent)"></div>
+    <div class="section-title">实时预览（占位数据，仅展示版式框架）</div>
+
+    <!-- 第 1 页 -->
+    <section class="page-a4-landscape">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="flex flex-col h-full justify-between">
+          <div>
+            <h1 class="text-4xl font-bold mb-4" style="color:var(--color-primary)">[报告标题]</h1>
+            <p class="text-lg" style="color:var(--color-text-muted)">[副标题] · [日期]</p>
+            <div class="mt-3 h-1 w-24 rounded-full" style="background:var(--color-accent)"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
+              <div class="text-3xl font-bold" style="color:var(--color-primary)">[数值]<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">[单位]</span></div>
+              <p class="text-xs mt-1" style="color:var(--color-text-muted)">[指标名称]</p>
             </div>
-            <div class="grid grid-cols-3 gap-6">
-              <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
-                <div class="text-3xl font-bold" style="color:var(--color-primary)">3.28<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
-                <p class="text-xs mt-1" style="color:var(--color-text-muted)">七日年化</p>
-              </div>
-              <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
-                <div class="text-3xl font-bold" style="color:var(--color-primary)">0.5892<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>
-                <p class="text-xs mt-1" style="color:var(--color-text-muted)">万份收益</p>
-              </div>
-              <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
-                <div class="text-3xl font-bold" style="color:var(--color-success)">0.18<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
-                <p class="text-xs mt-1" style="color:var(--color-text-muted)">近一月回报</p>
-              </div>
+            <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
+              <div class="text-3xl font-bold" style="color:var(--color-primary)">[数值]<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">[单位]</span></div>
+              <p class="text-xs mt-1" style="color:var(--color-text-muted)">[指标名称]</p>
+            </div>
+            <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-md)] p-5 text-center">
+              <div class="text-3xl font-bold" style="color:var(--color-success)">[数值]<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">[单位]</span></div>
+              <p class="text-xs mt-1" style="color:var(--color-text-muted)">[指标名称]</p>
             </div>
           </div>
         </div>
-        <footer class="page-footer">第 1 页</footer>
-      </section>
-    </div>
+      </div>
+      <footer class="page-footer">第 1 页</footer>
+    </section>
 
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="window.print()">打印预览</button>
-      <button class="btn btn-secondary" onclick="window.open(location.href, '_blank')">全屏查看</button>
-    </div>
+    <!-- 第 2 页 -->
+    <section class="page-a4-landscape">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="flex flex-col h-full">
+          <h2 class="text-3xl font-bold mb-6" style="color:var(--color-primary)">[章节标题]</h2>
+          <div class="overflow-x-auto flex-1">
+            <table class="w-full text-xs border-collapse">
+              <thead>
+                <tr style="background:var(--color-primary)">
+                  <th class="text-left p-3 font-semibold text-white">[列名 A]</th>
+                  <th class="text-right p-3 font-semibold text-white">[列名 B]</th>
+                  <th class="text-right p-3 font-semibold text-white">[列名 C]</th>
+                  <th class="text-right p-3 font-semibold text-white">[列名 D]</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:var(--color-bg-card)">
+                  <td class="p-3 font-medium">[数据行 1]</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-primary)">[值]</td>
+                  <td class="p-3 text-right font-mono">[值]</td>
+                  <td class="p-3 text-right font-mono">[值]</td>
+                </tr>
+                <tr style="background:var(--color-primary-light);opacity:0.5">
+                  <td class="p-3 font-medium">[数据行 2]</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-primary)">[值]</td>
+                  <td class="p-3 text-right font-mono">[值]</td>
+                  <td class="p-3 text-right font-mono">[值]</td>
+                </tr>
+                <tr style="background:var(--color-bg-card)">
+                  <td class="p-3 font-medium">[数据行 3]</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-accent)">[值]</td>
+                  <td class="p-3 text-right font-mono">[值]</td>
+                  <td class="p-3 text-right font-mono">[值]</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <footer class="page-footer">第 2 页</footer>
+    </section>
+
+    <!-- 第 3 页 -->
+    <section class="page-a4-landscape">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="flex flex-col h-full justify-center items-center text-center">
+          <h2 class="text-3xl font-bold mb-6" style="color:var(--color-primary)">[总结标题]</h2>
+          <div class="bg-[var(--color-primary-light)] rounded-[var(--radius-lg)] p-6 max-w-2xl text-left">
+            <p class="text-base leading-relaxed" style="color:var(--color-text)">[此处填写总结内容。本版式为 A4 横版固定尺寸（297mm × 210mm），内容不可溢出，不可滚动，适合正式报告和打印输出。]</p>
+          </div>
+          <p class="text-sm mt-6" style="color:var(--color-text-muted)">[署名 / 日期]</p>
+        </div>
+      </div>
+      <footer class="page-footer">第 3 页</footer>
+    </section>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="window.print()">打印预览</button>
+    <button class="btn btn-secondary" onclick="window.open(location.href, '_blank')">全屏查看</button>
   </div>
 </div>
 

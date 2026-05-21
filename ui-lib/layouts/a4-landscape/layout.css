@@ -1,4 +1,5 @@
-/* A4 横版分页布局 */
+/* A4 横版分页布局：固定尺寸，内容不可溢出，不可滚动 */
+
 @media print {
   @page {
     size: A4 landscape;
@@ -10,9 +11,9 @@
 .page-a4-landscape {
   width: 297mm;
   height: 210mm;
-  margin: 0 auto;
+  margin: 0 auto 24px auto;
   position: relative;
-  overflow: hidden;
+  overflow: hidden;          /* 内容不可溢出，不可滚动 */
   background: var(--color-bg-card);
   box-shadow: var(--shadow-elevated);
   page-break-after: always;
@@ -20,12 +21,14 @@
 
 .page-a4-landscape:last-child {
   page-break-after: auto;
+  margin-bottom: 0;
 }
 
 .page-a4-landscape .content-area {
   padding: 18mm 22mm;
   height: 100%;
   box-sizing: border-box;
+  overflow: hidden;          /* 内容区也不可溢出 */
 }
 
 .page-a4-landscape .page-footer {
@@ -45,9 +48,9 @@
   background: var(--color-primary);
 }
 
-/* 预览容器（非打印场景） */
-.layout-preview {
-  max-width: 100%;
-  overflow-x: auto;
-  padding: 24px 0;
+/* 打印时显示真实尺寸 */
+@media screen {
+  .page-a4-landscape {
+    /* 屏幕预览保持固定尺寸 */
+  }
 }
