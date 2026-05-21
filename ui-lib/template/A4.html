@@ -1,527 +1,472 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="business-blue">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>货币基金月度收益归因分析服务方案</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../design-tokens/tokens.css" />
+  <link rel="stylesheet" href="../layouts/a4-landscape/layout.css" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      font-family: "Microsoft YaHei", Arial, sans-serif;
-      background: #f3f6fb;
-      color: #1f2937;
+      font-family: var(--font-body);
+      background: #e0e5ec;
+      color: var(--color-text);
+      min-height: 100vh;
     }
 
-    @page {
-      size: A4 landscape;
-      margin: 0;
+    /* ----- Theme Switcher Bar (outside pages, for preview) ----- */
+    .theme-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px 24px;
+      background: var(--color-bg-card);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card);
+      flex-wrap: wrap;
+    }
+    .theme-bar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-right: 4px;
+    }
+    .theme-btn {
+      padding: 6px 18px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--color-border);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .theme-btn:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+    .theme-btn.active {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+      color: #fff;
+      font-weight: 700;
+    }
+    .action-bar {
+      display: flex;
+      gap: 8px;
+      margin-left: 20px;
+    }
+    .btn-print {
+      padding: 6px 18px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--color-primary);
+      background: var(--color-primary);
+      color: #fff;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-print:hover {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
     }
 
-    .page {
-      width: 297mm;
-      height: 210mm;
-      padding: 18mm 22mm;
-      page-break-after: always;
-      break-after: page;
-      background: #f8fafc;
-      position: relative;
-      overflow: hidden;
+    /* ----- Pages Container ----- */
+    .pages-wrapper {
+      padding: 32px 16px 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      background: var(--color-bg);
+      min-height: 100vh;
     }
 
-    .page:last-child {
-      page-break-after: auto;
-      break-after: auto;
+    /* ----- Override: screen-only page spacing (layout.css uses 24px bottom) ----- */
+    .page-a4-landscape {
+      margin: 0 auto;
     }
 
-    .cover {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      color: white;
+    /* ----- Cover page special styling ----- */
+    .cover-page .content-area {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .cover-page .page-header-strip { height: 6mm; }
+    .cover-dept {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-top: 40px;
+      letter-spacing: 2px;
+    }
+    .cover-date {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: 8px;
     }
 
-    .cover .card {
-
-      color: #1f2937;
-    }
-
-    .dark {
-      background: #0f172a;
-      color: white;
-    }
-
-    h1 {
-      font-size: 40px;
-      line-height: 1.25;
-      margin: 0 0 20px;
-    }
-
-    h2 {
-      font-size: 30px;
-      margin: 0 0 14px;
-      color: #0f172a;
-    }
-
-    .dark h2,
-    .cover h1 {
-      color: white;
-    }
-
-    h3 {
-      margin: 0 0 10px;
-      color: #1e3a8a;
-      font-size: 18px;
-    }
-
-    .dark h3 {
-      color: #93c5fd;
-    }
-
-    p {
-      font-size: 15px;
-      line-height: 1.7;
-      margin: 0;
-    }
-
-    .subtitle {
-      max-width: 850px;
-      font-size: 18px;
-      color: #64748b;
-      margin-bottom: 26px;
-    }
-
-    .cover .subtitle,
-    .dark .subtitle {
-      color: #cbd5e1;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 24px;
-    }
-
-    .grid.two {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .grid.four {
-      grid-template-columns: repeat(4, 1fr);
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-      min-height: 120px;
-    }
-
-    .dark .card {
-      background: #1e293b;
-      color: white;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #dbeafe;
-      color: #1e40af;
-      font-size: 12px;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .dark .tag {
-      background: #1d4ed8;
-      color: white;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 22px;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      font-size: 13px;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: #dbeafe;
-      color: #1e3a8a;
-      font-weight: 700;
-    }
-
-    .process {
-      border-left: 4px solid #2563eb;
-      background: white;
-      padding: 14px 18px;
-      border-radius: 0 12px 12px 0;
-      margin-bottom: 12px;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-    }
-
-    .footer {
-      position: absolute;
-      bottom: 10mm;
-      left: 22mm;
-      right: 22mm;
+    /* ----- KPI row inside A4 ----- */
+    .a4-kpi-row {
       display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #94a3b8;
+      gap: 16px;
+      width: 100%;
+      margin-top: auto;
+      padding-bottom: 20mm;
+    }
+    .a4-kpi-row > div {
+      flex: 1;
     }
 
-    .cover .footer,
-    .dark .footer {
-      color: #cbd5e1;
-    }
-
-    .big-number {
-      font-size: 48px;
-      color: #2563eb;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .dark .big-number {
-      color: #93c5fd;
+    /* ----- Page content helpers ----- */
+    .page-content-full {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     @media print {
-      html, body {
-        width: 297mm;
-        height: 210mm;
-        background: white;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-
-      .page {
-        margin: 0;
-        box-shadow: none;
-      }
+      .theme-bar { display: none; }
     }
   </style>
 </head>
-
 <body>
 
-  <!-- Page 1 Cover -->
-  <section class="page cover">
-    <h1>货币基金月度收益归因分析<br>服务方案</h1>
-    <p class="subtitle">
-      面向公募基金管理人的货币基金产品，提供基于收益拆解、同类对比、风险识别与管理建议的月度绩效分析服务，
-      帮助投资、风控、产品及管理层更清晰地理解收益来源与组合管理效果。
-    </p>
+  <!-- ==================== THEME SWITCHER BAR ==================== -->
+  <div class="theme-bar">
+    <span class="theme-bar-label">主题：</span>
+    <button class="theme-btn active" data-theme="business-blue" onclick="switchTheme('business-blue', this)">商务蓝白</button>
+    <button class="theme-btn" data-theme="dark-tech" onclick="switchTheme('dark-tech', this)">暗黑科技</button>
+    <button class="theme-btn" data-theme="fresh-clean" onclick="switchTheme('fresh-clean', this)">清新简约</button>
+    <span class="action-bar">
+      <button class="btn-print" onclick="window.print()">打印预览</button>
+    </span>
+  </div>
 
-    <div class="grid">
-      <div class="card">
-        <h3>收益来源拆解</h3>
-        <p>识别票息、杠杆、久期、交易/骑乘、费用调整等因素对收益的影响。</p>
+  <!-- ==================== PAGES ==================== -->
+  <div class="pages-wrapper">
+
+    <!-- ===== PAGE 1 : COVER ===== -->
+    <section class="page-a4-landscape cover-page">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="page-content-full">
+
+          <!-- Title block -->
+          <div style="margin-top:15mm; text-align:center;">
+            <h1 style="font-size:var(--text-3xl); font-weight:700; color:var(--color-primary); line-height:1.3;">
+              货币基金月度收益<br />归因分析服务方案
+            </h1>
+            <div style="margin: 16px auto 0; height:4px; width:80px; border-radius:2px; background:var(--color-accent);"></div>
+            <p style="font-size:var(--text-lg); color:var(--color-text-muted); margin-top:20px; line-height:1.6;">
+              专业透明 · 多维归因 · 自动生成
+            </p>
+            <p style="font-size:var(--text-sm); color:var(--color-text-muted); margin-top:10px;">
+              覆盖全市场货币基金 · 日频追踪 · 异常预警
+            </p>
+          </div>
+
+          <!-- Department & Date -->
+          <div style="margin-top:auto; text-align:center; padding-bottom:10mm;">
+            <p class="cover-dept">估值分析部  |  金融科技中心</p>
+            <p class="cover-date">2026年5月 · 月度报告</p>
+          </div>
+
+          <!-- Bottom KPI cards -->
+          <div class="a4-kpi-row">
+            <div data-cid="kpi-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 shadow-[var(--shadow-card)]">
+              <span class="text-xs font-semibold px-3 py-1 rounded-full w-fit" style="color:var(--color-primary);background:var(--color-primary-light)">覆盖产品</span>
+              <div class="text-3xl font-bold" style="color:var(--color-primary)">328</div>
+              <p class="text-sm" style="color:var(--color-text-muted)">只货币基金</p>
+            </div>
+            <div data-cid="kpi-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 shadow-[var(--shadow-card)]">
+              <span class="text-xs font-semibold px-3 py-1 rounded-full w-fit" style="color:var(--color-success);background:var(--color-primary-light)">日均处理</span>
+              <div class="text-3xl font-bold" style="color:var(--color-success)">12.6<span class="text-lg font-normal" style="color:var(--color-text-muted)">万</span></div>
+              <p class="text-sm" style="color:var(--color-text-muted)">条净值记录</p>
+            </div>
+            <div data-cid="kpi-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 shadow-[var(--shadow-card)]">
+              <span class="text-xs font-semibold px-3 py-1 rounded-full w-fit" style="color:var(--color-warning);background:var(--color-primary-light)">归因维度</span>
+              <div class="text-3xl font-bold" style="color:var(--color-warning)">7</div>
+              <p class="text-sm" style="color:var(--color-text-muted)">大类因子</p>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="card">
-        <h3>同类表现定位</h3>
-        <p>结合竞品货币基金表现，判断产品收益水平的相对位置。</p>
+      <footer class="page-footer">第 1 页 / 共 4 页</footer>
+    </section>
+
+
+    <!-- ===== PAGE 2 : 核心指标概览 + 数据表格 ===== -->
+    <section class="page-a4-landscape">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="page-content-full" style="gap:14px;">
+
+          <!-- Section Header -->
+          <div data-cid="section-header" style="margin-bottom:0;">
+            <h2 style="font-size:var(--text-xl); font-weight:700; color:var(--color-primary);">核心指标概览</h2>
+            <p style="font-size:var(--text-sm); margin-top:4px; color:var(--color-text-muted);">2026年5月 · 三只代表性货币基金绩效对比</p>
+            <div style="margin-top:6px; height:3px; width:60px; border-radius:2px; background:var(--color-accent);"></div>
+          </div>
+
+          <!-- Data Table -->
+          <div data-cid="data-table" class="overflow-hidden rounded-[var(--radius-lg)] border shadow-[var(--shadow-card)]" style="border-color:var(--color-border); flex-shrink:0;">
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr style="background:var(--color-primary)">
+                  <th class="text-left p-3 font-semibold text-white">基金名称</th>
+                  <th class="text-right p-3 font-semibold text-white">七日年化</th>
+                  <th class="text-right p-3 font-semibold text-white">万份收益</th>
+                  <th class="text-right p-3 font-semibold text-white">近一月回报</th>
+                  <th class="text-right p-3 font-semibold text-white">基金规模</th>
+                  <th class="text-right p-3 font-semibold text-white">管理费率</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:var(--color-bg-card)">
+                  <td class="p-3 font-medium" style="color:var(--color-text)">天弘货币A</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.15%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">0.5892</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-success)">0.18%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">156亿</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text-muted)">0.30%</td>
+                </tr>
+                <tr style="background:var(--color-primary-light);opacity:0.5">
+                  <td class="p-3 font-medium" style="color:var(--color-text)">南方现金A</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.08%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">0.5701</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-success)">0.16%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">128亿</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text-muted)">0.28%</td>
+                </tr>
+                <tr style="background:var(--color-bg-card)">
+                  <td class="p-3 font-medium" style="color:var(--color-text)">华夏现金A</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-accent)">2.21%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">0.6013</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-success)">0.19%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">203亿</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text-muted)">0.33%</td>
+                </tr>
+                <tr style="background:var(--color-primary-light);opacity:0.5">
+                  <td class="p-3 font-medium" style="color:var(--color-text)">博时现金A</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.03%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">0.5528</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-success)">0.15%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">98亿</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text-muted)">0.30%</td>
+                </tr>
+                <tr style="background:var(--color-bg-card)">
+                  <td class="p-3 font-medium" style="color:var(--color-text)">招商现金A</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-primary)">2.18%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">0.5945</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-success)">0.17%</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text)">312亿</td>
+                  <td class="p-3 text-right font-mono" style="color:var(--color-text-muted)">0.25%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Divider -->
+          <div data-cid="divider" class="flex items-center gap-4" style="margin:4px 0;">
+            <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+            <span class="text-xs font-medium shrink-0" style="color:var(--color-text-muted)">● ● ●</span>
+            <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+          </div>
+
+          <!-- Big Number Row -->
+          <div data-cid="big-number-row" class="flex gap-6" style="flex:1; align-items:stretch;">
+            <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)] flex flex-col items-center justify-center flex-1">
+              <div class="text-3xl font-bold" style="color:var(--color-primary)">3.28<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
+              <p class="text-xs mt-2 font-medium" style="color:var(--color-text-muted)">全市场七日年化均值</p>
+            </div>
+            <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)] flex flex-col items-center justify-center flex-1">
+              <div class="text-3xl font-bold" style="color:var(--color-primary)">0.5892<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">元</span></div>
+              <p class="text-xs mt-2 font-medium" style="color:var(--color-text-muted)">全市场万份收益均值</p>
+            </div>
+            <div class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)] flex flex-col items-center justify-center flex-1">
+              <div class="text-3xl font-bold" style="color:var(--color-success)">0.18<span class="text-base font-normal ml-1" style="color:var(--color-text-muted)">%</span></div>
+              <p class="text-xs mt-2 font-medium" style="color:var(--color-text-muted)">近一月平均回报</p>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="card">
-        <h3>管理建议输出</h3>
-        <p>形成月度复盘结论，为后续投资管理与风险控制提供支持。</p>
+      <footer class="page-footer">第 2 页 / 共 4 页</footer>
+    </section>
+
+
+    <!-- ===== PAGE 3 : 分析流程 + 关键发现 ===== -->
+    <section class="page-a4-landscape">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="page-content-full">
+
+          <!-- Section Header -->
+          <div data-cid="section-header" style="margin-bottom:12px;">
+            <h2 style="font-size:var(--text-xl); font-weight:700; color:var(--color-primary);">收益归因分析流程</h2>
+            <p style="font-size:var(--text-sm); margin-top:4px; color:var(--color-text-muted);">从数据采集到报告输出的完整链路</p>
+            <div style="margin-top:6px; height:3px; width:60px; border-radius:2px; background:var(--color-accent);"></div>
+          </div>
+
+          <!-- Two-column layout: process steps + info cards -->
+          <div style="display:flex; gap:24px; flex:1;">
+
+            <!-- Left: Process Steps -->
+            <div style="flex:1;">
+              <div data-cid="process-step" class="flex flex-col gap-0">
+                <div class="flex items-start gap-4 pb-5 relative">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">1</div>
+                  <div class="flex-1 pt-1">
+                    <h4 class="font-semibold text-sm" style="color:var(--color-text)">数据采集与清洗</h4>
+                    <p class="text-xs mt-1 leading-relaxed" style="color:var(--color-text-muted)">从Wind、Choice、iFinD等终端自动获取328只货币基金日度净值、万份收益、基金规模数据，执行缺失值检测与异常波动标记。</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4 pb-5 relative">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">2</div>
+                  <div class="flex-1 pt-1">
+                    <h4 class="font-semibold text-sm" style="color:var(--color-text)">核心指标计算</h4>
+                    <p class="text-xs mt-1 leading-relaxed" style="color:var(--color-text-muted)">计算七日年化收益率、万份收益、近一月/近三月/近一年区间回报率，生成全市场分位数排名与同业对比矩阵。</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4 pb-5 relative">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">3</div>
+                  <div class="flex-1 pt-1">
+                    <h4 class="font-semibold text-sm" style="color:var(--color-text)">收益归因分解</h4>
+                    <p class="text-xs mt-1 leading-relaxed" style="color:var(--color-text-muted)">基于持仓穿透数据，将组合收益分解为久期因子、信用因子、杠杆因子、券种选择等7大归因维度，量化各因子贡献度。</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0 relative z-10" style="background:var(--color-primary)">4</div>
+                  <div class="flex-1 pt-1">
+                    <h4 class="font-semibold text-sm" style="color:var(--color-text)">报告自动生成</h4>
+                    <p class="text-xs mt-1 leading-relaxed" style="color:var(--color-text-muted)">综合归因结果与市场分析，自动生成标准化报告，支持PDF/PPT多格式导出，一键发送至管理人邮箱。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Info Cards + Quote -->
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+              <div data-cid="info-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)]">
+                <h3 class="text-base font-bold mb-2" style="color:var(--color-primary)">本月市场特征</h3>
+                <p class="text-xs leading-relaxed" style="color:var(--color-text-muted)">
+                  5月央行公开市场操作净投放1,200亿元，DR007均值1.82%，较上月下行5bp。
+                  短端利率维持低位震荡，同业存单发行利率稳定在1.90%-2.05%区间，
+                  流动性环境整体宽裕。货币基金通过适度拉长久期和信用下沉获取超额收益，
+                  头部产品七日年化收益率稳定在2.10%-2.25%之间。
+                </p>
+              </div>
+              <div data-cid="highlight-quote" class="bg-[var(--color-primary-light)] border-l-4 rounded-r-[var(--radius-md)] p-5" style="border-color:var(--color-primary)">
+                <blockquote class="text-sm leading-relaxed italic mb-2" style="color:var(--color-primary)">
+                  "归因分析不是简单的净值分解，而是要穿透到底层资产，理解每一分钱的收益来源。"
+                </blockquote>
+                <cite class="text-xs font-medium not-italic" style="color:var(--color-text-muted)">—— 估值分析部负责人 周明远，2026年Q1总结</cite>
+              </div>
+              <div data-cid="info-card" class="bg-[var(--color-bg-card)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-card)]">
+                <h3 class="text-base font-bold mb-2" style="color:var(--color-primary)">下月展望</h3>
+                <p class="text-xs leading-relaxed" style="color:var(--color-text-muted)">
+                  预计6月流动性将面临季末考核扰动，短端利率可能小幅上行10-15bp。
+                  建议关注央行MLF续作节奏及政府债发行进度，保持组合久期在90天以内。
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
-    </div>
+      <footer class="page-footer">第 3 页 / 共 4 页</footer>
+    </section>
 
 
-  </section>
+    <!-- ===== PAGE 4 : SUMMARY ===== -->
+    <section class="page-a4-landscape">
+      <div class="page-header-strip"></div>
+      <div class="content-area">
+        <div class="page-content-full" style="justify-content:center; align-items:center; text-align:center;">
 
-  <!-- Page 2 Background -->
-  <section class="page">
-    <h2>一、服务背景与客户需求</h2>
-    <p class="subtitle">
-      保障货币基金收益稳健，需加强七日年化收益率归因、正偏离储备与释放、申赎与流动性应对三方面分析，考察投资团队与销售团队的协作表现。
-    </p>
+          <h2 style="font-size:var(--text-xl); font-weight:700; color:var(--color-primary); margin-bottom:14px;">
+            总结与建议
+          </h2>
+          <div style="margin:0 auto 20px; height:3px; width:60px; border-radius:2px; background:var(--color-accent);"></div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="big-number">01</div>
-        <h3>七日年化收益率归因</h3>
-        <p>识别收益提升或回落是由资产配置、杠杆套息、久期管理还是市场利率变化导致。</p>
+          <!-- Summary timeline -->
+          <div data-cid="timeline" class="flex flex-col gap-0 pl-4 mx-auto" style="border-left:2px solid var(--color-primary-light); width:80%; text-align:left;">
+            <div class="relative pb-5" style="left:-1.35rem;">
+              <div class="w-3 h-3 rounded-full absolute" style="top:6px; background:var(--color-success);"></div>
+              <div class="ml-8">
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-1" style="color:var(--color-success);background:var(--color-primary-light)">市场表现</span>
+                <h4 class="font-semibold text-sm" style="color:var(--color-text)">整体平稳，头部集中明显</h4>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">前5大货币基金规模占比达47%，规模前20%产品七日年化收益高出均值0.08个百分点。</p>
+              </div>
+            </div>
+            <div class="relative pb-5" style="left:-1.35rem;">
+              <div class="w-3 h-3 rounded-full absolute" style="top:6px; background:var(--color-primary);"></div>
+              <div class="ml-8">
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-1" style="color:var(--color-primary);background:var(--color-primary-light)">归因结论</span>
+                <h4 class="font-semibold text-sm" style="color:var(--color-text)">久期因子贡献最大，信用因子分化</h4>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">久期因子平均贡献0.09%，信用因子贡献离散度达4.3bp，反映各产品信用下沉策略差异显著。</p>
+              </div>
+            </div>
+            <div class="relative pb-5" style="left:-1.35rem;">
+              <div class="w-3 h-3 rounded-full absolute" style="top:6px; background:var(--color-warning);"></div>
+              <div class="ml-8">
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-1" style="color:var(--color-warning);background:var(--color-primary-light)">风险提示</span>
+                <h4 class="font-semibold text-sm" style="color:var(--color-text)">季末流动性收紧需关注</h4>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">6月季末MPA考核叠加政府债供给高峰，建议预先监控组合流动性覆盖率（LCR）指标。</p>
+              </div>
+            </div>
+            <div class="relative" style="left:-1.35rem;">
+              <div class="w-3 h-3 rounded-full absolute" style="top:6px; background:var(--color-accent);"></div>
+              <div class="ml-8">
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-1" style="color:var(--color-accent);background:var(--color-primary-light)">服务升级</span>
+                <h4 class="font-semibold text-sm" style="color:var(--color-text)">预计Q3上线实时归因模块</h4>
+                <p class="text-xs mt-1" style="color:var(--color-text-muted)">届时管理人可通过SaaS平台自主查看日频归因结果，实现T+1级别的绩效追踪。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div data-cid="divider" class="flex items-center gap-4 my-6" style="width:60%;">
+            <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+            <span class="text-xs font-medium shrink-0" style="color:var(--color-text-muted)">● ● ●</span>
+            <div class="flex-1 h-px" style="background:var(--color-border)"></div>
+          </div>
+
+          <div data-cid="highlight-quote" class="bg-[var(--color-primary-light)] border-l-4 rounded-r-[var(--radius-md)] p-5 mx-auto" style="border-color:var(--color-primary); max-width:75%; text-align:left;">
+            <blockquote class="text-sm leading-relaxed italic mb-2" style="color:var(--color-primary)">
+              "货币基金收益归因分析服务方案将持续迭代升级，为管理人提供更精准、更及时的绩效评估工具，助力投资决策与风险管控。"
+            </blockquote>
+            <cite class="text-xs font-medium not-italic" style="color:var(--color-text-muted)">估值分析部  ·  2026年5月21日</cite>
+          </div>
+
+        </div>
       </div>
+      <footer class="page-footer">第 4 页 / 共 4 页</footer>
+    </section>
 
-      <div class="card">
-        <div class="big-number">02</div>
-        <h3>正偏离储备与释放</h3>
-        <p>定期查看产品正偏离储备，回溯当月正偏离释放对收益率的稳定作用和规模刺激。</p>
-      </div>
+  </div>
 
-      <div class="card">
-        <div class="big-number">03</div>
-        <h3>申赎与流动性管理</h3>
-        <p>检视申赎造成的流动性压力和净值波动，回顾临时费用调整等应对手段的执行。</p>
-      </div>
-    </div>
-
-    <div class="grid two" style="margin-top: 18px;">
-      <div class="card">
-        <h3>从“结果展示”到“原因解释”</h3>
-        <p>
-          月度归因分析不仅回答“收益是多少”，更回答“收益为什么如此形成”，
-          帮助管理人形成可持续的产品复盘机制。
-        </p>
-      </div>
-
-      <div class="card">
-        <h3>从“单点指标”到“管理视角”</h3>
-        <p>
-          将收益指标、组合结构、市场利率、申赎变化与可得的支付宝竞品数据进行比较，
-          形成更接近投资管理实际的分析框架。
-        </p>
-      </div>
-    </div>
-
-    <div class="footer">
-      <span>服务背景与客户需求</span>
-      <span>02</span>
-    </div>
-  </section>
-
-  <!-- Page 3 Performance Attribution -->
-  <section class="page">
-    <h2>二、月度分析框架</h2>
-    <p class="subtitle">
-      每月围绕产品表现、收益归因、风险观察、同类比较和后续展望五个模块形成收益归因分析；<br>
-      围绕正偏离释放、临时费用调整等具体操作形成管理操作效果复盘。
-    </p>
-    
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 20%;">分析模块</th>
-          <th style="width: 48%;">主要内容</th>
-          <th style="width: 32%;">输出结果</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>产品表现概览</td>
-          <td>统计区间、七日年化、万份收益均值、相对业绩基准及同类超额</td>
-          <td>本月整体表现判断</td>
-        </tr>
-        <tr>
-          <td>票息收益</td>
-          <td>分析同业存单、短债、存款等资产的加权收益率及收益贡献</td>
-          <td>判断基础收益来源</td>
-        </tr>
-        <tr>
-          <td>杠杆套息</td>
-          <td>比较资产收益率与回购融资成本，测算杠杆对收益的增强效果</td>
-          <td>判断杠杆使用效率</td>
-        </tr>
-        <tr>
-          <td>久期与期限结构</td>
-          <td>分析组合久期、剩余期限、期限利差及资金面变化</td>
-          <td>评估久期管理效果</td>
-        </tr>
-        <tr>
-          <td>交易与骑乘策略</td>
-          <td>分析波段交易、收益率曲线骑乘及资本利得贡献</td>
-          <td>识别主动管理收益</td>
-        </tr>
-        <tr>
-          <td>流动性与规模影响</td>
-          <td>分析申赎波动、现金备付、规模变化及费用摊薄影响</td>
-          <td>评估流动性安排影响</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2><br></h2>
-    
-    <div class="grid two" style="margin-top: 18px;">
-      <div class="card">
-        <h3>收益平滑成效</h3>
-        <p>
-          通过控制变量法，分析正偏离释放操作、临时费用调整在当月实际申赎影响下对产品收益的平滑效果。
-        </p>
-      </div>
-
-      <div class="card">
-        <h3>规模刺激成效</h3>
-        <p>
-          通过时间序列分析，考察正偏离释放对产品规模是否起到显著的刺激效果。
-        </p>
-      </div>
-    </div>
-    
-    <div class="footer">
-      <span>月度分析框架</span>
-      <span>04</span>
-    </div>
-  </section>
-  
-
-
-  <!-- Page 5 Report Structure -->
-  <section class="page">
-    <h2>三、报告交付结构</h2>
-    <p class="subtitle">
-      报告以“表现概览—归因拆解—操作复盘—同类比较—后续建议”为主线，兼顾数据、解释和管理建议。
-    </p>
-
-    <div class="process">
-      <h3>1. 产品表现概览</h3>
-      <p>展示基金七日年化、万份收益、规模变化、同类排名及相对业绩基准表现。</p>
-    </div>
-
-    <div class="process">
-      <h3>2. 收益核心归因</h3>
-      <p>按照五个维度量化和解释收益贡献，形成“主因—次因—扰动项”的归因结论。</p>
-    </div>
-
-    <div class="process">
-      <h3>3. 管理操作复盘</h3>
-      <p>复盘正偏离释放规模、时点、效果，帮助管理层讨论投资与销售部门的协调。</p>
-    </div>
-
-    <div class="process">
-      <h3>4. 同类产品比较</h3>
-      <p>在数据可得情况下，比较竞品货币基金收益、久期、杠杆和资产配置差异，解释相对表现。</p>
-    </div>
-
-    <div class="process">
-      <h3>5. 后续展望与建议</h3>
-      <p>结合产品正偏离储备、存单利率水平、回购成本和申赎趋势，提出下月管理关注事项。</p>
-    </div>
-
-    <div class="footer">
-      <span>报告交付结构</span>
-      <span>05</span>
-    </div>
-  </section>
-
-  <!-- Page 6 Team -->
-  <section class="page dark">
-    <h2>四、服务团队介绍</h2>
-    <p class="subtitle">
-      本次服务由容诚金融工程团队领衔，搭配资深资管行业高管与基金财务专业人员，能够充分理解货币基金管理逻辑、
-      估值规则、收益归因方法和报告交付要求。
-    </p>
-
-    <div class="grid four">
-      <div class="card">
-        <h3>项目负责人</h3>
-        <p>负责整体服务质量、客户沟通、分析框架设计及关键结论审核。</p>
-      </div>
-
-      <div class="card">
-        <h3>金融工程团队</h3>
-        <p>负责收益归因模型、久期分析、杠杆测算、曲线分析及数据处理逻辑。</p>
-      </div>
-
-      <div class="card">
-        <h3>资深行业高管</h3>
-        <p>负责市场环境解读、同类产品比较、投资策略复盘及管理建议形成。</p>
-      </div>
-
-      <div class="card">
-        <h3>基金财务团队</h3>
-        <p>负责报告口径一致性、数据合理性、结论审慎性及交付质量控制。</p>
-      </div>
-    </div>
-
-    <div class="grid two" style="margin-top: 24px;">
-      <div class="card">
-        <h3>团队优势</h3>
-        <p>兼具估值、金融工程、基金产品分析和监管理解能力，能够将技术计算转化为管理层可理解的分析结论。</p>
-      </div>
-
-      <div class="card">
-        <h3>服务方式</h3>
-        <p>采用固定月度交付机制，并根据客户反馈持续优化报告口径、指标展示和管理建议深度。</p>
-      </div>
-    </div>
-
-    <div class="footer">
-      <span>服务团队介绍</span>
-      <span>06</span>
-    </div>
-  </section>
-
-  <!-- Page 7 Workflow -->
-  <section class="page">
-    <h2>五、月度服务流程</h2>
-    <p class="subtitle">
-      我们将以月度为周期，形成报告和分析底稿，服务于投研复盘、数据留痕和管理层沟通。
-    </p>
-
-    <div class="grid four">
-      <div class="card">
-        <span class="tag">T+1 至 T+3</span>
-        <h3>数据收集与整理</h3>
-        <p>获取组合持仓、收益表现、规模变化、申赎数据及市场利率数据。</p>
-      </div>
-
-      <div class="card">
-        <span class="tag">T+4 至 T+5</span>
-        <h3>归因测算与复核</h3>
-        <p>完成五维度收益归因测算，并对异常波动和关键假设进行复核。</p>
-      </div>
-
-      <div class="card">
-        <span class="tag">T+6 至 T+7</span>
-        <h3>报告撰写</h3>
-        <p>形成月度归因报告初稿，提炼核心结论、风险观察和管理建议。</p>
-      </div>
-
-      <div class="card">
-        <span class="tag">T+8 至 T+9</span>
-        <h3>沟通与定稿</h3>
-        <p>与客户沟通反馈，完成最终报告交付及管理层汇报材料。</p>
-      </div>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>流程特点</th>
-          <th>说明</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>标准化</td>
-          <td>固定数据口径、固定归因维度、固定报告结构，便于持续追踪。</td>
-        </tr>
-        <tr>
-          <td>可复核</td>
-          <td>保留归因测算底稿，便于客户内部复核和口径沟通。</td>
-        </tr>
-        <tr>
-          <td>可扩展</td>
-          <td>可根据客户需求增加产品横向比较、专项分析或管理层摘要。</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="footer">
-      <span>月度服务流程</span>
-      <span>07</span>
-    </div>
-  </section>
+  <!-- ==================== SCRIPTS ==================== -->
+  <script>
+    function switchTheme(theme, btn) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+  </script>
 
 </body>
 </html>

@@ -4,7 +4,8 @@
  */
 
 /* ===== 商务蓝白（默认主题） ===== */
-:root, [data-theme="business-blue"] {
+:root,
+[data-theme="business-blue"] {
   --color-primary: #1e3a8a;
   --color-primary-light: #dbeafe;
   --color-bg: #f8fafc;
@@ -16,8 +17,8 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
 
-  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-heading: "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "PingFang SC", "Microsoft YaHei", sans-serif;
 
   --text-xs: 12px;
   --text-sm: 14px;
@@ -36,8 +37,8 @@
   --radius-md: 12px;
   --radius-lg: 20px;
 
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-elevated: 0 10px 25px rgba(0,0,0,0.08);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 /* ===== 暗黑科技 ===== */
@@ -53,8 +54,8 @@
   --color-success: #34d399;
   --color-warning: #fbbf24;
 
-  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-heading: "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "PingFang SC", "Microsoft YaHei", sans-serif;
 
   --text-xs: 12px;
   --text-sm: 14px;
@@ -73,13 +74,13 @@
   --radius-md: 12px;
   --radius-lg: 20px;
 
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-elevated: 0 10px 25px rgba(0,0,0,0.4);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 /* ===== 清新简约 ===== */
 [data-theme="fresh-clean"] {
-  --color-primary: #059669;
+  --color-primary: #30b08f;
   --color-primary-light: #d1fae5;
   --color-bg: #f0fdf4;
   --color-bg-card: #ffffff;
@@ -90,8 +91,8 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
 
-  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-heading: "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "PingFang SC", "Microsoft YaHei", sans-serif;
 
   --text-xs: 12px;
   --text-sm: 14px;
@@ -110,6 +111,6 @@
   --radius-md: 12px;
   --radius-lg: 20px;
 
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
-  --shadow-elevated: 0 8px 20px rgba(0,0,0,0.06);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-elevated: 0 8px 20px rgba(0, 0, 0, 0.06);
 }

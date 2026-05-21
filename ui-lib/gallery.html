@@ -160,7 +160,7 @@
           <option value="fresh-clean">清新简约</option>
         </select>
         <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button>
-        <button class="btn btn-outline" @click="copyCurrentCode" v-if="currentCode">复制代码</button>
+        <button class="btn btn-outline" @click="copyComponentInfo" v-if="currentItem">复制组件信息</button>
       </div>
     </div>
 
@@ -181,6 +181,13 @@
       <!-- ===== 版式预览（v-html 内联） ===== -->
       <div v-if="currentItem && currentItem.type === 'layout'" class="preview-section">
         <h3>版式预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 内联渲染，全屏预览可查看完整交互</span></h3>
+        <div class="layout-preview-box" v-html="currentCode"></div>
+      </div>
+
+      
+      <!-- ===== 案例预览（加载完整模板 HTML） ===== -->
+      <div v-if="currentItem && currentItem.type === 'case'" class="preview-section">
+        <h3>案例预览 <span style="font-weight:400;font-size:12px;color:var(--color-text-muted)">— 完整模板内联渲染，全屏预览可查看完整交互</span></h3>
         <div class="layout-preview-box" v-html="currentCode"></div>
       </div>
 
@@ -238,7 +245,7 @@
         </div>
         <div class="btn-row">
           <button class="btn btn-outline" @click="copyCurrentCode">复制代码</button>
-          <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button>
+          <!-- <button class="btn btn-outline" @click="openFullPreview" v-if="currentItem && currentItem.previewPath">全屏预览</button> -->
         </div>
       </div>
 
@@ -415,6 +422,32 @@ createApp({
             { id:'dark-tech', name:'暗黑科技', icon:'🌙', type:'style', description:'科技感 — 数据产品、技术分享、科技金融', previewPath:'styles/dark-tech/preview.html' },
             { id:'fresh-clean', name:'清新简约', icon:'🌿', type:'style', description:'轻盈干净 — 对外展示、产品介绍、ESG报告', previewPath:'styles/fresh-clean/preview.html' }
           ]
+        },
+        {
+          id: 'cases', label: '完整案例',
+          items: [
+            { id:'case-a4', name:'A4 横版报告', icon:'📄', type:'case', description:'货币基金月度收益归因分析 · A4横版4页完整报告', previewPath:'template/A4.html',
+              caseMeta: {
+                theme: 'business-blue',
+                layout: 'a4-landscape',
+                components: ['section-header', 'kpi-card', 'big-number-row', 'data-table', 'process-step', 'info-card', 'highlight-quote', 'divider']
+              }
+            },
+            { id:'case-ppt', name:'PPT 演示文稿', icon:'🖥️', type:'case', description:'估值政策培训 · 全屏翻页7页演示', previewPath:'template/ppt.html',
+              caseMeta: {
+                theme: 'business-blue',
+                layout: 'ppt-slide',
+                components: ['section-header', 'kpi-card', 'process-step', 'compare-card', 'team-grid', 'highlight-quote']
+              }
+            },
+            { id:'case-web', name:'Web 落地页', icon:'🌐', type:'case', description:'估值咨询服务 · 响应式滚动长页', previewPath:'template/web.html',
+              caseMeta: {
+                theme: 'dark-tech',
+                layout: 'web-scroll',
+                components: ['section-header', 'big-number-row', 'process-step', 'data-table', 'team-grid', 'highlight-quote', 'divider']
+              }
+            }
+          ]
         }
       ]
     };
@@ -430,6 +463,9 @@ createApp({
       });
       self.categories[3].items.forEach(function(item) {
         self.prefetch(item.id, 'layouts');
+      });
+      self.categories[5].items.forEach(function(item) {
+        self.prefetchCase(item);
       });
     }, 500);
   },
@@ -453,6 +489,10 @@ createApp({
         });
       } else if (item.type === 'layout') {
         this.loadCode('layouts/' + item.id + '/skeleton.html', item.id);
+      } else if (item.type === 'case') {
+        this.currentTheme = item.caseMeta.theme;
+        document.documentElement.setAttribute('data-theme', item.caseMeta.theme);
+        this.loadCaseCode(item);
       } else if (item.type === 'style') {
         this.currentCode = '';
         var themeMap = { 'business-blue': 'business-blue', 'dark-tech': 'dark-tech', 'fresh-clean': 'fresh-clean' };
@@ -631,6 +671,198 @@ createApp({
       if (this.currentItem && this.currentItem.previewPath) {
         window.open(this.currentItem.previewPath, '_blank');
       }
+    },
+
+    prefetchCase: function(item) {
+      fetch(item.previewPath).then(function(resp) {
+        if (resp.ok) return resp.text();
+      }).catch(function(){});
+    },
+
+    loadCaseCode: function(item) {
+      var self = this;
+      fetch(item.previewPath).then(function(resp) {
+        if (resp.ok) return resp.text();
+        throw new Error('fetch failed');
+      }).then(function(text) {
+        self.currentCode = text;
+        self.$nextTick(function() { Prism.highlightAll(); });
+      }).catch(function() {
+        self.currentCode = self.buildCaseFallbackHTML(item);
+      });
+    },
+
+    buildCaseFallbackHTML: function(item) {
+      var meta = item.caseMeta;
+      var themeNames = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
+      var themeName = themeNames[meta.theme] || meta.theme;
+      var layoutMap = {};
+      var layoutCat = this.categories.find(function(c) { return c.id === 'layouts'; });
+      if (layoutCat) {
+        layoutCat.items.forEach(function(it) { layoutMap[it.id] = { name: it.name, meta: it.meta }; });
+      }
+      var layoutInfo = layoutMap[meta.layout] || { name: meta.layout, meta: {} };
+      var compMap = {};
+      var compCat = this.categories.find(function(c) { return c.id === 'components'; });
+      if (compCat) {
+        compCat.items.forEach(function(it) { compMap[it.id] = it.name; });
+      }
+      var compList = '';
+      for (var i = 0; i < meta.components.length; i++) {
+        var cid = meta.components[i];
+        var cname = compMap[cid] || cid;
+        compList += '<li style="margin-bottom:4px;color:var(--color-text)"><strong style="color:var(--color-primary)">' + cid + '</strong> — ' + cname + '</li>';
+      }
+      var html = '<div style="padding:32px;background:var(--color-bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);max-width:700px;margin:0 auto">';
+      html += '<h1 style="color:var(--color-primary);margin-bottom:4px;font-size:var(--text-xl)">' + item.icon + ' ' + item.name + '</h1>';
+      html += '<p style="color:var(--color-text-muted);margin-bottom:20px;font-size:var(--text-sm)">' + item.description + '</p>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">';
+      html += '<div style="padding:12px;background:var(--color-primary-light);border-radius:var(--radius-md)"><span style="font-size:11px;color:var(--color-text-muted)">推荐主题</span><br><strong style="color:var(--color-primary)">' + themeName + '</strong> <code style="font-size:10px;color:var(--color-text-muted)">' + meta.theme + '</code></div>';
+      var layoutDesc = '';
+      if (layoutInfo.meta) { layoutDesc = (layoutInfo.meta['容器'] || '') + ' · ' + (layoutInfo.meta['场景'] || ''); }
+      html += '<div style="padding:12px;background:var(--color-primary-light);border-radius:var(--radius-md)"><span style="font-size:11px;color:var(--color-text-muted)">使用版式</span><br><strong style="color:var(--color-primary)">' + layoutInfo.name + '</strong> <span style="font-size:10px;color:var(--color-text-muted)">' + layoutDesc + '</span></div>';
+      html += '</div>';
+      html += '<div style="padding:16px;background:var(--color-bg);border-radius:var(--radius-md);border:1px solid var(--color-border)">';
+      html += '<p style="font-weight:600;margin-bottom:10px;font-size:var(--text-sm);color:var(--color-text)">包含组件 (' + meta.components.length + ')</p>';
+      html += '<ul style="list-style:none;padding:0;margin:0">' + compList + '</ul>';
+      html += '</div>';
+      html += '<p style="margin-top:16px;font-size:11px;color:var(--color-text-muted)">📂 ' + item.previewPath + '</p>';
+      html += '</div>';
+      return html;
+    },
+
+    copyComponentInfo: function() {
+      var item = this.currentItem;
+      if (!item) return;
+      var info = '';
+      var self = this;
+
+      if (item.type === 'component') {
+        info += '📦 组件: ' + item.name + '\n';
+        info += '🆔 ID: ' + item.id + '\n';
+        info += '📂 路径: ui-lib/components/' + item.id + '/\n';
+        info += '📄 文件: template.html, component.js, component.css\n';
+        if (item.props && item.props.length) {
+          info += '🔧 Props:\n';
+          item.props.forEach(function(p) {
+            info += '  - ' + p.name + ' (' + p.type + ', 默认 "' + (p.default || '') + '") — ' + p.desc + '\n';
+          });
+        }
+        info += '📝 描述: ' + (item.description || '') + '\n';
+        info += '🔗 预览: components/' + item.id + '/index.html';
+      } else if (item.type === 'chart') {
+        info += '📊 图表: ' + item.name + '\n';
+        info += '🆔 ID: ' + item.id + '\n';
+        info += '📂 路径: ui-lib/charts/' + item.id + '/\n';
+        info += '📄 文件: template.html, component.js, component.css\n';
+        info += '📈 渲染引擎: ECharts 5\n';
+        if (item.props && item.props.length) {
+          info += '🔧 Props:\n';
+          item.props.forEach(function(p) {
+            info += '  - ' + p.name + ' (' + p.type + ', 默认 ' + (p.default || '') + ') — ' + p.desc + '\n';
+          });
+        }
+        info += '📝 描述: ' + (item.description || '') + '\n';
+        info += '🔗 预览: charts/' + item.id + '/index.html';
+      } else if (item.type === 'layout') {
+        info += '📐 版式: ' + item.name + '\n';
+        info += '🆔 ID: ' + item.id + '\n';
+        info += '📂 路径: ui-lib/layouts/' + item.id + '/\n';
+        info += '📄 文件: skeleton.html, template.html\n';
+        if (item.meta) {
+          if (item.meta['容器']) info += '📏 容器尺寸: ' + item.meta['容器'] + '\n';
+          if (item.meta['翻页']) info += '🔄 翻页方式: ' + item.meta['翻页'] + '\n';
+          if (item.meta['场景']) info += '🎯 适用场景: ' + item.meta['场景'] + '\n';
+        }
+        info += '📝 描述: ' + (item.description || '') + '\n';
+        info += '🔗 预览: layouts/' + item.id + '/index.html';
+      } else if (item.type === 'style') {
+        info += '🎨 风格主题: ' + item.name + '\n';
+        info += '🆔 ID: ' + item.id + '\n';
+        info += '📂 路径: ui-lib/styles/' + item.id + '/\n';
+        info += '📝 描述: ' + (item.description || '') + '\n';
+        var style = getComputedStyle(document.documentElement);
+        var colorKeys = [
+          '--color-primary', '--color-primary-light', '--color-bg', '--color-bg-card',
+          '--color-text', '--color-text-muted', '--color-accent', '--color-border',
+          '--color-success', '--color-warning'
+        ];
+        info += '🎨 CSS 变量值:\n';
+        for (var i = 0; i < colorKeys.length; i++) {
+          var key = colorKeys[i];
+          var val = style.getPropertyValue(key).trim();
+          info += '  ' + key + ': ' + val + '\n';
+        }
+        info += '🔗 预览: styles/' + item.id + '/preview.html';
+      } else if (item.type === 'token') {
+        info += '🎨 Design Token 预览\n';
+        var themeMap = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
+        info += '📐 当前主题: ' + (themeMap[this.currentTheme] || this.currentTheme) + ' (' + this.currentTheme + ')\n';
+        var computed = getComputedStyle(document.documentElement);
+        var allVars = [
+          '--font-body', '--font-heading',
+          '--color-primary', '--color-primary-light', '--color-bg', '--color-bg-card',
+          '--color-text', '--color-text-muted', '--color-accent', '--color-border',
+          '--color-success', '--color-warning',
+          '--text-xs', '--text-sm', '--text-base', '--text-lg', '--text-xl', '--text-3xl',
+          '--space-xs', '--space-sm', '--space-md', '--space-lg', '--space-xl',
+          '--radius-sm', '--radius-md', '--radius-lg',
+          '--shadow-card', '--shadow-elevated'
+        ];
+        info += '🎨 CSS 变量值:\n';
+        for (var j = 0; j < allVars.length; j++) {
+          var vk = allVars[j];
+          var vv = computed.getPropertyValue(vk).trim();
+          info += '  ' + vk + ': ' + vv + '\n';
+        }
+      } else if (item.type === 'case') {
+        var meta = item.caseMeta;
+        var themeNames2 = { 'business-blue': '商务蓝白', 'dark-tech': '暗黑科技', 'fresh-clean': '清新简约' };
+        var layoutCat2 = this.categories.find(function(c) { return c.id === 'layouts'; });
+        var layoutMeta = {};
+        if (layoutCat2) {
+          var found = layoutCat2.items.find(function(it) { return it.id === meta.layout; });
+          if (found) { layoutMeta = found.meta || {}; layoutMeta.name = found.name; }
+        }
+        var layoutName = layoutMeta.name || meta.layout;
+        var layoutExtra = '';
+        if (layoutMeta['容器']) layoutExtra += layoutMeta['容器'];
+        if (layoutMeta['翻页']) layoutExtra += (layoutExtra ? ' · ' : '') + layoutMeta['翻页'];
+
+        var compCat2 = this.categories.find(function(c) { return c.id === 'components'; });
+        var compMap2 = {};
+        var compDescMap2 = {};
+        if (compCat2) {
+          compCat2.items.forEach(function(it) {
+            compMap2[it.id] = it.name;
+            compDescMap2[it.id] = it.description || '';
+          });
+        }
+
+        info += '📋 案例: ' + item.name + '\n';
+        info += '🎨 推荐主题: ' + meta.theme + ' (' + (themeNames2[meta.theme] || meta.theme) + ')\n';
+        info += '📐 使用版式: ' + meta.layout + ' (' + layoutName;
+        if (layoutExtra) info += ' · ' + layoutExtra;
+        info += ')\n';
+        if (item.description) info += '📝 描述: ' + item.description + '\n';
+        info += '🧩 使用组件:\n';
+        for (var k = 0; k < meta.components.length; k++) {
+          var cid = meta.components[k];
+          var cname = compMap2[cid] || cid;
+          var cdesc = compDescMap2[cid] || '';
+          info += '  - ' + cid + ' — ' + cname;
+          if (cdesc) info += ' (' + cdesc + ')';
+          info += '\n';
+        }
+        info += '📂 完整文件: ui-lib/' + item.previewPath + '\n';
+        info += '🔗 在线预览: ' + item.previewPath;
+      }
+
+      navigator.clipboard.writeText(info).then(function() {
+        showToast('组件信息已复制');
+      }).catch(function() {
+        showToast('复制失败，请重试');
+      });
     },
 
     copyCurrentCode: function() {
