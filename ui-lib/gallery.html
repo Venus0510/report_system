@@ -726,42 +726,43 @@ createApp({
       if (!item) return;
       var prompt = '';
 
-      // ===== 共通：设计规范头部 =====
-      prompt += '【UI Library 组件库 · 设计规范 v3】\n';
-      prompt += '你正在基于 UI Library 组件库生成报告HTML代码。请严格遵循以下规范，确保产出的HTML与组件库风格完全一致，可以直接嵌入已有报告中使用。\n\n';
+      // ===== 共通：角色 + 规则头部 =====
+      prompt += '【角色】你是报告HTML生成器。你的任务是把用户给的内容，严格按照指定的版式结构和代码风格，重新组织为完整的报告HTML。\n\n';
 
-      prompt += '## 颜色规则（最重要）\n';
-      prompt += '禁止硬编码色值（如 #1e3a8a）或使用Tailwind颜色类名（如 bg-blue-50, text-gray-700）。所有颜色必须通过 style="color:var(--color-xxx)" 引用CSS变量：\n';
-      prompt += '  var(--color-primary)        主色\n';
-      prompt += '  var(--color-primary-light)  主色浅底\n';
-      prompt += '  var(--color-bg)             页面背景\n';
-      prompt += '  var(--color-bg-card)        卡片背景\n';
-      prompt += '  var(--color-text)           正文文字\n';
-      prompt += '  var(--color-text-muted)     辅助文字\n';
-      prompt += '  var(--color-accent)         强调色\n';
-      prompt += '  var(--color-border)         边框色\n';
-      prompt += '  var(--color-success)        成功绿\n';
-      prompt += '  var(--color-warning)        警示黄\n\n';
+      prompt += '【硬性规则 — 必须遵守，违反则重做】\n';
+      prompt += '1. 颜色：必须用 style="color:var(--color-xxx)" 引用CSS变量，禁止硬编码色值（#xxx）或Tailwind颜色类名（bg-blue-50）\n';
+      prompt += '   可用：var(--color-primary) 主色 · var(--color-primary-light) 浅底 · var(--color-bg) 背景 · var(--color-bg-card) 卡片 · var(--color-text) 正文 · var(--color-text-muted) 辅助 · var(--color-accent) 强调 · var(--color-border) 边框 · var(--color-success) 绿色 · var(--color-warning) 黄色\n';
+      prompt += '2. 布局：用Tailwind类名（flex grid gap-* p-* m-* rounded-*），禁用Tailwind颜色类名。圆角用 var(--radius-sm:6px / md:12px / lg:20px)，阴影用 var(--shadow-card) / var(--shadow-elevated)\n';
+      prompt += '3. 标识：每个组件根元素必须标记 data-cid="组件id"\n';
+      prompt += '4. 主题：<html data-theme="business-blue"> 或 data-theme="dark-tech"\n';
+      prompt += '5. Token：字体 var(--font-body)/var(--font-heading)，字号 var(--text-xs:12px)~var(--text-3xl:40px)，间距 var(--space-xs:4px)~var(--space-xl:32px) — 用CSS变量不写死px\n\n';
 
-      prompt += '## 布局规则\n';
-      prompt += '使用Tailwind CSS类名处理布局、间距、圆角、阴影（flex, grid, gap-*, p-*, m-*, rounded-[var(--radius-*)], shadow-[var(--shadow-*)] 等），禁止用Tailwind颜色类名。\n';
-      prompt += '圆角统一用 var(--radius-sm:6px) / var(--radius-md:12px) / var(--radius-lg:20px)。\n';
-      prompt += '阴影统一用 var(--shadow-card) / var(--shadow-elevated)。\n\n';
-
-      prompt += '## 组件标识\n';
-      prompt += '每个组件根元素必须标记 data-cid="组件id"，保留此属性便于后续识别和增量修改。\n\n';
-
-      prompt += '## 主题系统\n';
-      prompt += '通过 <html data-theme="..."> 切换主题，可选值：business-blue（商务蓝白）/ dark-tech（暗黑科技）。所有 var(--color-xxx) 自动响应主题切换。\n';
-      prompt += '设计Token（通过CSS变量引用，不要写死像素值）：\n';
-      prompt += '  字号：var(--text-xs:12px) / var(--text-sm:14px) / var(--text-base:16px) / var(--text-lg:20px) / var(--text-xl:28px) / var(--text-3xl:40px)\n';
-      prompt += '  间距：var(--space-xs:4px) / var(--space-sm:8px) / var(--space-md:16px) / var(--space-lg:24px) / var(--space-xl:32px)\n';
-      prompt += '  字体：var(--font-body) / var(--font-heading)，回退 PingFang SC, Microsoft YaHei, sans-serif\n\n';
-
-      prompt += '## 技术栈\n';
-      prompt += '纯静态HTML，通过CDN引入：Tailwind CSS（布局）+ Vue 3 / ECharts 5（按需）。代码可直接在浏览器中打开。\n\n';
-
-      prompt += '---\n\n';
+      // ===== 当前主题 CSS 变量值（供内联，确保生成文件自包含） =====
+      prompt += '【CSS变量定义 — 必须内联到HTML的 <head> 中】\n';
+      prompt += '⚠️ 重要：生成环境可能不在组件库目录内，无法加载外部 tokens.css。\n';
+      prompt += '请将以下 <style> 块原样放入HTML的 <head> 中（在Tailwind CDN之后），确保文件可独立运行。\n';
+      prompt += '注意：你的代码中仍需使用 var(--color-xxx) 引用变量，不要因为知道了具体色值就硬编码！\n\n';
+      prompt += '<style>\n';
+      prompt += '/* 自动内联的 Design Token — 当前主题: ' + this.currentTheme + ' */\n';
+      prompt += ':root {\n';
+      var style = getComputedStyle(document.documentElement);
+      var cssVarDefs = [
+        '--color-primary', '--color-primary-light', '--color-bg', '--color-bg-card',
+        '--color-text', '--color-text-muted', '--color-accent', '--color-border',
+        '--color-success', '--color-warning',
+        '--font-heading', '--font-body',
+        '--text-xs', '--text-sm', '--text-base', '--text-lg', '--text-xl', '--text-3xl',
+        '--space-xs', '--space-sm', '--space-md', '--space-lg', '--space-xl',
+        '--radius-sm', '--radius-md', '--radius-lg',
+        '--shadow-card', '--shadow-elevated'
+      ];
+      for (var vi = 0; vi < cssVarDefs.length; vi++) {
+        prompt += '  ' + cssVarDefs[vi] + ': ' + style.getPropertyValue(cssVarDefs[vi]).trim() + ';\n';
+      }
+      prompt += '}\n';
+      prompt += '</style>\n\n';
+      prompt += '还需引入Tailwind CDN：<script src="https://cdn.tailwindcss.com"><\/script>\n';
+      prompt += '如需图表，引入ECharts：<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"><\/script>\n\n';
 
       // ===== 类型特定内容 =====
       if (item.type === 'component') {
@@ -881,34 +882,66 @@ createApp({
           compCat2.items.forEach(function(it) { compMap2[it.id] = it.name; });
         }
 
-        prompt += '【完整案例】' + item.name + '\n';
-        prompt += '推荐主题: ' + meta.theme + ' (' + (themeNames2[meta.theme] || meta.theme) + ')\n';
-        prompt += '使用版式: ' + meta.layout;
+        prompt += '【选中案例】' + item.name + '\n';
+        prompt += '主题: ' + meta.theme + ' (' + (themeNames2[meta.theme] || meta.theme) + ') | 版式: ' + meta.layout;
         if (layoutMeta['容器']) prompt += ' · ' + layoutMeta['容器'];
         if (layoutMeta['翻页']) prompt += ' · ' + layoutMeta['翻页'];
         prompt += '\n';
         if (item.description) prompt += '描述: ' + item.description + '\n';
-        prompt += '使用组件 (' + meta.components.length + '个): ';
-        var compNames = [];
-        for (var k = 0; k < meta.components.length; k++) {
-          compNames.push(meta.components[k] + '(' + (compMap2[meta.components[k]] || meta.components[k]) + ')');
-        }
-        prompt += compNames.join(', ') + '\n';
-        prompt += '案例文件: ui-lib/' + item.previewPath + '\n\n';
 
-        prompt += '【案例完整HTML — 作为风格和结构参考】\n';
-        prompt += '以下是该案例的完整HTML代码。请将此作为"用组件库能生成什么"的参考范例。\n';
-        prompt += '生成新报告时，保持相同的：①CSS变量引用模式 ②data-cid标记 ③Tailwind布局结构 ④版式容器约束 ⑤组件组合方式。\n';
-        prompt += '替换其中的示例数据为你需要的内容即可。\n\n';
+        // 版式结构约束
+        prompt += '\n【版式骨架 — 每页必须严格使用此容器结构，不可修改】\n';
+        if (meta.layout === 'a4-landscape') {
+          prompt += 'A4 横版固定 297mm×210mm，overflow:hidden，内容不能溢出。每页结构：\n';
+          prompt += '  <section class="page-a4-landscape">\n';
+          prompt += '    <div class="page-header-strip"></div>          ← 顶部 4mm 色条，必须保留\n';
+          prompt += '    <div class="content-area">                     ← 内容区 padding:18mm 22mm\n';
+          prompt += '      <!-- 在这里用组件（kpi-card、data-table等）填充内容 -->\n';
+          prompt += '    </div>\n';
+          prompt += '    <footer class="page-footer">第 N 页</footer>    ← 页脚，必须保留\n';
+          prompt += '  </section>\n';
+          prompt += '多页就重复 <section class="page-a4-landscape">，打印时 CSS page-break-after 自动分页。\n';
+        } else if (meta.layout === 'ppt-slide') {
+          prompt += 'PPT 全屏 100vw×100vh，每页结构：\n';
+          prompt += '  <section class="ppt-slide active">\n';
+          prompt += '    <div class="slide-content">                    ← 内容区\n';
+          prompt += '      <!-- 在这里用组件填充内容 -->\n';
+          prompt += '    </div>\n';
+          prompt += '    <div class="slide-footer">N / Total</div>       ← 页码\n';
+          prompt += '  </section>\n';
+          prompt += '多页堆叠，JS 控制 .active 显隐切换，支持按钮和键盘翻页。\n';
+        } else if (meta.layout === 'web-scroll') {
+          prompt += 'Web 响应式 max-width:1180px 居中，自然滚动。每区块结构：\n';
+          prompt += '  <section class="web-scroll-section" data-block="xxx">\n';
+          prompt += '    <!-- hero / features / cta 等区块类型 -->\n';
+          prompt += '  </section>\n';
+          prompt += '首屏用 .hero 大标题区，末屏用 .cta 行动号召。无分页，自然滚动。\n';
+        }
+
+        prompt += '\n【参考案例HTML — 观察骨架如何被组件填充】\n';
+        prompt += '⚠️ 重要：下面的HTML是"该结构填入示例内容后的样子"。你需要做的是：\n';
+        prompt += '  1. 保留外层容器结构（.page-a4-landscape / .ppt-slide / .web-scroll-section）不变\n';
+        prompt += '  2. 保留 page-header-strip、content-area、page-footer 等骨架元素\n';
+        prompt += '  3. 把 content-area 里的示例内容换成用户的真实数据\n';
+        prompt += '  4. 参照示例中的组件用法（data-cid、CSS变量、Tailwind布局），用同样的写法组织新内容\n';
+        prompt += '  5. 不要照搬示例的内容！示例是货币基金分析，如果你的用户要写估值报告，内容完全不同\n';
+        prompt += '以下为案例完整代码：\n\n';
         prompt += (this.currentCode || '') + '\n';
       }
 
       prompt += '---\n\n';
-      prompt += '【任务】\n';
-      prompt += '请严格遵循以上设计规范和参考模板/案例的风格，完成以下需求。\n';
-      prompt += '务必：保持 data-cid 属性、CSS变量引用（var(--color-xxx)）、Tailwind布局类名、版式容器约束。\n';
-      prompt += '不确定的数据用 [占位符] 标记。只输出完整HTML代码，不要解释。\n\n';
-      prompt += '[ 请在此处描述你的具体需求，例如：生成一份货币基金月度报告的封面页，包含3个kpi-card展示七日年化、万份收益、近一月回报... ]\n';
+      prompt += '【你的任务 — 请先读用户需求，再动手】\n';
+      prompt += '1. 理解用户要做什么报告、有多少内容\n';
+      prompt += '2. 规划每页/每区块放什么内容、用哪些组件\n';
+      prompt += '3. 用上述版式骨架 + 组件模板搭建完整HTML\n';
+      prompt += '4. 填入用户的数据，没有的数据用 [占位符] 标记\n';
+      prompt += '5. 自检清单，缺一项则重做：\n';
+      prompt += '   ☐ <head> 中是否内联了上述 <style> 块（CSS变量定义）？不可依赖外部 tokens.css！\n';
+      prompt += '   ☐ 是否引入了 Tailwind CDN？\n';
+      prompt += '   ☐ 版式容器结构（.page-a4-landscape 等）是否正确？\n';
+      prompt += '   ☐ 所有颜色是否都用 var(--color-xxx)，没有硬编码色值？\n';
+      prompt += '   ☐ 每个组件根元素是否有 data-cid 标记？\n';
+      prompt += '只输出完整HTML代码，不要解释。\n\n';
 
       var self = this;
       navigator.clipboard.writeText(prompt).then(function() {
