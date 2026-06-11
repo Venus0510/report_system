@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      background: #f5f7fa;
+    }
+
+    .dashboard {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #303133;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: #909399;
+      margin-top: 4px;
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .summary-card .card-label {
+      font-size: 12px;
+      color: #909399;
+      margin-bottom: 8px;
+    }
+
+    .summary-card .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #303133;
+    }
+
+    .summary-card .card-sub {
+      font-size: 12px;
+      color: #909399;
+      margin-top: 4px;
+    }
+
+    .summary-card.accent-green .card-value {
+      color: #30b08f;
+    }
+
+    .summary-card.accent-orange .card-value {
+      color: #e6a23c;
+    }
+
+    .summary-card.accent-red .card-value {
+      color: #f56c6c;
+    }
+
+    /* Section */
+    .section {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #ebeef5;
+      font-size: 15px;
+      font-weight: 600;
+      color: #303133;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-body {
+      padding: 16px 20px;
+    }
+
+    /* Project table */
+    .project-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .project-table th {
+      background: #fafafa;
+      color: #909399;
+      font-weight: 600;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 2px solid #ebeef5;
+      white-space: nowrap;
+    }
+
+    .project-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+
+    .project-table tr:hover td {
+      background: #fafafa;
+    }
+
+    .project-table .type-tag {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    .type-tag.project {
+      background: #e0f5ef;
+      color: #30b08f;
+    }
+
+    .type-tag.bid {
+      background: #fff3e0;
+      color: #e6a23c;
+    }
+
+    .type-tag.intent {
+      background: #e8eaf6;
+      color: #5c6bc0;
+    }
+
+    /* Bar chart */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 200px;
+      padding: 8px 0;
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar-col .bar {
+      width: 100%;
+      max-width: 48px;
+      border-radius: 4px 4px 0 0;
+      transition: height .3s;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .bar-col .bar:hover {
+      opacity: 0.8;
+    }
+
+    .bar-col .bar-val {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #303133;
+    }
+
+    .bar-col .bar-label {
+      font-size: 10px;
+      color: #909399;
+      margin-top: 6px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    /* Horizontal bar */
+    .hbar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+    }
+
+    .hbar-label {
+      width: 80px;
+      font-size: 12px;
+      color: #606266;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .hbar-track {
+      flex: 1;
+      height: 22px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hbar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .4s;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 11px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .hbar-val {
+      width: 50px;
+      font-size: 11px;
+      color: #909399;
+      flex-shrink: 0;
+    }
+
+    /* Two column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #c0c4cc;
+    }
+
+    .back-link {
+      color: #30b08f;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #dcdfe6;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="dashboard">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">数据统计看板</div>
+          <div class="page-subtitle">项目人力成本 & 任务构成分析</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:11px;color:#909399;">数据更新时间：</span>
+          <span style="font-size:12px;color:#606266;">{{ lastUpdateTime }}</span>
+          <a href="index.html" class="back-link">← 返回任务看板</a>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="card-label">项目总数</div>
+          <div class="card-value">{{ summary.totalProjects }}</div>
+          <div class="card-sub">项目 {{ summary.projectCount }} · 投标 {{ summary.bidCount }} · 意向 {{ summary.intentCount }}
+          </div>
+        </div>
+        <div class="summary-card accent-green">
+          <div class="card-label">任务总数</div>
+          <div class="card-value">{{ summary.totalTasks }}</div>
+          <div class="card-sub">已完成 {{ summary.completedTasks }} / 进行中 {{ summary.inProgressTasks }}</div>
+        </div>
+        <div class="summary-card accent-orange">
+          <div class="card-label">总预估工时</div>
+          <div class="card-value">{{ summary.totalEstimatedHours }}<span style="font-size:14px;">h</span></div>
+          <div class="card-sub">实际已填 {{ summary.totalActualHours }}h · 待完成 {{ summary.remainingHours }}h</div>
+        </div>
+        <div class="summary-card"
+          :class="{'accent-green': summary.completionRate >= 80, 'accent-red': summary.completionRate < 40, 'accent-orange': summary.completionRate >= 40 && summary.completionRate < 80}">
+          <div class="card-label">整体完成率</div>
+          <div class="card-value">{{ summary.completionRate }}<span style="font-size:14px;">%</span></div>
+          <div class="card-sub">按任务数统计</div>
+        </div>
+      </div>
+
+      <!-- Project Cost Breakdown -->
+      <div class="section">
+        <div class="section-header">
+          <span>项目人力成本明细</span>
+          <span style="font-size:12px;color:#909399;">点击项目行展开任务类型构成</span>
+        </div>
+        <div class="section-body" style="overflow-x:auto;">
+          <table class="project-table">
+            <thead>
+              <tr>
+                <th>项目CODE</th>
+                <th>项目名称</th>
+                <th>类型</th>
+                <th>任务数</th>
+                <th>预估工时</th>
+                <th>实际工时</th>
+                <th>完成进度</th>
+                <th>参与人数</th>
+                <th>人员</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="p in projectStats">
+                <tr @click="toggleExpand(p)" style="cursor:pointer;" :style="{background: p.expanded ? '#fafafa' : ''}">
+                  <td style="font-weight:600;color:#30b08f;">{{ p.code }}</td>
+                  <td>{{ p.name }}</td>
+                  <td><span class="type-tag" :class="p.type">{{ typeLabel(p.type) }}</span></td>
+                  <td><b>{{ p.taskCount }}</b></td>
+                  <td><b>{{ p.estimatedHours }}</b>h</td>
+                  <td>{{ p.actualHours }}h</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <el-progress :percentage="p.completionRate"
+                        :color="p.completionRate >= 80 ? '#30b08f' : p.completionRate >= 40 ? '#e6a23c' : '#f56c6c'"
+                        :stroke-width="6" style="flex:1;"></el-progress>
+                      <span style="font-size:11px;color:#909399;">{{ p.completionRate }}%</span>
+                    </div>
+                  </td>
+                  <td>{{ p.memberCount }}人</td>
+                  <td style="font-size:11px;color:#909399;">{{ p.memberNames.join('、') }}</td>
+                </tr>
+                <!-- Expanded: Task type breakdown -->
+                <tr v-if="p.expanded">
+                  <td colspan="9" style="background:#fafafa;padding:12px 20px;">
+                    <div style="font-size:12px;color:#606266;font-weight:600;margin-bottom:8px;">任务类型构成</div>
+                    <div v-for="tt in p.typeBreakdown" :key="tt.name" class="hbar-row">
+                      <span class="hbar-label">{{ tt.name }}</span>
+                      <span class="hbar-track">
+                        <span class="hbar-fill" :style="{width: tt.hoursPercent + '%', background: tt.color}">{{
+                          tt.taskCount }}条</span>
+                      </span>
+                      <span class="hbar-val">{{ tt.hours }}h ({{ tt.hoursPercent }}%)</span>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <div v-if="projectStats.length === 0" class="empty-state">暂无项目数据</div>
+        </div>
+      </div>
+
+      <!-- Task Type Distribution & Personnel Workload -->
+      <div class="two-col">
+        <!-- Task Type Distribution -->
+        <div class="section">
+          <div class="section-header">全局任务类型分布（按工时）</div>
+          <div class="section-body">
+            <div class="bar-chart">
+              <div v-for="tt in taskTypeStats" :key="tt.name" class="bar-col">
+                <span class="bar-val">{{ tt.hours }}h</span>
+                <div class="bar" :style="{height: tt.barHeight + 'px', background: tt.color}"
+                  :title="tt.name + ': ' + tt.hours + 'h (' + tt.taskCount + '条)'"></div>
+                <span class="bar-label">{{ tt.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personnel Workload -->
+        <div class="section">
+          <div class="section-header">人员任务负荷</div>
+          <div class="section-body">
+            <div v-for="u in personnelStats" :key="u.id" class="hbar-row">
+              <span class="hbar-label">{{ u.name }}</span>
+              <span class="hbar-track">
+                <span class="hbar-fill" :style="{width: u.loadPercent + '%', background: u.color}">{{ u.taskCount
+                  }}条任务</span>
+              </span>
+              <span class="hbar-val">{{ u.estimatedHours }}h</span>
+            </div>
+            <div v-if="personnelStats.length === 0" class="empty-state">暂无人员数据</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overdue & Risk -->
+      <div class="section">
+        <div class="section-header">
+          <span>风险预警</span>
+          <span style="font-size:12px;color:#909399;">逾期未完成 & 即将到期</span>
+        </div>
+        <div class="section-body">
+          <el-table :data="riskTasks" size="small" style="width:100%;" :empty-text="'暂无风险任务'">
+            <el-table-column prop="projectCode" label="项目" width="100"></el-table-column>
+            <el-table-column prop="name" label="任务" min-width="200"></el-table-column>
+            <el-table-column label="负责人" width="150">
+              <template slot-scope="scope">
+                {{ scope.row.assigneeNames.join('、') }}
+              </template>
+            </el-table-column>
+            <el-table-column label="截止日" width="110">
+              <template slot-scope="scope">
+                <span :style="{color: scope.row.isOverdue ? '#f56c6c' : '#e6a23c', fontWeight:'600'}">{{
+                  scope.row.deadline || scope.row.endDate }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="状态" width="80">
+              <template slot-scope="scope">
+                <el-tag :type="scope.row.isOverdue ? 'danger' : 'warning'" size="mini">{{ scope.row.isOverdue ? '已逾期' :
+                  '即将到期' }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="完成进度" width="150">
+              <template slot-scope="scope">
+                <el-progress :percentage="scope.row.loggedPercent" :color="scope.row.isOverdue ? '#f56c6c' : '#e6a23c'"
+                  :stroke-width="6"></el-progress>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="data.js"></script>
+  <script>
+    var taskTypeColors = {
+      '现场审计': '#42A5F5', '底稿复核': '#66BB6A', '报告撰写': '#FFA726', '客户沟通': '#AB47BC',
+      '标书撰写': '#EF5350', '方案设计': '#26A69A', '成本测算': '#7E57C2', '投标汇报': '#EC407A',
+      '需求调研': '#5C6BC0', '方案初稿': '#29B6F6', '商务洽谈': '#FF7043', '报价准备': '#8D6E63'
+    };
+
+    var userColorPalette = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE'];
+
+    new Vue({
+      el: '#app',
+      data: {
+        tasks: [],
+        projects: mockProjects,
+        users: mockUsers,
+        expandedProjects: {}
+      },
+      computed: {
+        lastUpdateTime: function () {
+          var d = new Date();
+          return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' +
+            String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        },
+        summary: function () {
+          var tasks = this.tasks;
+          var totalTasks = tasks.length;
+          var completedTasks = tasks.filter(function (t) { return t.status === 'completed'; }).length;
+          var inProgressTasks = totalTasks - completedTasks;
+          var totalEstimatedHours = tasks.reduce(function (s, t) { return s + (t.estimatedHours || 0); }, 0);
+          var totalActualHours = tasks.reduce(function (s, t) { return s + (t.actualHours || 0); }, 0);
+          var remainingHours = totalEstimatedHours - totalActualHours;
+          var completionRate = totalTasks > 0 ? Math.round(completedTasks / totalTasks * 100) : 0;
+
+          var projectIds = {};
+          var bidIds = {};
+          var intentIds = {};
+          tasks.forEach(function (t) {
+            if (t.projectType === 'project') projectIds[t.projectId] = true;
+            if (t.projectType === 'bid') bidIds[t.projectId] = true;
+            if (t.projectType === 'intent') intentIds[t.projectId] = true;
+          });
+
+          return {
+            totalProjects: this.projects.length,
+            projectCount: Object.keys(projectIds).length,
+            bidCount: Object.keys(bidIds).length,
+            intentCount: Object.keys(intentIds).length,
+            totalTasks: totalTasks,
+            completedTasks: completedTasks,
+            inProgressTasks: inProgressTasks,
+            totalEstimatedHours: totalEstimatedHours,
+            totalActualHours: totalActualHours,
+            remainingHours: remainingHours,
+            completionRate: completionRate
+          };
+        },
+        projectStats: function () {
+          var self = this;
+          return this.projects.map(function (p) {
+            var ptasks = self.tasks.filter(function (t) { return t.projectId === p.id; });
+            if (ptasks.length === 0) return null;
+
+            var estimatedHours = ptasks.reduce(function (s, t) { return s + (t.estimatedHours || 0); }, 0);
+            var actualHours = ptasks.reduce(function (s, t) { return s + (t.actualHours || 0); }, 0);
+            var completedCount = ptasks.filter(function (t) { return t.status === 'completed'; }).length;
+            var completionRate = Math.round(completedCount / ptasks.length * 100);
+
+            // Task type breakdown
+            var typeMap = {};
+            ptasks.forEach(function (t) {
+              var key = t.taskType;
+              if (!typeMap[key]) typeMap[key] = { hours: 0, taskCount: 0 };
+              typeMap[key].hours += t.estimatedHours || 0;
+              typeMap[key].taskCount += 1;
+            });
+            var typeBreakdown = Object.keys(typeMap).map(function (k) {
+              return {
+                name: k,
+                hours: typeMap[k].hours,
+                taskCount: typeMap[k].taskCount,
+                hoursPercent: estimatedHours > 0 ? Math.round(typeMap[k].hours / estimatedHours * 100) : 0,
+                color: taskTypeColors[k] || '#90A4AE'
+              };
+            }).sort(function (a, b) { return b.hours - a.hours; });
+
+            // Unique members
+            var memberIds = {};
+            ptasks.forEach(function (t) {
+              (t.assigneeIds || []).forEach(function (uid) { memberIds[uid] = true; });
+            });
+            var memberNames = Object.keys(memberIds).map(function (uid) { return self.getUserName(uid); });
+
+            return {
+              id: p.id,
+              code: p.code,
+              name: p.name,
+              type: p.type,
+              taskCount: ptasks.length,
+              estimatedHours: estimatedHours,
+              actualHours: actualHours,
+              completionRate: completionRate,
+              memberCount: Object.keys(memberIds).length,
+              memberNames: memberNames,
+              typeBreakdown: typeBreakdown,
+              expanded: self.expandedProjects[p.id] || false
+            };
+          }).filter(function (p) { return p !== null; });
+        },
+        taskTypeStats: function () {
+          var map = {};
+          var maxHours = 0;
+          var self = this;
+          this.tasks.forEach(function (t) {
+            var key = t.taskType;
+            if (!map[key]) map[key] = { name: key, hours: 0, taskCount: 0 };
+            map[key].hours += t.estimatedHours || 0;
+            map[key].taskCount += 1;
+            if (map[key].hours > maxHours) maxHours = map[key].hours;
+          });
+          return Object.keys(map).map(function (k) {
+            return {
+              name: k,
+              hours: map[k].hours,
+              taskCount: map[k].taskCount,
+              color: taskTypeColors[k] || '#90A4AE',
+              barHeight: maxHours > 0 ? Math.max(20, Math.round(map[k].hours / maxHours * 160)) : 20
+            };
+          }).sort(function (a, b) { return b.hours - a.hours; });
+        },
+        personnelStats: function () {
+          var self = this;
+          var maxHours = 0;
+          return this.users.map(function (u) {
+            var ptasks = self.tasks.filter(function (t) {
+              return t.assigneeIds && t.assigneeIds.indexOf(u.id) !== -1;
+            });
+            var estimatedHours = ptasks.reduce(function (s, t) { return s + (t.estimatedHours || 0); }, 0);
+            if (estimatedHours > maxHours) maxHours = estimatedHours;
+            return {
+              id: u.id,
+              name: u.name,
+              taskCount: ptasks.length,
+              estimatedHours: estimatedHours,
+              color: userColorPalette[self.users.indexOf(u) % userColorPalette.length],
+              loadPercent: 0
+            };
+          }).sort(function (a, b) { return b.estimatedHours - a.estimatedHours; })
+            .map(function (u) {
+              u.loadPercent = maxHours > 0 ? Math.round(u.estimatedHours / maxHours * 100) : 0;
+              return u;
+            });
+        },
+        riskTasks: function () {
+          var today = this.getToday();
+          var weekLater = this.getDateAfter(7);
+          var self = this;
+          return this.tasks.filter(function (t) {
+            if (t.status === 'completed') return false;
+            var dl = t.deadline || t.endDate;
+            if (!dl) return false;
+            return dl <= weekLater;
+          }).map(function (t) {
+            var total = (t.dailyLogs || []).reduce(function (s, l) { return s + l.hours; }, 0);
+            return {
+              id: t.id,
+              projectCode: t.projectCode,
+              name: t.name,
+              deadline: t.deadline,
+              endDate: t.endDate,
+              assigneeNames: (t.assigneeIds || []).map(function (uid) { return self.getUserName(uid); }),
+              isOverdue: t.deadline && t.deadline < today,
+              estimatedHours: t.estimatedHours,
+              loggedHours: total,
+              loggedPercent: t.estimatedHours > 0 ? Math.min(100, Math.round(total / t.estimatedHours * 100)) : 0
+            };
+          }).sort(function (a, b) {
+            var da = a.deadline || '9999-99-99';
+            var db = b.deadline || '9999-99-99';
+            return da.localeCompare(db);
+          });
+        }
+      },
+      created: function () {
+        var self = this;
+        this.users.forEach(function (u, i) {
+          self.$set(u, 'color', userColorPalette[i % userColorPalette.length]);
+        });
+        getInitialTasks(function (tasks) {
+          self.tasks = tasks;
+        });
+      },
+      methods: {
+        getToday: function () {
+          var d = new Date();
+          return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        },
+        getDateAfter: function (days) {
+          var d = new Date();
+          d.setDate(d.getDate() + days);
+          return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        },
+        getUserName: function (uid) {
+          var u = this.users.find(function (u) { return u.id === uid; });
+          return u ? u.name : uid;
+        },
+        typeLabel: function (type) {
+          var map = { project: '项目', bid: '投标', intent: '意向' };
+          return map[type] || type;
+        },
+        toggleExpand: function (p) {
+          this.$set(this.expandedProjects, p.id, !this.expandedProjects[p.id]);
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

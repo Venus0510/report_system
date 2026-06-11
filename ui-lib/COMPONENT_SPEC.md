@@ -132,3 +132,6 @@ const KpiCard = {
 - Tailwind CDN 通过 `<script>` 标签引入，兼容所有现代浏览器
 - gallery.html 的 iframe 使用相对路径加载子组件
 - 在 file:// 协议下，fetch 可能因跨域限制失败（Chrome/Edge 禁止，Safari 允许）。工具页面使用 fallbackHTML + fetch 增强策略兼容
+
+
+把index.html文件中目前任务视图部分按照timesheet-tracker.html的交互逻辑功能全部重新实现，前后选择双周时间周期，日期表头的显示点击交互，拖拽实现任务起止时间，自动计算每日任务时间和任务总时间，设计文档说的请忽略，按我最新的要求改，改完了后更新interaction-design设计文档

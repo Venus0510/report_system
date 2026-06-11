@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>双周 Timesheet</title>
+<style>
+  :root{
+    --paper:#FBFAF7; --ink:#23201F; --muted:#8A847C; --line:#E7E3DB;
+    --weekend:#F1EEE7; --accent:#23201F;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:#EFEDE7;
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color:var(--ink); padding:24px 16px; -webkit-font-smoothing:antialiased;
+  }
+  .tt-root{
+    background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    padding:20px 22px 16px; max-width:960px; margin:0 auto;
+    box-shadow:0 1px 0 rgba(0,0,0,.02), 0 18px 40px -28px rgba(35,32,31,.35);
+  }
+
+  .tt-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+  .tt-eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); display:block;}
+  .tt-title h1{font-size:26px; font-weight:680; letter-spacing:-.02em; margin:2px 0 0;}
+  .tt-nav{display:flex; align-items:center; gap:8px;}
+  .tt-period{text-align:center; min-width:150px; display:flex; flex-direction:column; line-height:1.1;}
+  .tt-range{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .tt-year{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:11px; color:var(--muted);}
+
+  .tt-btn{border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:9px; padding:7px 12px; font-size:13px; cursor:pointer; line-height:1;
+    transition:transform .08s ease, background .15s ease, border-color .15s ease; font-family:inherit;}
+  .tt-btn:hover{border-color:#cfc9bf;}
+  .tt-btn:active{transform:translateY(1px);}
+  .tt-btn:focus-visible{outline:2px solid #5573A3; outline-offset:2px;}
+  .tt-btn.ghost{background:transparent;}
+  .tt-btn.today{font-family:ui-monospace,monospace; padding:7px 10px;}
+  .tt-btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .tt-btn.danger{color:#9C4A3C; border-color:transparent;}
+  .tt-btn.danger:hover{background:#F3E7E3; border-color:#E8D4CE;}
+  .tt-btn.danger-solid{background:#9C4A3C; color:#fff; border-color:#9C4A3C;}
+  .tt-btn.danger-solid:hover{background:#883e32; border-color:#883e32;}
+
+  .tt-daysrow{display:grid; grid-template-columns:repeat(14,1fr); gap:0; margin-bottom:4px;}
+  .tt-dayhead{position:relative; padding:6px 0 8px; text-align:center; border-radius:6px 6px 0 0;
+    border:0; background:transparent; font-family:inherit; cursor:pointer; color:inherit; transition:background .12s ease;}
+  .tt-dayhead:hover{background:#F1EEE7;}
+  .tt-dayhead.weekend{background:var(--weekend);}
+  .tt-dayhead.weekend:hover{background:#EAE6DD;}
+  .tt-dayhead.weekgap{box-shadow:inset 2px 0 0 -1px var(--line);}
+  .tt-dayhead.selected{background:#EDE7DC; box-shadow:inset 0 0 0 1.5px var(--accent);}
+  .tt-dayhead:focus-visible{outline:2px solid #5573A3; outline-offset:1px;}
+  .tt-wd{display:block; font-size:11px; color:var(--muted);}
+  .tt-dn{display:block; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:15px; font-weight:600; font-variant-numeric:tabular-nums; margin-top:1px;}
+  .tt-mo{position:absolute; top:-2px; left:4px; font-size:9px; color:var(--muted); letter-spacing:.02em;}
+  .tt-dhours{display:block; font-family:ui-monospace,monospace; font-size:9.5px; color:var(--muted); margin-top:2px; font-variant-numeric:tabular-nums;}
+  .tt-dayhead.is-today .tt-dn{color:#fff; background:var(--accent); border-radius:50%; width:22px; height:22px; line-height:22px; margin:1px auto 0; display:block;}
+
+  .tt-grid{position:relative; border:1px solid var(--line); border-radius:0 0 8px 8px; overflow:hidden;
+    background:#fff; touch-action:none; cursor:crosshair; user-select:none;}
+  .tt-col{position:absolute; top:0; bottom:0;}
+  .tt-col.weekend{background:var(--weekend);}
+  .tt-col.weekgap{box-shadow:inset 1px 0 0 var(--line);}
+  .tt-col.selected{background:rgba(85,115,163,.10); box-shadow:inset 0 0 0 1.5px rgba(85,115,163,.4);}
+  .tt-todayline{position:absolute; top:0; bottom:0; width:2px; background:var(--accent); opacity:.35; transform:translateX(-1px);}
+
+  .tt-bar{position:absolute; height:36px; margin-top:4px; border-radius:7px;
+    display:flex; align-items:center; padding:0 6px; color:#fff; cursor:grab;
+    box-shadow:0 1px 2px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.12);
+    overflow:hidden; transition:box-shadow .12s ease;}
+  .tt-bar:hover{box-shadow:0 3px 10px -2px rgba(0,0,0,.3), inset 0 0 0 1px rgba(255,255,255,.18);}
+  .tt-bar:focus-visible{outline:2px solid #23201F; outline-offset:2px;}
+  .tt-bar.dragging{cursor:grabbing; z-index:5; opacity:.94;}
+  .tt-bar.clipl{border-top-left-radius:0; border-bottom-left-radius:0;}
+  .tt-bar.clipr{border-top-right-radius:0; border-bottom-right-radius:0;}
+  .tt-barlabel{flex:1; min-width:0; display:flex; align-items:baseline; gap:6px; pointer-events:none; padding:0 2px;}
+  .tt-barname{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tt-bardur{font-family:ui-monospace,monospace; font-size:11px; opacity:.85; flex-shrink:0;}
+  .tt-handle{width:8px; align-self:stretch; cursor:ew-resize; flex-shrink:0; border-radius:7px;}
+  .tt-handle:hover{background:rgba(255,255,255,.25);}
+
+  .tt-preview{position:absolute; height:36px; margin-top:4px; border-radius:7px;
+    border:1.5px dashed #8A847C; background:rgba(138,132,124,.12); color:#6b665f;
+    display:flex; align-items:center; justify-content:center; font-family:ui-monospace,monospace;
+    font-size:12px; pointer-events:none;}
+  .tt-empty{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--muted); font-size:13px; pointer-events:none;}
+
+  .tt-foot{display:flex; align-items:center; justify-content:space-between; padding-top:12px; margin-top:2px; gap:10px; flex-wrap:wrap;}
+  .tt-sum{font-size:13px; color:var(--muted);}
+  .tt-sum strong{color:var(--ink); font-family:ui-monospace,monospace; font-weight:700;}
+  .tt-actions-r{display:flex; gap:8px;}
+
+  .tt-overlay{position:fixed; inset:0; background:rgba(35,32,31,.32); backdrop-filter:blur(2px);
+    display:flex; align-items:center; justify-content:center; z-index:50; padding:16px;}
+  .tt-modal{background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    width:100%; max-width:380px; padding:20px; box-shadow:0 30px 60px -24px rgba(35,32,31,.5);}
+  .tt-modalmeta{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .tt-metaspan{font-family:ui-monospace,monospace; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .tt-metadur{font-family:ui-monospace,monospace; font-size:13px; font-weight:700;
+    background:var(--ink); color:#fff; padding:3px 9px; border-radius:20px;}
+  .tt-metadur.over{background:#9C4A3C;}
+  .tt-field{display:block; margin-bottom:14px;}
+  .tt-field>span{display:block; font-size:12px; color:var(--muted); margin-bottom:5px;}
+  .tt-field input,.tt-field textarea{width:100%; border:1px solid var(--line); border-radius:9px;
+    padding:9px 11px; font-size:14px; font-family:inherit; color:var(--ink); background:#fff; resize:vertical;}
+  .tt-field input:focus,.tt-field textarea:focus{outline:none; border-color:#5573A3; box-shadow:0 0 0 3px rgba(85,115,163,.14);}
+  .tt-swatches{display:flex; gap:8px;}
+  .tt-swatch{width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+  .tt-swatch.on{border-color:var(--ink); transform:scale(1.06);}
+  .tt-actions{display:flex; align-items:center; justify-content:space-between; margin-top:18px;}
+  .tt-dayempty{font-size:13px; color:var(--muted); line-height:1.6; margin:4px 0 0;}
+  .tt-alloclist{display:flex; flex-direction:column; gap:8px; margin-bottom:4px;}
+  .tt-allocrow{display:flex; align-items:center; gap:10px;}
+  .tt-allocdot{width:11px; height:11px; border-radius:3px; flex-shrink:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);}
+  .tt-allocname{flex:1; min-width:0; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tt-allocinput{display:flex; align-items:center; gap:4px; flex-shrink:0;}
+  .tt-allocinput input{width:64px; border:1px solid var(--line); border-radius:8px; padding:7px 9px;
+    font-size:14px; font-family:ui-monospace,monospace; text-align:right; color:var(--ink); background:#fff;}
+  .tt-allocinput input:focus{outline:none; border-color:#5573A3; box-shadow:0 0 0 3px rgba(85,115,163,.14);}
+  .tt-allocunit{font-size:13px; color:var(--muted);}
+
+  @media (max-width:560px){
+    .tt-root{padding:16px 14px 12px;}
+    .tt-barname{font-size:11px;}
+    .tt-bardur{display:none;}
+    .tt-wd{font-size:10px;}
+    .tt-dn{font-size:13px;}
+  }
+  @media (prefers-reduced-motion:reduce){ .tt-btn,.tt-bar,.tt-swatch{transition:none;} }
+</style>
+</head>
+<body>
+<div class="tt-root">
+  <header class="tt-head">
+    <div class="tt-title">
+      <span class="tt-eyebrow">两周排期</span>
+      <h1>Timesheet</h1>
+    </div>
+    <div class="tt-nav">
+      <button class="tt-btn ghost" data-nav="-2" aria-label="上一双周">‹</button>
+      <div class="tt-period">
+        <span class="tt-range" id="range"></span>
+        <span class="tt-year" id="year"></span>
+      </div>
+      <button class="tt-btn ghost" data-nav="2" aria-label="下一双周">›</button>
+      <button class="tt-btn today" data-nav="today">本期</button>
+    </div>
+  </header>
+
+  <div class="tt-daysrow" id="daysrow"></div>
+  <div class="tt-grid" id="grid"></div>
+  <footer class="tt-foot" id="foot"></footer>
+</div>
+<div id="modalRoot"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ── 常量 ──
+  var DAYS = 14, MIN_LANES = 4, LANE_H = 44, DAY_MS = 86400000;
+  var WEEKDAY = ["一","二","三","四","五","六","日"];
+  var PALETTE = [
+    {id:"clay",hex:"#C56B4A",name:"陶土"},
+    {id:"sage",hex:"#6B8E72",name:"鼠尾草"},
+    {id:"slate",hex:"#5573A3",name:"石青"},
+    {id:"mustard",hex:"#B98A1F",name:"芥黄"},
+    {id:"plum",hex:"#8A5A78",name:"梅紫"},
+    {id:"teal",hex:"#3F8E8A",name:"松绿"}
+  ];
+  var LS_KEY = "timesheet_v1";
+
+  // ── 日期工具 ──
+  function addDays(d,n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
+  function startOfWeekMon(d){ var r=new Date(d); r.setHours(0,0,0,0); var wd=(r.getDay()+6)%7; return addDays(r,-wd); }
+  function toDayNum(d){ var x=new Date(d); x.setHours(0,0,0,0); return Math.round((x.getTime()-x.getTimezoneOffset()*60000)/DAY_MS); }
+  function round2(x){ return Math.round(x*100)/100; }
+  function fmtH(h){ return (Math.round(h*10)/10)+"h"; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+  // ── 状态 ──
+  var periodStart = startOfWeekMon(new Date());
+  var tasks = [];          // {id,name,notes,start,end,color}  start/end = 绝对天数
+  var overrides = {};      // "absDay:taskId" -> 工时
+  var drag = null;         // {mode,taskId,start,end,origStart,origEnd,grab,moved}
+  var dayEditingAbs = null;
+  var confirmClear = false;
+
+  function load(){
+    try{
+      var o = JSON.parse(localStorage.getItem(LS_KEY));
+      if(o){ tasks = o.tasks || []; overrides = o.overrides || {}; }
+    }catch(e){}
+  }
+  function save(){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify({tasks:tasks, overrides:overrides})); }catch(e){}
+  }
+  function uid(){ return "t"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); }
+
+  // ── 派生 ──
+  function periodStartNum(){ return toDayNum(periodStart); }
+  function windowEndNum(){ return periodStartNum()+DAYS-1; }
+  function visibleTasks(){
+    var p=periodStartNum(), e=windowEndNum();
+    return tasks.filter(function(t){ return t.end>=p && t.start<=e; });
+  }
+  function tasksOnDay(abs){ return tasks.filter(function(t){ return t.start<=abs && abs<=t.end; }); }
+  function defaultHoursForDay(abs){ var n=tasksOnDay(abs).length; return n>0 ? 8/n : 0; }
+  function hoursFor(abs,id){ var k=abs+":"+id; return overrides[k]!=null ? overrides[k] : defaultHoursForDay(abs); }
+  function taskTotalHours(t){ var s=0; for(var d=t.start; d<=t.end; d++) s+=hoursFor(d,t.id); return round2(s); }
+  function dayTotalHours(abs){ return round2(tasksOnDay(abs).reduce(function(s,t){ return s+hoursFor(abs,t.id); },0)); }
+
+  // ── 像素 → 列号 ──
+  function colFromX(clientX){
+    var rect = grid.getBoundingClientRect();
+    var w = rect.width/DAYS;
+    var i = Math.floor((clientX-rect.left)/w);
+    return Math.max(0, Math.min(DAYS-1, i));
+  }
+
+  // ── DOM ──
+  var daysrow = document.getElementById("daysrow");
+  var grid = document.getElementById("grid");
+  var foot = document.getElementById("foot");
+  var modalRoot = document.getElementById("modalRoot");
+  var rangeEl = document.getElementById("range");
+  var yearEl = document.getElementById("year");
+
+  function render(){
+    var p = periodStartNum();
+    var todayIdx = toDayNum(new Date())-p;
+    var days = [];
+    for(var i=0;i<DAYS;i++) days.push(addDays(periodStart,i));
+
+    // 头部范围
+    var pe = days[DAYS-1];
+    rangeEl.textContent = (periodStart.getMonth()+1)+"月"+periodStart.getDate()+"日 – "+(pe.getMonth()+1)+"月"+pe.getDate()+"日";
+    yearEl.textContent = periodStart.getFullYear();
+
+    // 日期表头
+    var hh = "";
+    for(i=0;i<DAYS;i++){
+      var d=days[i], wd=(d.getDay()+6)%7, abs=p+i;
+      var cls="tt-dayhead"+(wd>=5?" weekend":"")+(i===todayIdx?" is-today":"")+(i===7?" weekgap":"")+(dayEditingAbs===abs?" selected":"");
+      var hasTasks = tasksOnDay(abs).length>0;
+      var newMonth = (i===0 || d.getDate()===1);
+      hh += '<button class="'+cls+'" data-abs="'+abs+'" title="点击分配当天工时">'
+          + '<span class="tt-wd">'+WEEKDAY[wd]+'</span>'
+          + '<span class="tt-dn">'+d.getDate()+'</span>'
+          + (newMonth?'<span class="tt-mo">'+(d.getMonth()+1)+'月</span>':'')
+          + (hasTasks?'<span class="tt-dhours">'+fmtH(dayTotalHours(abs))+'</span>':'')
+          + '</button>';
+    }
+    daysrow.innerHTML = hh;
+
+    // 网格
+    var vis = visibleTasks();
+    var laneCount = Math.max(vis.length+1, MIN_LANES);
+    grid.style.height = (laneCount*LANE_H)+"px";
+
+    var g = "";
+    for(i=0;i<DAYS;i++){
+      var wd2=(days[i].getDay()+6)%7;
+      var ccls="tt-col"+(wd2>=5?" weekend":"")+(i===7?" weekgap":"")+(dayEditingAbs===p+i?" selected":"");
+      g += '<div class="'+ccls+'" style="left:'+(i/DAYS*100)+'%;width:'+(1/DAYS*100)+'%"></div>';
+    }
+    if(todayIdx>=0 && todayIdx<DAYS){
+      g += '<div class="tt-todayline" style="left:'+((todayIdx+0.5)/DAYS*100)+'%"></div>';
+    }
+    vis.forEach(function(t,lane){
+      var relS=Math.max(0,t.start-p), relE=Math.min(DAYS-1,t.end-p);
+      var left=relS/DAYS*100, width=(relE-relS+1)/DAYS*100;
+      var clipL=t.start<p, clipR=t.end>windowEndNum();
+      var bcls="tt-bar"+(drag&&drag.taskId===t.id?" dragging":"")+(clipL?" clipl":"")+(clipR?" clipr":"");
+      g += '<div class="'+bcls+'" tabindex="0" data-id="'+t.id+'" '
+         + 'style="left:'+left+'%;width:'+width+'%;top:'+(lane*LANE_H)+'px;background:'+t.color+'">'
+         + (clipL?'':'<span class="tt-handle" data-zone="l" aria-hidden="true"></span>')
+         + '<span class="tt-barlabel"><span class="tt-barname">'+esc(t.name||"未命名")+'</span>'
+         + '<span class="tt-bardur">'+fmtH(taskTotalHours(t))+'</span></span>'
+         + (clipR?'':'<span class="tt-handle" data-zone="r" aria-hidden="true"></span>')
+         + '</div>';
+    });
+    if(drag && drag.mode==="create"){
+      var s=Math.min(drag.start,drag.end), en=Math.max(drag.start,drag.end);
+      g += '<div class="tt-preview" style="left:'+(s/DAYS*100)+'%;width:'+((en-s+1)/DAYS*100)+'%;top:'+(vis.length*LANE_H)+'px">'+(en-s+1)+'天</div>';
+    }
+    if(vis.length===0 && !drag){
+      g += '<div class="tt-empty">在格子里横向拖拽，拉出一段任务</div>';
+    }
+    grid.innerHTML = g;
+
+    // 底部
+    var vc = vis.length;
+    var total = round2(vis.reduce(function(s,t){ return s+taskTotalHours(t); },0));
+    if(confirmClear){
+      foot.innerHTML = '<span class="tt-sum">清空当前两周的 '+vc+' 个任务？此操作不可撤销。</span>'
+        + '<div class="tt-actions-r"><button class="tt-btn ghost" data-act="clear-cancel">取消</button>'
+        + '<button class="tt-btn danger-solid" data-act="clear-yes">确认清空</button></div>';
+    } else {
+      foot.innerHTML = '<span class="tt-sum"><strong>'+vc+'</strong> 个任务 · 合计 <strong>'+fmtH(total)+'</strong></span>'
+        + (vc>0?'<button class="tt-btn ghost danger" data-act="clear">清空</button>':'');
+    }
+  }
+
+  // ── 拖拽 ──
+  function onMove(e){
+    if(!drag) return;
+    var i=colFromX(e.clientX), abs=periodStartNum()+i;
+    if(drag.mode==="create"){
+      drag.end=i;
+    } else if(drag.mode==="move"){
+      var len=drag.origEnd-drag.origStart;
+      var ns=drag.origStart+(abs-drag.grab);
+      ns=Math.max(periodStartNum(), Math.min(windowEndNum()-len, ns));
+      if(ns!==drag.origStart) drag.moved=true;
+      var t=findTask(drag.taskId); if(t){ t.start=ns; t.end=ns+len; }
+    } else if(drag.mode==="resize-r"){
+      var ne=Math.min(windowEndNum(), Math.max(drag.origStart, abs));
+      if(ne!==drag.origEnd) drag.moved=true;
+      var t2=findTask(drag.taskId); if(t2){ t2.end=ne; }
+    } else if(drag.mode==="resize-l"){
+      var ns2=Math.max(periodStartNum(), Math.min(drag.origEnd, abs));
+      if(ns2!==drag.origStart) drag.moved=true;
+      var t3=findTask(drag.taskId); if(t3){ t3.start=ns2; }
+    }
+    render();
+  }
+  function onUp(){
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    var d=drag; drag=null;
+    if(!d) return;
+    if(d.mode==="create"){
+      var p=periodStartNum();
+      var s=p+Math.min(d.start,d.end), en=p+Math.max(d.start,d.end);
+      var id=uid();
+      var color=PALETTE[tasks.length % PALETTE.length].hex;
+      tasks.push({id:id,name:"",notes:"",start:s,end:en,color:color});
+      save(); render();
+      openTaskEditor(id, true);
+    } else {
+      save();
+      if(!d.moved){ render(); openTaskEditor(d.taskId, false); }
+      else render();
+    }
+  }
+  function findTask(id){ for(var i=0;i<tasks.length;i++) if(tasks[i].id===id) return tasks[i]; return null; }
+
+  grid.addEventListener("pointerdown", function(e){
+    if(modalRoot.firstChild) return;          // 有弹窗时不响应
+    e.preventDefault();
+    var handle=e.target.closest(".tt-handle");
+    var bar=e.target.closest(".tt-bar");
+    if(bar){
+      var t=findTask(bar.getAttribute("data-id")); if(!t) return;
+      var grabNum=periodStartNum()+colFromX(e.clientX);
+      var zone=handle?handle.getAttribute("data-zone"):"move";
+      drag={ mode: zone==="move"?"move":(zone==="l"?"resize-l":"resize-r"),
+             taskId:t.id, origStart:t.start, origEnd:t.end, grab:grabNum, moved:false };
+    } else {
+      var i=colFromX(e.clientX);
+      drag={ mode:"create", start:i, end:i };
+    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  });
+
+  // 表头点击 → 当天分配
+  daysrow.addEventListener("click", function(e){
+    var b=e.target.closest(".tt-dayhead"); if(!b) return;
+    openDayEditor(parseInt(b.getAttribute("data-abs"),10));
+  });
+
+  // 导航
+  document.querySelector(".tt-nav").addEventListener("click", function(e){
+    var b=e.target.closest("[data-nav]"); if(!b) return;
+    var v=b.getAttribute("data-nav");
+    if(v==="today") periodStart=startOfWeekMon(new Date());
+    else periodStart=addDays(periodStart, parseInt(v,10)*7);
+    dayEditingAbs=null; confirmClear=false; render();
+  });
+
+  // 底部
+  foot.addEventListener("click", function(e){
+    var b=e.target.closest("[data-act]"); if(!b) return;
+    var a=b.getAttribute("data-act");
+    if(a==="clear"){ confirmClear=true; render(); }
+    else if(a==="clear-cancel"){ confirmClear=false; render(); }
+    else if(a==="clear-yes"){
+      var ids={}; visibleTasks().forEach(function(t){ ids[t.id]=1; });
+      tasks=tasks.filter(function(t){ return !ids[t.id]; });
+      var no={}; Object.keys(overrides).forEach(function(k){ if(!ids[k.split(":")[1]]) no[k]=overrides[k]; });
+      overrides=no; confirmClear=false; save(); render();
+    }
+  });
+
+  // ── 任务编辑器 ──
+  function openTaskEditor(id, isNew){
+    var t=findTask(id); if(!t) return;
+    var p=periodStartNum();
+    var sd=addDays(periodStart, t.start-p), ed=addDays(periodStart, t.end-p);
+    var dur=t.end-t.start+1;
+    var rangeStr=(sd.getMonth()+1)+"/"+sd.getDate()+" → "+(ed.getMonth()+1)+"/"+ed.getDate()+" · "+dur+"天";
+    var total=Math.round(taskTotalHours(t)*10)/10;
+
+    var sw="";
+    PALETTE.forEach(function(c){
+      sw+='<button class="tt-swatch'+(t.color===c.hex?" on":"")+'" data-hex="'+c.hex+'" title="'+c.name+'" style="background:'+c.hex+'"></button>';
+    });
+
+    var html=''
+      + '<div class="tt-overlay"><div class="tt-modal" role="dialog" aria-modal="true">'
+      + '<div class="tt-modalmeta"><span class="tt-metaspan">'+rangeStr+'</span><span class="tt-metadur">'+total+'h</span></div>'
+      + '<label class="tt-field"><span>任务名称</span>'
+      + '<input id="f-name" value="'+esc(t.name)+'" placeholder="例如：客户提案、休假、上线准备" /></label>'
+      + '<label class="tt-field"><span>备注</span>'
+      + '<textarea id="f-notes" rows="3" placeholder="可选：补充细节、产出、状态…">'+esc(t.notes)+'</textarea></label>'
+      + '<div class="tt-field"><span>颜色</span><div class="tt-swatches" id="f-sw">'+sw+'</div></div>'
+      + '<div class="tt-actions"><button class="tt-btn ghost danger" data-x="del">删除</button>'
+      + '<div class="tt-actions-r"><button class="tt-btn ghost" data-x="cancel">取消</button>'
+      + '<button class="tt-btn primary" data-x="save">保存</button></div></div>'
+      + '</div></div>';
+    modalRoot.innerHTML=html;
+
+    var chosen=t.color;
+    var nameEl=document.getElementById("f-name");
+    nameEl.focus(); nameEl.select();
+
+    document.getElementById("f-sw").addEventListener("click", function(e){
+      var b=e.target.closest(".tt-swatch"); if(!b) return;
+      chosen=b.getAttribute("data-hex");
+      Array.prototype.forEach.call(this.children, function(c){ c.classList.toggle("on", c===b); });
+    });
+
+    function close(){ modalRoot.innerHTML=""; document.removeEventListener("keydown", onKey); }
+    function doSave(){
+      t.name=(nameEl.value.trim()||"未命名");
+      t.notes=document.getElementById("f-notes").value;
+      t.color=chosen;
+      save(); close(); render();
+    }
+    function doCancel(){
+      if(isNew && !nameEl.value.trim()){ tasks=tasks.filter(function(x){return x.id!==id;}); save(); }
+      close(); render();
+    }
+    function onKey(e){ if(e.key==="Escape") doCancel(); }
+
+    nameEl.addEventListener("keydown", function(e){ if(e.key==="Enter") doSave(); });
+    modalRoot.querySelector(".tt-overlay").addEventListener("pointerdown", function(e){ if(e.target===this) doCancel(); });
+    modalRoot.querySelector('[data-x="del"]').addEventListener("click", function(){ tasks=tasks.filter(function(x){return x.id!==id;}); save(); close(); render(); });
+    modalRoot.querySelector('[data-x="cancel"]').addEventListener("click", doCancel);
+    modalRoot.querySelector('[data-x="save"]').addEventListener("click", doSave);
+    document.addEventListener("keydown", onKey);
+  }
+
+  // ── 日期工时分配 ──
+  function openDayEditor(abs){
+    dayEditingAbs=abs; render();
+    var p=periodStartNum();
+    var date=addDays(periodStart, abs-p);
+    var list=tasksOnDay(abs);
+    var def=round2(defaultHoursForDay(abs));
+    var wd=WEEKDAY[(date.getDay()+6)%7];
+    var dateStr=(date.getMonth()+1)+"月"+date.getDate()+"日 · 周"+wd;
+
+    var vals={};
+    list.forEach(function(t){ vals[t.id]=String(Math.round(hoursFor(abs,t.id)*100)/100); });
+
+    function bodyHTML(){
+      if(list.length===0){
+        return '<p class="tt-dayempty">这天还没有任务。先在下面的时间轴上拖出一段任务。</p>'
+          + '<div class="tt-actions"><span></span><button class="tt-btn primary" data-x="close">知道了</button></div>';
+      }
+      var rows="";
+      list.forEach(function(t){
+        rows+='<div class="tt-allocrow"><span class="tt-allocdot" style="background:'+t.color+'"></span>'
+          + '<span class="tt-allocname">'+esc(t.name||"未命名")+'</span>'
+          + '<div class="tt-allocinput"><input type="number" min="0" step="0.5" inputmode="decimal" data-id="'+t.id+'" value="'+vals[t.id]+'" /><span class="tt-allocunit">h</span></div></div>';
+      });
+      return '<div class="tt-alloclist">'+rows+'</div>'
+        + '<div class="tt-actions"><button class="tt-btn ghost" data-x="dist">平均分配 ('+def+'h)</button>'
+        + '<div class="tt-actions-r"><button class="tt-btn ghost" data-x="cancel">取消</button>'
+        + '<button class="tt-btn primary" data-x="save">保存</button></div></div>';
+    }
+    function totalNow(){
+      var s=0; list.forEach(function(t){ var v=parseFloat(vals[t.id]); if(isFinite(v)) s+=v; }); return Math.round(s*100)/100;
+    }
+    function metaHTML(){
+      var tn=totalNow(), over=tn>8.001;
+      return '<span class="tt-metaspan">'+dateStr+'</span><span class="tt-metadur'+(over?" over":"")+'">'+tn+' / 8h</span>';
+    }
+
+    modalRoot.innerHTML='<div class="tt-overlay"><div class="tt-modal" role="dialog" aria-modal="true">'
+      + '<div class="tt-modalmeta" id="d-meta">'+metaHTML()+'</div><div id="d-body">'+bodyHTML()+'</div></div></div>';
+
+    function close(){ dayEditingAbs=null; modalRoot.innerHTML=""; document.removeEventListener("keydown", onKey); render(); }
+    function refreshMeta(){ document.getElementById("d-meta").innerHTML=metaHTML(); }
+    function rebuild(){ document.getElementById("d-body").innerHTML=bodyHTML(); bind(); refreshMeta(); }
+    function doSave(){
+      list.forEach(function(t){
+        var k=abs+":"+t.id, num=parseFloat(vals[t.id]);
+        if(!isFinite(num)||num<0) delete overrides[k];
+        else if(Math.abs(num-def)<0.005) delete overrides[k];
+        else overrides[k]=num;
+      });
+      save(); close();
+    }
+    function onKey(e){ if(e.key==="Escape") close(); }
+
+    function bind(){
+      var body=document.getElementById("d-body");
+      body.querySelectorAll('input[data-id]').forEach(function(inp){
+        inp.addEventListener("input", function(){ vals[this.getAttribute("data-id")]=this.value; refreshMeta(); });
+      });
+      var bDist=body.querySelector('[data-x="dist"]');
+      if(bDist) bDist.addEventListener("click", function(){ list.forEach(function(t){ vals[t.id]=String(def); }); rebuild(); });
+      var bSave=body.querySelector('[data-x="save"]'); if(bSave) bSave.addEventListener("click", doSave);
+      var bCancel=body.querySelector('[data-x="cancel"]'); if(bCancel) bCancel.addEventListener("click", close);
+      var bClose=body.querySelector('[data-x="close"]'); if(bClose) bClose.addEventListener("click", close);
+    }
+    bind();
+    modalRoot.querySelector(".tt-overlay").addEventListener("pointerdown", function(e){ if(e.target===this) close(); });
+    document.addEventListener("keydown", onKey);
+  }
+
+  // ── 启动 ──
+  load();
+  render();
+})();
+</script>
+</body>
+</html>
