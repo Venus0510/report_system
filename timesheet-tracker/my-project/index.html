@@ -291,7 +291,7 @@
     }
 
     .gantt-handle:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: #30b08f;
     }
 
     .gantt-barlabel {
@@ -322,7 +322,7 @@
     .gantt-bar-actions {
       display: none;
       position: absolute;
-      right: 10px;
+      left: 10px;
       top: 1px;
       align-items: center;
       gap: 2px;
@@ -344,7 +344,7 @@
       font-size: 12px;
       background: #fff;
       border: 1px solid #dcdfe6;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
       transition: all .15s;
       line-height: 1;
     }
@@ -990,7 +990,8 @@
                 <el-option v-for="u in users" :key="u.id" :label="u.name" :value="u.id"></el-option>
               </el-select>
             </div>
-            <el-button type="primary" size="mini" icon="el-icon-plus" @click="openCreateDialog">快速创建任务</el-button>
+            <el-button type="primary" size="mini" icon="el-icon-s-operation"
+              @click="openCreateDialog()">批量创建</el-button>
           </div>
         </div>
 
@@ -1020,13 +1021,11 @@
             <button v-for="(day, di) in dateRange" :key="di" class="gantt-dayhead" :class="{
                 weekend: day.isWeekend,
                 'is-today': day.isToday,
-                weekgap: day.isWeekStart,
-                selected: dayEditingAbs === day.abs
-              }" @click.stop="openDayAlloc(day.abs)">
+                weekgap: day.isWeekStart
+              }">
               <span class="gantt-wd">{{ day.weekday }}</span>
               <span class="gantt-dn">{{ day.date }}</span>
               <span v-if="day.isFirstOfMonth" class="gantt-mo">{{ day.month }}月</span>
-              <span v-if="day.dayTotalHours > 0" class="gantt-dhours">{{ day.dayTotalHours }}h</span>
             </button>
           </div>
           <!-- Grid -->
@@ -1034,8 +1033,7 @@
             @pointerdown.prevent="onGridDown">
             <div v-for="(day, di) in dateRange" :key="di" class="gantt-col" :class="{
                 weekend: day.isWeekend,
-                weekgap: day.isWeekStart,
-                selected: dayEditingAbs === day.abs
+                weekgap: day.isWeekStart
               }" :style="{left: (di/14*100)+'%', width: (1/14*100)+'%'}"></div>
             <div class="gantt-todayline" :style="{left: todayPct + '%'}" v-if="todayPct >= 0"></div>
             <div v-for="(task, ti) in sortedGanttTasks" :key="task.id" class="gantt-bar" :class="{
@@ -1049,10 +1047,12 @@
                 <span class="gantt-barname">{{ task.name }}</span>
                 <span class="gantt-bardur">{{ ganttTaskHours(task) }}h</span>
               </span>
-              <span class="gantt-bar-actions">
-                <span class="gantt-bar-action copy-action" @click.stop @pointerdown.stop="copyTask(task)" title="复制任务">📋</span>
-                <span class="gantt-bar-action delete-action" @click.stop @pointerdown.stop="confirmDeleteTask(task)" title="删除任务">🗑</span>
-              </span>
+              <!-- <span class="gantt-bar-actions">
+                <span class="gantt-bar-action copy-action" @click.stop @pointerdown.stop="copyTask(task)"
+                  title="复制任务">📋</span>
+                <span class="gantt-bar-action delete-action" @click.stop @pointerdown.stop="confirmDeleteTask(task)"
+                  title="删除任务">🗑</span>
+              </span> -->
               <span v-if="!isClippedR(task)" class="gantt-handle" data-zone="r"></span>
             </div>
             <div v-if="dragState && dragState.mode==='create'" class="gantt-preview" :style="previewBarStyle">
@@ -1134,51 +1134,12 @@
             </span>
           </div>
           <el-button v-if="todoTab!=='done'" size="mini" type="primary" plain @click="logAllToday"
-            style="margin-left:12px;">一键记录</el-button>
+            style="margin-left:12px;">一键更新</el-button>
         </div>
-        <!-- Today Tab -->
-        <div class="todo-list" v-show="todoTab==='today'">
-          <el-table :data="currentUserTodayTodos" size="mini" style="width:100%;" empty-text="今天没有待办任务">
-            <el-table-column width="40">
-              <template slot-scope="scope">
-                <span class="todo-status-dot" :class="'status-' + displayStatus(scope.row)"></span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="projectCode" label="项目" width="80"></el-table-column>
-            <el-table-column prop="name" label="任务名称" min-width="120"></el-table-column>
-            <el-table-column label="状态" width="70">
-              <template slot-scope="scope">{{ statusLabel(scope.row) }}</template>
-            </el-table-column>
-            <el-table-column label="今日工时" width="175">
-              <template slot-scope="scope">
-                <div style="display:flex;align-items:center;gap:4px;">
-                  <input type="number" v-model.number="scope.row._editHours" min="0" placeholder="填"
-                    style="width:46px;border:1px solid #dcdfe6;border-radius:4px;padding:2px 4px;text-align:center;font-size:12px;" />
-                  <span style="font-size:11px;color:#909399;">h</span>
-                  <el-button size="mini" type="primary" plain @click="logToday(scope.row)"
-                    style="padding:2px 8px;font-size:11px;">
-                    {{ todayLoggedHours(scope.row) > 0 ? '更新' : '记录' }}
-                  </el-button>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="工时" width="95">
-              <template slot-scope="scope">
-                <span style="font-size:11px;color:#909399;">
-                  累计 <b>{{ taskDailyTotal(scope.row) }}</b>h
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column label="完成" width="50">
-              <template slot-scope="scope">
-                <span class="todo-check-btn" @click="markComplete(scope.row)" title="标记完成">✓</span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <!-- Pending Tab -->
-        <div class="todo-list" v-show="todoTab==='pending'">
-          <el-table :data="currentUserTodos" size="mini" style="width:100%;" empty-text="本周任务已全部完成">
+        <!-- 今日待办 & 两周待办：共用表格，今日仅过滤 -->
+        <div class="todo-list" v-show="todoTab==='today' || todoTab==='pending'">
+          <el-table :data="filteredTodoList" size="mini" style="width:100%;"
+            :empty-text="todoTab==='today' ? '今天没有待办任务' : '两周内没有待办任务'">
             <el-table-column width="40">
               <template slot-scope="scope">
                 <span class="todo-status-dot" :class="'status-' + displayStatus(scope.row)"></span>
@@ -1189,7 +1150,7 @@
             <el-table-column label="日期区间" width="115">
               <template slot-scope="scope">{{ formatDateRange(scope.row) }}</template>
             </el-table-column>
-            <el-table-column label="今日工时" width="175">
+            <el-table-column label="填报今日工时" width="175">
               <template slot-scope="scope">
                 <div style="display:flex;align-items:center;gap:4px;">
                   <input type="number" v-model.number="scope.row._editHours" min="0" placeholder="填"
@@ -1202,14 +1163,14 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="工时" width="95">
+            <el-table-column label="累计已填工时" width="95">
               <template slot-scope="scope">
                 <span style="font-size:11px;color:#909399;">
-                  累计 <b>{{ taskDailyTotal(scope.row) }}</b>h
+                  <b>{{ taskDailyTotal(scope.row) }}</b>
                 </span>
               </template>
             </el-table-column>
-            <el-table-column label="完成" width="50">
+            <el-table-column label="完成任务" width="100">
               <template slot-scope="scope">
                 <span class="todo-check-btn" @click="markComplete(scope.row)" title="标记完成">✓</span>
               </template>
@@ -1220,14 +1181,15 @@
         <div class="todo-list" v-show="todoTab==='done'">
           <!-- 搜索栏 -->
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-            <el-input v-model="doneSearchName" placeholder="搜索任务名称" size="mini" clearable style="width:180px;"></el-input>
+            <el-input v-model="doneSearchName" placeholder="搜索任务名称" size="mini" clearable
+              style="width:180px;"></el-input>
             <el-select v-model="doneSearchMonth" placeholder="选择月份" size="mini" clearable style="width:120px;">
               <el-option label="全部" value=""></el-option>
               <el-option v-for="m in doneMonthOptions" :key="m" :label="m" :value="m"></el-option>
             </el-select>
             <el-button size="mini" type="primary" @click="doneSearch">搜索</el-button>
             <el-button size="mini" @click="doneReset">重置</el-button>
-            <el-button size="mini" type="warning" plain @click="doneBatchArchive">一键归档</el-button>
+            <el-button size="mini" type="warning" plain @click="doneBatchArchive">一键归档（本月+上月）</el-button>
           </div>
           <el-table :data="filteredDoneTodos" size="mini" style="width:100%;" empty-text="暂无已完成任务">
             <el-table-column width="40">
@@ -1243,7 +1205,7 @@
             </el-table-column>
             <el-table-column label="实际工时" width="95">
               <template slot-scope="scope">
-                <span style="font-size:12px;">实际 <b>{{ scope.row.actualHours || taskDailyTotal(scope.row) }}</b>h</span>
+                <span style="font-size:12px;"><b>{{ scope.row.actualHours || taskDailyTotal(scope.row) }}</b></span>
               </template>
             </el-table-column>
             <el-table-column label="状态" width="75">
@@ -1267,8 +1229,7 @@
     </div>
 
     <!-- Batch Create Dialog -->
-    <el-dialog title="📋 批量创建任务" :visible.sync="createDialogVisible" width="80%" top="5vh" custom-class="create-dialog"
-      :close-on-click-modal="false">
+    <el-dialog title="📋 批量创建任务" :visible.sync="createDialogVisible" width="80%" top="5vh" custom-class="create-dialog">
       <el-tabs v-model="createActiveTab" @tab-click="onCreateTabChange">
         <el-tab-pane label="项目进度" name="project"></el-tab-pane>
         <el-tab-pane label="投标进度" name="bid"></el-tab-pane>
@@ -1383,20 +1344,22 @@
 
     <!-- Task Editor Dialog -->
     <el-dialog :title="taskEditIsNew ? '新建任务' : '编辑任务'" :visible.sync="taskEditVisible" width="460px"
-      :close-on-click-modal="false" @closed="taskEditData=null">
+      @closed="taskEditData=null">
       <div v-if="taskEditData" style="font-size:14px;">
         <el-form label-position="top" size="mini">
-          <el-form-item label="任务名称" required>
-            <el-input v-model="taskEditData.name" placeholder="任务名称"></el-input>
-          </el-form-item>
           <el-form-item label="所属项目" required>
             <el-select v-model="taskEditData.projectId" filterable placeholder="搜索项目..." style="width:100%;"
               @change="onEditProjectChange">
               <el-option v-for="p in projects" :key="p.id" :label="p.code + ' ' + p.name" :value="p.id"></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="任务名称" required>
+            <el-input v-model="taskEditData.name" placeholder="任务名称"></el-input>
+          </el-form-item>
           <el-form-item label="日期区间">
-            <el-date-picker v-model="taskEditData.dateRange" type="daterange" range-separator="→" start-placeholder="开始日期" end-placeholder="结束日期" value-format="yyyy-MM-dd" size="mini" style="width:100%;"></el-date-picker>
+            <el-date-picker v-model="taskEditData.dateRange" type="daterange" range-separator="→"
+              start-placeholder="开始日期" end-placeholder="结束日期" value-format="yyyy-MM-dd" size="mini"
+              style="width:100%;"></el-date-picker>
           </el-form-item>
           <el-form-item label="标记颜色（可选）">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -1413,66 +1376,10 @@
         </el-form>
       </div>
       <span slot="footer">
-        <el-button v-if="!taskEditIsNew" type="danger" plain size="mini" @click="deleteEditTask">删除</el-button>
-        <el-button v-if="!taskEditIsNew" type="primary" plain size="mini" @click="copyEditTask">复制</el-button>
         <el-button size="mini" @click="taskEditVisible=false">取消</el-button>
-        <el-button size="mini" type="primary" @click="saveEditTask">保存</el-button>
-      </span>
-    </el-dialog>
-
-    <!-- Drag Create Dialog -->
-    <el-dialog title="新建任务" :visible.sync="dragCreateVisible" width="420px" :close-on-click-modal="false">
-      <el-form label-position="top" size="mini">
-        <el-form-item label="选择项目" required>
-          <el-select v-model="dragCreateProjectId" filterable placeholder="搜索项目..." style="width:100%;">
-            <el-option v-for="p in projects" :key="p.id" :label="p.code + ' ' + p.name" :value="p.id"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="任务名称" required>
-          <el-input v-model="dragCreateTaskName" placeholder="输入任务名称"></el-input>
-        </el-form-item>
-        <el-form-item label="日期区间">
-          <span style="font-family:ui-monospace,monospace;font-size:13px;color:#606266;">{{ dragCreateDateLabel
-            }}</span>
-        </el-form-item>
-      </el-form>
-      <span slot="footer">
-        <el-button size="mini" @click="dragCreateVisible=false">取消</el-button>
-        <el-button size="mini" type="primary" @click="submitDragCreate">创建</el-button>
-      </span>
-    </el-dialog>
-
-    <!-- Day Allocation Dialog -->
-    <el-dialog :title="dayAllocTitle" :visible.sync="dayAllocVisible" width="420px" :close-on-click-modal="false">
-      <div v-if="dayAllocTasks.length > 0">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
-          background:#f5f7fa;border-radius:8px;padding:10px 14px;">
-          <span style="font-family:ui-monospace,monospace;font-size:14px;font-weight:600;">
-            {{ dayAllocTotal }} / 8h
-          </span>
-          <span style="font-size:12px;color:#909399;">{{ dayAllocDateLabel }}</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div v-for="(item, idx) in dayAllocTasks" :key="item.id" style="display:flex;align-items:center;gap:10px;">
-            <span style="width:10px;height:10px;border-radius:3px;flex-shrink:0;"
-              :style="{background: item.color || '#999'}"></span>
-            <span style="flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              {{ item.name }}
-            </span>
-            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-              <input type="number" v-model.number="item._hours" min="0" step="0.5" style="width:60px;border:1px solid #dcdfe6;border-radius:6px;padding:6px 8px;
-                text-align:right;font-size:13px;font-family:ui-monospace,monospace;" />
-              <span style="font-size:12px;color:#909399;">h</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-else style="text-align:center;padding:20px;color:#c0c4cc;font-size:13px;">
-        这天还没有任务。在格子里拖拽创建一个。
-      </div>
-      <span slot="footer">
-        <el-button size="mini" @click="dayAllocVisible=false">取消</el-button>
-        <el-button size="mini" type="primary" @click="saveDayAlloc" :disabled="dayAllocTasks.length===0">保存</el-button>
+        <el-button size="mini" type="primary" @click="saveEditTask">保存任务</el-button>
+        <el-button v-if="!taskEditIsNew" type="danger" plain size="mini" @click="deleteEditTask">删除任务</el-button>
+        <el-button v-if="!taskEditIsNew" type="primary" plain size="mini" @click="copyEditTask">复制任务</el-button>
       </span>
     </el-dialog>
   </div>
@@ -1530,9 +1437,6 @@
         tasks: [],
         periodStart: null,  // Date: Monday of current bi-week
 
-        // Day allocation editing highlight
-        dayEditingAbs: null,
-
         createDialogVisible: false,
         createActiveTab: 'project',
         createRows: {
@@ -1550,18 +1454,6 @@
         taskEditData: null,
         taskEditIsNew: false,
         taskColorPresets: ['#90CAF9', '#CE93D8', '#A5D6A7', '#FFB74D', '#F48FB1', '#80DEEA', '#FFAB91'],
-
-        // Drag create
-        dragCreateVisible: false,
-        dragCreateProjectId: '',
-        dragCreateTaskName: '',
-        dragCreateStartIdx: 0,
-        dragCreateEndIdx: 0,
-        // Day allocation
-        dayAllocVisible: false,
-        dayAllocDate: '',
-        dayAllocTasks: [],
-        dayOverrides: {},  // "absDay:taskId" → hours
 
         todoHeight: 300,
         resizeState: false,
@@ -1619,7 +1511,6 @@
               isToday: dateStr === todayStr,
               isFirstOfMonth: d.getDate() === 1 || i === 0,
               isWeekStart: i === 7,
-              dayTotalHours: this.dayTotalHours(abs)
             });
           }
           return days;
@@ -1683,37 +1574,12 @@
           return Math.abs(this.dragState.end - this.dragState.start) + 1;
         },
 
-        dragCreateDateLabel: function () {
-          var dr = this.dateRange;
-          var s = dr[this.dragCreateStartIdx];
-          var e = dr[this.dragCreateEndIdx];
-          if (!s || !e) return '';
-          return s.month + '/' + s.date + ' ~ ' + e.month + '/' + e.date + ' · ' + (Math.abs(this.dragCreateEndIdx - this.dragCreateStartIdx) + 1) + '天';
-        },
-
         taskEditDays: function () {
           var d = this.taskEditData;
           if (!d || !d.dateRange || d.dateRange.length !== 2) return 0;
           var t1 = new Date(d.dateRange[0]);
           var t2 = new Date(d.dateRange[1]);
           return Math.round((t2 - t1) / 86400000) + 1;
-        },
-
-        dayAllocTitle: function () {
-          return '分配工时 · ' + this.shortDate(this.dayAllocDate);
-        },
-
-        dayAllocDateLabel: function () {
-          if (!this.dayAllocDate) return '';
-          var d = new Date(this.dayAllocDate);
-          var wd = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][d.getDay()];
-          return (d.getMonth() + 1) + '月' + d.getDate() + '日 · ' + wd;
-        },
-
-        dayAllocTotal: function () {
-          var s = 0;
-          this.dayAllocTasks.forEach(function (t) { s += t._hours || 0; });
-          return Math.round(s * 100) / 100;
         },
 
         currentUserTodos: function () {
@@ -1727,6 +1593,16 @@
             return da.localeCompare(db);
           });
           return todos;
+        },
+
+        filteredTodoList: function () {
+          if (this.todoTab === 'today') {
+            var today = this.TODAY;
+            return this.currentUserTodos.filter(function (t) {
+              return t.startDate <= today && t.endDate >= today;
+            });
+          }
+          return this.currentUserTodos;
         },
 
         currentUserTodayTodos: function () {
@@ -1838,27 +1714,16 @@
         this._onMove = function (e) { self._handleMove(e); };
         this._onUp = function (e) { self._handleUp(e); };
 
-        // Clear dayEditingAbs when day alloc dialog closes
-        this.$watch('dayAllocVisible', function (newVal) {
-          if (!newVal) self.dayEditingAbs = null;
-        });
-
         // Pre-fill today edit hours when switching to today tab
         this.$watch('todoTab', function (newVal) {
-          if (newVal === 'today') self.initTodayEditHours();
+          if (newVal === 'today' || newVal === 'pending') self.refreshEditHours();
         });
-
-        // Load day overrides from localStorage
-        try {
-          var savedOverrides = localStorage.getItem('timesheet_day_overrides');
-          if (savedOverrides) self.dayOverrides = JSON.parse(savedOverrides);
-        } catch (e) { }
 
         // Load tasks from IndexedDB (data.js)
         getInitialTasks(function (tasks) {
           self.tasks = tasks;
           self.tasks.forEach(function (t) {
-            self.$set(t, '_editHours', t._editHours || null);
+            self.$set(t, '_editHours', null);
             if (t.status === 'archived') self.$set(t, 'archived', true);
             else if (t.archived === undefined) self.$set(t, 'archived', false);
             if (!t.dailyLogs) self.$set(t, 'dailyLogs', []);
@@ -1879,8 +1744,8 @@
               }
             }
           });
-          self.initTodayEditHours();
-          saveData(self.tasks);
+          self.refreshEditHours();
+          self.persistTasks();
         });
       },
 
@@ -1919,40 +1784,10 @@
           return parseInt(parts[1]) + '/' + parseInt(parts[2]);
         },
 
-        // ── 工时算法（与 timesheet-tracker.html 一致） ──
-        tasksOnAbsDay: function (abs) {
-          var self = this;
-          return this.tasks.filter(function (t) {
-            var s = self.toDayNum(t.startDate);
-            var e = self.toDayNum(t.endDate);
-            return t.assigneeIds && t.assigneeIds.indexOf(self.currentUserId) !== -1 &&
-              t.status !== 'completed' && t.status !== 'archived' && s <= abs && e >= abs;
-          });
-        },
-
-        dayHoursFor: function (abs, taskId) {
-          var key = abs + ':' + taskId;
-          if (this.dayOverrides[key] != null) return this.dayOverrides[key];
-          return 0;
-        },
-
+        // ── 工时 ──
         ganttTaskHours: function (task) {
           if (!task.dailyLogs || task.dailyLogs.length === 0) return 0;
           return task.dailyLogs.reduce(function (sum, l) { return sum + l.hours; }, 0);
-        },
-
-        dayTotalHours: function (abs) {
-          var self = this;
-          var dateStr = this.absToDateStr(abs);
-          var total = 0;
-          this.tasks.forEach(function (t) {
-            if (t.assigneeIds && t.assigneeIds.indexOf(self.currentUserId) !== -1 && t.dailyLogs) {
-              t.dailyLogs.forEach(function (l) {
-                if (l.date === dateStr) total += l.hours;
-              });
-            }
-          });
-          return Math.round(total * 100) / 100;
         },
 
         // ── 甘特条样式与定位 ──
@@ -2000,7 +1835,6 @@
           var d = new Date(this.periodStart);
           d.setDate(d.getDate() + delta);
           this.periodStart = d;
-          this.dayEditingAbs = null;
         },
 
         goToday: function () {
@@ -2009,7 +1843,6 @@
           var wd = (d.getDay() + 6) % 7;
           d.setDate(d.getDate() - wd);
           this.periodStart = d;
-          this.dayEditingAbs = null;
         },
 
         // ── 拖拽系统 ──
@@ -2023,7 +1856,7 @@
         },
 
         onGridDown: function (e) {
-          if (this.taskEditVisible || this.dragCreateVisible) return;
+          if (this.taskEditVisible) return;
           var self = this;
           var handle = e.target.closest && e.target.closest('.gantt-handle');
           var bar = e.target.closest && e.target.closest('.gantt-bar');
@@ -2101,18 +1934,15 @@
           if (d.mode === 'create') {
             var s = Math.min(d.start, d.end);
             var eIdx = Math.max(d.start, d.end);
-            this.dragCreateStartIdx = s;
-            this.dragCreateEndIdx = eIdx;
-            this.dragCreateProjectId = '';
-            this.dragCreateTaskName = '';
-            this.dragCreateVisible = true;
+            var dr = this.dateRange;
+            this.openTaskCreate(dr[s].dateStr, dr[eIdx].dateStr);
           } else {
             if (!d.moved) {
               // 点击未拖拽 → 打开编辑器
               var task = this.tasks.find(function (t) { return t.id === d.taskId; });
               if (task) this.openTaskEditor(task);
             }
-            saveData(this.tasks);
+            this.persistTasks();
           }
         },
 
@@ -2144,7 +1974,9 @@
         getTaskCount: function (uid, dateStr) {
           var count = 0;
           this.tasks.forEach(function (t) {
-            if (t.assigneeIds && t.assigneeIds.indexOf(uid) !== -1 && dateStr >= t.startDate && dateStr <= t.endDate) count++;
+            if (t.assigneeIds && t.assigneeIds.indexOf(uid) !== -1
+              && dateStr >= t.startDate && dateStr <= t.endDate
+              && t.status !== 'completed' && t.status !== 'archived') count++;
           });
           return count;
         },
@@ -2206,8 +2038,8 @@
           var total = this.taskDailyTotal(task);
           task.status = 'completed';
           task.archived = false;
-          task.actualHours = total > 0 ? total : (task._editHours || 0);
-          saveData(this.tasks);
+          task.actualHours = total;
+          this.persistTasks();
           this.$message.success('已完成：' + task.name + '（实际工时 ' + task.actualHours + 'h）');
         },
 
@@ -2216,15 +2048,22 @@
           task.archived = false;
           task._editHours = null;
           task.actualHours = null;
-          saveData(this.tasks);
+          this.persistTasks();
           this.$message.info('已撤销：' + task.name + '，恢复到待办列表');
         },
 
-        initTodayEditHours: function () {
-          this.currentUserTodayTodos.forEach(function (task) {
-            if (task._editHours == null) {
-              task._editHours = 0;
-            }
+        // 持久化：仅落库业务字段，剥离 _editHours（纯 UI 临时状态，不落库）
+        persistTasks: function () {
+          saveData(JSON.parse(JSON.stringify(this.tasks, function (key, val) {
+            return key === '_editHours' ? undefined : val;
+          })));
+        },
+
+        refreshEditHours: function () {
+          var today = this.TODAY;
+          this.currentUserTodos.forEach(function (task) {
+            var log = task.dailyLogs ? task.dailyLogs.find(function (l) { return l.date === today; }) : null;
+            task._editHours = log ? log.hours : null;
           });
         },
 
@@ -2242,13 +2081,11 @@
             task.dailyLogs.push({ date: today, hours: task._editHours });
             if (!silent) this.$message.success('已记录今日工时 ' + task._editHours + 'h（累计 ' + this.taskDailyTotal(task) + 'h）');
           }
-          task._editHours = null;
-          saveData(this.tasks);
+          this.persistTasks();
         },
 
         logAllToday: function () {
           var self = this;
-          this.initTodayEditHours();
           var count = 0;
           this.currentUserTodayTodos.forEach(function (task) {
             if (task._editHours && task._editHours > 0) {
@@ -2292,10 +2129,11 @@
             task.status = this.taskDailyTotal(task) > 0 ? 'in_progress' : 'not_started';
             this.$message.info('已取消归档：' + task.name);
           }
-          saveData(this.tasks);
+          this.persistTasks();
         },
 
         canRevert: function (task) {
+          if (task.status === 'archived') return false;
           var taskMonth = (task.startDate || task.endDate || '').substring(0, 7);
           var now = new Date();
           var curMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
@@ -2340,12 +2178,24 @@
               t.status = 'archived';
               t.archived = true;
             });
-            saveData(self.tasks);
+            self.persistTasks();
             self.$message.success('已归档 ' + targets.length + ' 个任务');
           }).catch(function () { });
         },
 
         // ── 任务编辑器 ──
+        openTaskCreate: function (startDate, endDate) {
+          this.taskEditIsNew = true;
+          this.taskEditData = {
+            id: null,
+            name: '',
+            projectId: '',
+            dateRange: [startDate || this.TODAY, endDate || this.TODAY],
+            customColor: ''
+          };
+          this.taskEditVisible = true;
+        },
+
         openTaskEditor: function (task) {
           this.taskEditIsNew = false;
           this.taskEditData = {
@@ -2377,21 +2227,59 @@
             this.$message.warning('请选择日期区间');
             return;
           }
-          var task = this.tasks.find(function (t) { return t.id === d.id; });
-          if (!task) return;
           var proj = this.projects.find(function (p) { return p.id === d.projectId; });
-          task.name = d.name.trim();
-          task.projectId = d.projectId;
-          task.projectCode = proj ? proj.code : task.projectCode;
-          task.projectColor = proj ? proj.color : task.projectColor;
-          task.borderColor = proj ? proj.borderColor : task.borderColor;
-          task.customColor = d.customColor || null;
-          task.customBorderColor = d.customColor ? null : (d.customBorderColor || null);
-          task.startDate = d.dateRange[0];
-          task.endDate = d.dateRange[1];
-          saveData(this.tasks);
-          this.taskEditVisible = false;
-          this.$message.success('任务已保存');
+          if (!proj) return;
+
+          if (this.taskEditIsNew) {
+            // 新建任务
+            taskIdCounter++;
+            var task = {
+              id: 't' + taskIdCounter,
+              projectId: proj.id,
+              projectCode: proj.code,
+              projectType: proj.type || 'project',
+              projectColor: proj.color,
+              borderColor: proj.borderColor,
+              name: d.name.trim(),
+              taskType: d.name.trim(),
+              workHourCode: proj.code,
+              assigneeIds: [this.currentUserId],
+              startDate: d.dateRange[0],
+              endDate: d.dateRange[1],
+              deadline: d.dateRange[1],
+              actualHours: null,
+              status: 'not_started',
+              _editHours: null,
+              archived: false,
+              dailyLogs: [],
+              customColor: d.customColor || null,
+              customBorderColor: d.customColor ? null : null,
+              clientName: null,
+              bidDeadline: null,
+              expectedSignDate: null,
+              source: null
+            };
+            this.tasks.push(task);
+            this.persistTasks();
+            this.taskEditVisible = false;
+            this.$message.success('已创建任务：' + task.name);
+          } else {
+            // 编辑已有任务
+            var task = this.tasks.find(function (t) { return t.id === d.id; });
+            if (!task) return;
+            task.name = d.name.trim();
+            task.projectId = d.projectId;
+            task.projectCode = proj.code;
+            task.projectColor = proj.color;
+            task.borderColor = proj.borderColor;
+            task.customColor = d.customColor || null;
+            task.customBorderColor = d.customColor ? null : (d.customBorderColor || null);
+            task.startDate = d.dateRange[0];
+            task.endDate = d.dateRange[1];
+            this.persistTasks();
+            this.taskEditVisible = false;
+            this.$message.success('任务已保存');
+          }
         },
 
         deleteEditTask: function () {
@@ -2404,13 +2292,7 @@
             type: 'warning'
           }).then(function () {
             self.tasks = self.tasks.filter(function (t) { return t.id !== d.id; });
-            var newOverrides = {};
-            Object.keys(self.dayOverrides).forEach(function (k) {
-              if (k.indexOf(d.id) === -1) newOverrides[k] = self.dayOverrides[k];
-            });
-            self.dayOverrides = newOverrides;
-            try { localStorage.setItem('timesheet_day_overrides', JSON.stringify(self.dayOverrides)); } catch (e) { }
-            saveData(self.tasks);
+            self.persistTasks();
             self.taskEditVisible = false;
             self.$message.success('任务已删除');
           }).catch(function () { });
@@ -2465,7 +2347,7 @@
             newTask.borderColor = proj.borderColor;
           }
           self.tasks.push(newTask);
-          saveData(self.tasks);
+          self.persistTasks();
           self.$message.success('已复制任务：' + newTask.name);
         },
 
@@ -2477,57 +2359,9 @@
             type: 'warning'
           }).then(function () {
             self.tasks = self.tasks.filter(function (t) { return t.id !== task.id; });
-            var newOverrides = {};
-            Object.keys(self.dayOverrides).forEach(function (k) {
-              if (k.indexOf(task.id) === -1) newOverrides[k] = self.dayOverrides[k];
-            });
-            self.dayOverrides = newOverrides;
-            try { localStorage.setItem('timesheet_day_overrides', JSON.stringify(self.dayOverrides)); } catch (e) { }
-            saveData(self.tasks);
+            self.persistTasks();
             self.$message.success('任务已删除');
           }).catch(function () { });
-        },
-
-        // ── 拖拽创建弹窗 ──
-        submitDragCreate: function () {
-          if (!this.dragCreateProjectId) { this.$message.warning('请选择项目'); return; }
-          if (!this.dragCreateTaskName.trim()) { this.$message.warning('请输入任务名称'); return; }
-
-          var dr = this.dateRange;
-          var s = Math.min(this.dragCreateStartIdx, this.dragCreateEndIdx);
-          var e = Math.max(this.dragCreateStartIdx, this.dragCreateEndIdx);
-          var proj = this.projects.find(function (p) { return p.id === this.dragCreateProjectId; }.bind(this));
-          if (!proj) return;
-
-          taskIdCounter++;
-          var task = {
-            id: 't' + taskIdCounter,
-            projectId: proj.id,
-            projectCode: proj.code,
-            projectType: proj.type || 'project',
-            projectColor: proj.color,
-            borderColor: proj.borderColor,
-            name: this.dragCreateTaskName.trim(),
-            taskType: this.dragCreateTaskName.trim(),
-            workHourCode: proj.code,
-            assigneeIds: [this.currentUserId],
-            startDate: dr[s].dateStr,
-            endDate: dr[e].dateStr,
-            deadline: dr[e].dateStr,
-            actualHours: null,
-            status: 'not_started',
-            _editHours: null,
-            archived: false,
-            dailyLogs: [],
-            clientName: null,
-            bidDeadline: null,
-            expectedSignDate: null,
-            source: null
-          };
-          this.tasks.push(task);
-          saveData(this.tasks);
-          this.dragCreateVisible = false;
-          this.$message.success('已创建任务：' + task.name);
         },
 
         // ── 批量创建 ──
@@ -2635,50 +2469,11 @@
             created++;
           });
 
-          saveData(this.tasks);
+          this.persistTasks();
           this.$message.success('成功创建 ' + created + ' 条任务');
           this.createDialogVisible = false;
         },
 
-        // ── 日期工时分配弹窗 ──
-        openDayAlloc: function (abs) {
-          this.dayEditingAbs = abs;
-          this.dayAllocDate = this.absToDateStr(abs);
-          var self = this;
-          this.dayAllocTasks = this.tasksOnAbsDay(abs).map(function (t) {
-            return {
-              id: t.id,
-              name: t.name,
-              color: t.customColor || t.customBorderColor || t.borderColor || '#999',
-              _hours: self.dayHoursFor(abs, t.id)
-            };
-          });
-          if (this.dayAllocTasks.length === 0) {
-            this.$message.info('这天还没有任务。在格子里拖拽创建一个。');
-            this.dayEditingAbs = null;
-            return;
-          }
-          this.dayAllocVisible = true;
-        },
-
-        saveDayAlloc: function () {
-          var self = this;
-          var abs = this.dayEditingAbs;
-          if (abs == null) { this.dayAllocVisible = false; return; }
-          this.dayAllocTasks.forEach(function (t) {
-            var key = abs + ':' + t.id;
-            if (t._hours === 0) {
-              self.$delete(self.dayOverrides, key);
-            } else {
-              self.$set(self.dayOverrides, key, t._hours);
-            }
-          });
-          saveData(this.tasks);
-          try { localStorage.setItem('timesheet_day_overrides', JSON.stringify(this.dayOverrides)); } catch (e) { }
-          this.dayAllocVisible = false;
-          this.dayEditingAbs = null;
-          this.$message.success('工时已更新');
-        }
       }
     });
   </script>

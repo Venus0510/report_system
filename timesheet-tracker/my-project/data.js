@@ -16,6 +16,7 @@ var mockUsers = [
 
 // 20 Projects (颜色由渲染层按索引分配)
 var mockProjects = [
+  { id: 'p0', code: 'common-001', name: '行政事务', type: 'project' },
   { id: 'p1', code: 'PROJ-001', name: '某银行年度审计', type: 'project' },
   { id: 'p2', code: 'PROJ-002', name: '某制造企业内控', type: 'project' },
   { id: 'p3', code: 'PROJ-003', name: '某地产公司尽调', type: 'project' },
